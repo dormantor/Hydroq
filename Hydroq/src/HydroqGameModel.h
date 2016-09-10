@@ -70,6 +70,10 @@ public:
 		return false;
 	}
 
+	bool PositionContainsBridgeMark(Vec2i position) {
+		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK);
+	}
+
 	void MarkPositionForBridge(Vec2i position) {
 		auto node = hydroqMap->GetNode(position.x, position.y);
 		dynObjects[position] = spt<HydEntity>(new HydBridge());
@@ -81,6 +85,10 @@ public:
 		auto node = hydroqMap->GetNode(position.x, position.y);
 		bool isFree = node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end();
 		return isFree;
+	}
+
+	bool PositionContainsForbidMark(Vec2i position) {
+		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::FORBID_MARK);
 	}
 
 	void MarkPositionForForbid(Vec2i position) {
@@ -96,6 +104,10 @@ public:
 		return isFree;
 	}
 
+	bool PositionContainsGuardMark(Vec2i position) {
+		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::GUARD_MARK);
+	}
+
 	void MarkPositionForGuard(Vec2i position) {
 		auto node = hydroqMap->GetNode(position.x, position.y);
 		dynObjects[position] = spt<HydEntity>(new GuardMark());
@@ -105,9 +117,12 @@ public:
 
 	bool IsPositionFreeForDestroy(Vec2i position) {
 		auto node = hydroqMap->GetNode(position.x, position.y);
-		bool isFree = (node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end()) ||
-			(dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK);
+		bool isFree = (node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end());
 		return isFree;
+	}
+
+	bool PositionContainsDestroyMark(Vec2i position) {
+		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK);
 	}
 
 	void MarkPositionForDestroy(Vec2i position) {
@@ -115,15 +130,20 @@ public:
 
 		if (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK) {
 			// delete bridge mark
-			auto obj = dynObjects[position];
-			dynObjects.erase(position);
-			SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-				new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj), nullptr);
+			DestroyDynamicObject(position);
 		}
 		else {
 			dynObjects[position] = spt<HydEntity>(new DestroyMark());
 			SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 				new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node, dynObjects[position]), nullptr);
 		}
+	}
+
+	void DestroyDynamicObject(Vec2i position) {
+		auto node = hydroqMap->GetNode(position.x, position.y);
+		auto obj = dynObjects[position];
+		dynObjects.erase(position);
+		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj), nullptr);
 	}
 };

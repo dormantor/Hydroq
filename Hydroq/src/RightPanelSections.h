@@ -15,6 +15,8 @@ class RightPanelSections : public Behavior {
 	int nodeCommandForbidId;
 	int nodeCommandGuardId;
 
+	int selectedNodeId = -1;
+
 	void Init() {
 		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED);
 		playerModel = GETCOMPONENT(HydroqPlayerModel);
@@ -30,22 +32,40 @@ class RightPanelSections : public Behavior {
 		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
 			int targetId = msg.GetSourceObject()->GetId();
 
+
 			if (targetId == nodeBuildSeedbedId) {
 				SelectBuildSeedbed();
+				SelectNode(nodeBuildSeedbedId);
 			}
 			else if (targetId == nodeCommandBuildId) {
 				SelectCommandBuild();
+				SelectNode(nodeCommandBuildId);
 			}
 			else if (targetId == nodeCommandDestroyId) {
 				SelectCommandDestroy();
+				SelectNode(nodeCommandDestroyId);
 			}
 			else if (targetId == nodeCommandForbidId) {
 				SelectCommandForbid();
+				SelectNode(nodeCommandForbidId);
 			}
 			else if (targetId == nodeCommandGuardId) {
 				SelectCommandGuard();
+				SelectNode(nodeCommandGuardId);
 			}
 		}
+	}
+
+	void UnselectNode(int nodeId) {
+		owner->GetScene()->FindNodeById(nodeId)->GetShape<spt<BoundingBox>>()->SetIsRenderable(false);
+	}
+
+	void SelectNode(int nodeId) {
+		if (selectedNodeId != -1) {
+			UnselectNode(selectedNodeId);
+		}
+		selectedNodeId = nodeId;
+		owner->GetScene()->FindNodeById(nodeId)->GetShape<spt<BoundingBox>>()->SetIsRenderable(true);
 	}
 
 	void SelectBuildSeedbed() {

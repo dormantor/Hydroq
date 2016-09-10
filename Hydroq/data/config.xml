@@ -5,16 +5,6 @@
     <!-- default values -->
     <default_settings>
       <setting name="transform">
-        <item key="pos_x" value="0.0" />
-        <item key="pos_y" value="0.0" />
-        <item key="anchor_x" value="0.0" />
-        <item key="anchor_y" value="0.0" />
-        <item key="width" value="0" />
-        <item key="height" value="0" />
-        <item key="sizing_per" value="width" />
-        <!-- sizing according to width -->
-        <item key="ptype" value="per" />
-        <item key="stype" value="per" />
 		<item key="ref_width" value="1775" />
 		<item key="ref_height" value="993" />
       </setting>
@@ -337,8 +327,9 @@
 		  
 		  
 		  <node name="build_seedbed">
+		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1" stype="rel"/>
-		    <behavior type="HitEvent" hitbox="true" />
+		    <behavior type="HitEvent"/>
 		  
 		    <node img="game/functions_build_seedbed.png">
 		      <transform pos_x="0.85" pos_y="0" ptype="per" stype="loc" />
@@ -347,33 +338,32 @@
               <transform pos_x="0.15" pos_y="0.15" ptype="per" stype="loc" />
 		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Seedbed</text>
             </node>
-		    <node img="game/rightpanel_divider.png">
-		      <transform pos_x="0.15" pos_y="0.5" ptype="per" stype="loc" />
-		    </node>
 		  </node>
 		</node>
 		
 		
 		<node name="section_command">
-		  <transform pos_x="0.0" pos_y="0.30" anchor="0" ptype="per" width="0.99" height="0.7" stype="rel"/>
+		  <transform pos_x="0.05" pos_y="0.30" anchor="0" ptype="per" width="0.99" height="0.7" stype="rel"/>
 		  
 		  
 		  <node name="command_build">
+		     <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1" stype="rel"/>
-		    <behavior type="HitEvent" hitbox="true" />
+		    <behavior type="HitEvent"/>
 		  
 		    <node img="game/functions_cmd_build.png">
 		      <transform pos_x="0.3" anchor="0.5" pos_y="0" ptype="per" stype="loc" />
 		    </node>
-		    <node>
+		    <node name="command_build_text">
               <transform pos_x="0.3" pos_y="0.15" anchor="0.5" ptype="per" stype="loc" />
 		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Build</text>
             </node>
 		  </node>
 		  
 		  <node name="command_destroy">
+	   	    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1" stype="rel"/>
-		    <behavior type="HitEvent" hitbox="true"/>
+		    <behavior type="HitEvent"/>
 		  
 		    <node img="game/functions_cmd_destroy.png">
 		      <transform pos_x="0.7" anchor="0.5" pos_y="0" ptype="per" stype="loc" />
@@ -385,8 +375,9 @@
 		  </node>
 		  
 		  <node name="command_forbid">
+		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1" stype="rel"/>
-		    <behavior type="HitEvent" hitbox="true"/>
+		    <behavior type="HitEvent" />
 		  
 		    <node img="game/functions_cmd_forbid.png">
 		      <transform pos_x="0.3" anchor="0.5" pos_y="0.3" ptype="per" stype="loc" />
@@ -398,8 +389,9 @@
 		  </node>
 		  
 		  <node name="command_guard">
+		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1" stype="rel"/>
-		    <behavior type="HitEvent" hitbox="true"/>
+		    <behavior type="HitEvent" />
 		  
 		    <node img="game/functions_cmd_guard.png">
 		      <transform pos_x="0.7" anchor="0.5" pos_y="0.3" ptype="per" stype="loc" />

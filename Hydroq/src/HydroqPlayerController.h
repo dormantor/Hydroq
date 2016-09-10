@@ -36,22 +36,38 @@ class HydroqPlayerController : public Behavior {
 					gameModel->IsPositionFreeForBuilding(pos)) {
 					gameModel->CreateBuilding(pos, spt<HydEntity>(new SeebedBuilding()));
 				}
-				else if (playerModel->GetHydroqAction() == HydroqAction::BUILD &&
-					gameModel->IsPositionFreeForBridge(pos)) {
-					// build a bridge
-					gameModel->MarkPositionForBridge(pos);
+				else if (playerModel->GetHydroqAction() == HydroqAction::BUILD){ 
+					if (gameModel->IsPositionFreeForBridge(pos)) {
+						gameModel->MarkPositionForBridge(pos);
+					}
+					else if (gameModel->PositionContainsBridgeMark(pos)) {
+						// nothing to do here
+					}
 				}
-				else if (playerModel->GetHydroqAction() == HydroqAction::FORBID &&
-					gameModel->IsPositionFreeForForbid(pos)) {
-					gameModel->MarkPositionForForbid(pos);
+				else if (playerModel->GetHydroqAction() == HydroqAction::FORBID){
+					if (gameModel->IsPositionFreeForForbid(pos)) {
+						gameModel->MarkPositionForForbid(pos);
+					}
+					else if (gameModel->PositionContainsForbidMark(pos)) {
+						gameModel->DestroyDynamicObject(pos);
+					}
 				}
-				else if (playerModel->GetHydroqAction() == HydroqAction::GUARD &&
-					gameModel->IsPositionFreeForGuard(pos)) {
-					gameModel->MarkPositionForGuard(pos);
+				else if (playerModel->GetHydroqAction() == HydroqAction::GUARD){
+					if (gameModel->IsPositionFreeForGuard(pos)) {
+						gameModel->MarkPositionForGuard(pos);
+					}
+					else if (gameModel->PositionContainsGuardMark(pos)) {
+						gameModel->DestroyDynamicObject(pos);
+					}
 				}
-				else if (playerModel->GetHydroqAction() == HydroqAction::DESTROY &&
-					gameModel->IsPositionFreeForDestroy(pos)) {
-					gameModel->MarkPositionForDestroy(pos);
+				else if (playerModel->GetHydroqAction() == HydroqAction::DESTROY){
+					if (gameModel->IsPositionFreeForDestroy(pos)) {
+						gameModel->MarkPositionForDestroy(pos);
+					}
+					else if (gameModel->PositionContainsDestroyMark(pos) ||
+						gameModel->PositionContainsBridgeMark(pos)) {
+						gameModel->DestroyDynamicObject(pos);
+					}
 				}
 			}
 		}
