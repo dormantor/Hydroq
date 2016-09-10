@@ -5,7 +5,7 @@
 #include "HydroqDef.h"
 #include "Node.h"
 #include "NetMessage.h"
-
+#include "HydroqNetMsg.h"
 
 class HostInit : public Behavior {
 	OBJECT_PROTOTYPE(HostInit)
@@ -33,6 +33,11 @@ public:
 		math.SetTransform(textNode, textNode->GetParent(), ent);
 
 		communicator->InitServer(HYDROQ_APPID, HYDROQ_SERVERPORT);
+		// set message to be sent
+		auto msg = spt<HydroqServerInitMsg>(new HydroqServerInitMsg());
+		msg->SetFaction(GetSelectedFaction());
+		msg->SetMap(GetSelectedMap());
+		communicator->GetServer()->SetMessageForSending(msg->CreateMessage());
 	}
 
 	void OnStop() {
@@ -63,6 +68,34 @@ public:
 
 			msgReceivedTime = CogGetAbsoluteTime();
 		}
+	}
+
+	Faction GetSelectedFaction() {
+		auto parentScene = owner->GetScene()->GetParentScene();
+		auto factRed = parentScene->FindNodeByTag("faction_red");
+		auto factBlue = parentScene->FindNodeByTag("faction_blue");
+
+		if (factRed->HasState(StringHash(STATES_SELECTED))) {
+			return Faction::RED;
+		}
+		else {
+			return Faction::BLUE;
+		}
+	}
+
+	string GetSelectedMap() {
+		auto parentScene = owner->GetScene()->GetParentScene();
+
+		auto list = parentScene->FindNodeByTag("maps_list");
+		auto children = list->GetChildren();
+
+		for (auto& child : children) {
+			if (child->HasAttr(ATTR_MAP) && child->HasState(StringHash(STATES_SELECTED))) {
+				return child->GetAttr<string>(ATTR_MAP);
+			}
+		}
+
+		return "";
 	}
 
 public:

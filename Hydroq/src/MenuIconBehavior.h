@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofxCogMain.h"
-
+#include "Scene.h"
 
 class MenuIconBehavior : public Behavior {
 	OBJECT_PROTOTYPE(MenuIconBehavior)
@@ -11,7 +11,7 @@ class MenuIconBehavior : public Behavior {
 	spt<TransformEnt> animTrans;
 
 	void OnInit() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+		RegisterListening(ACT_BUTTON_CLICKED, ACT_TRANSFORM_ENDED);
 	}
 
 	void OnStart() {
@@ -26,7 +26,7 @@ class MenuIconBehavior : public Behavior {
 		}
 
 
-		if (msg.HasAction(ACT_OBJECT_HIT_ENDED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
+		if (msg.HasAction(ACT_BUTTON_CLICKED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
 			if (!owner->HasState(StringHash(STATES_LOCKED))) {
 				owner->SetState(StringHash(STATES_LOCKED));
 

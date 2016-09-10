@@ -15,11 +15,23 @@
 	  <item key="rig_topright" value="3" />
 	  <item key="rig_botleft" value="4" />
 	  <item key="rig_botright" value="5" />
-	  <item key="seedbed" value="14" />
+	  <item key="seedbed_red" value="15" />
+	  <item key="seedbed_blue" value="14" />
 	  <item key="bridgemark" value="20" />
 	  <item key="forbidmark" value="21" />
 	  <item key="guardmark" value="22" />
 	  <item key="destroymark" value="23" />
-	  <item key="worker" value="16" />
+	  <item key="worker_red" value="18" />
+	  <item key="worker_blue" value="16" />
+	</setting>
+	
+	<setting name="maps_files">
+	  <item key="Small map" value="map_2.png" />
+	  <item key="Bigger map" value="map_1.png" />
+	</setting>
+	
+	<setting name="maps_icons">
+	  <item key="Small map" value="map_2_icon.png" />
+	  <item key="Bigger map" value="map_1_icon.png" />
 	</setting>
 </settings>

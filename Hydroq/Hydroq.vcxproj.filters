@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Worker.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Seedbed.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydroqGoals.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Helper.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MultiplayerMenu.cpp">
+      <Filter>Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydroqGameModel.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydroqGameView.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydroqNetMsg.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Worker.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Seedbed.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqPlayerModel.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqPlayerController.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqGoals.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqGameView.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqGameModel.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydMap.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameTask.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BrickEventBehavior.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BrickClickEvent.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Board.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Helper.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydEntity.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqDef.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgEvents.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HostInit.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LeftPanel.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuBehavior.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuIconBehavior.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MultiplayerMenu.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RightPanel.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RightPanelSections.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SingleGameMenu.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SelectedFuncBehavior.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqNetMsg.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydNetworkReceiver.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydNetworkSender.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Menu">
+      <UniqueIdentifier>{c3b5c155-c7e9-4bd7-b20e-4aa597f38fe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{73eb7fcc-5a9b-40cd-a89a-23919cbb1cfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{376e2a97-9f23-4303-bba0-4ba338e01561}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

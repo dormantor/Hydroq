@@ -16,6 +16,8 @@
 #include "MultiplayerMenu.h"
 #include "HostInit.h"
 #include "NetworkCommunicator.h"
+#include "HydNetworkSender.h"
+#include "HydNetworkReceiver.h"
 
 #include "LuaScripting.h"
 
@@ -72,10 +74,16 @@ public:
 		auto playerModel = new HydroqPlayerModel();
 		auto gameModel = new HydroqGameModel();
 		auto view = new HydroqGameView();
-		
+		auto netSender = new HydNetworkSender();
+		auto netReceiver = new HydNetworkReceiver();
+		auto deltaUpdate = new DeltaUpdate();
+
 		REGISTER_COMPONENT(playerModel);
 		REGISTER_COMPONENT(gameModel);
 		REGISTER_COMPONENT(view);
+		REGISTER_COMPONENT(netSender);
+		REGISTER_COMPONENT(netReceiver);
+		REGISTER_COMPONENT(deltaUpdate);
 
 		auto comm = new NetworkCommunicator();
 		REGISTER_COMPONENT(comm);

@@ -142,7 +142,7 @@
 		<node name="board_1" img="menu_selectboard.png" >
 		  <transform pos_x="0.25r" pos_y="0.3r" anchor_x="0.5" />
 		  
-		  <node name="dummy_map" img="menu_map1.png">
+		  <node name="map_icon" img="menu_map1.png">
 		    <transform pos_x="0.5r" pos_y="0.5r" anchor="0.5"  />
 		  </node>
 		</node>
@@ -151,8 +151,11 @@
 		  <transform pos_x="0.5r" pos_y="0.3r" anchor_x="0.5" />
 		  
 		  <node name="map_text">
-            <text font="MotionControl-Bold.otf" size="40" color="0xFFFFFF">Map1</text>
+            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Maps:</text>
             <transform pos="0.1r" size="1"   />
+          </node>
+		  <node name="maps_list">
+			  <transform size="1r" />		  
           </node>
 		</node>
 		
@@ -237,30 +240,7 @@
             <transform pos="0.1r" size="1"   />
           </node>
 		  <node name="maps_list">
-			  <transform size="1r" />
-			  <!-- MAP 1 -->
-			  <node>
-			       <behavior type="HitEvent" />
-				   <behavior type="MultiSelection" default_color="0x00000000" selected_color="0xFFFFFF88" selection_group="SELECTION_MAP" />
-			       <shape type="plane" size="1" color="0x00000000" />
-                   <transform pos_x="0.05r" pos_y="0.22r" width="17gr" height="3gr"   />
-			  </node>
-			  <node>
-				   <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Map1</text>
-                   <transform pos_x="0.1r" pos_y="0.26r" size="1"   />
-			  </node>	
-
-			  <!-- MAP 2 -->
-			  <node>
-			       <behavior type="HitEvent" />
-				   <behavior type="MultiSelection" default_color="0x00000000" selected_color="0xFFFFFF88" selection_group="SELECTION_MAP" />
-			       <shape type="plane" size="1" color="0x00000000" />
-                   <transform pos_x="0.05r" pos_y="0.40r" width="17gr" height="3gr"   />
-			  </node>
-			  <node>
-				   <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Map2</text>
-                   <transform pos_x="0.1r" pos_y="0.44r" size="1"   />
-			  </node>			  
+			  <transform size="1r" />		  
           </node>
 		</node>
 		

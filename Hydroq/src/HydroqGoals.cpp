@@ -32,7 +32,7 @@ void GotoPositionGoal::OnStart() {
 		owner->AddBehavior(innerBehavior);
 	}
 	else {
-		MLOGDEBUG("Hydroq", "Couldn't find path! Exiting GotoPositionGoal");
+		COGLOGDEBUG("Hydroq", "Couldn't find path! Exiting GotoPositionGoal");
 		this->Complete();
 	}
 }

@@ -6,11 +6,11 @@
 #include "GameTask.h"
 
 enum class ObjectChangeType {
-	STATIC_CHANGED,
-	DYNAMIC_CREATED,
-	DYNAMIC_REMOVED,
-	MOVING_CREATED,
-	MOVING_REMOVED
+	STATIC_CHANGED = 0,
+	DYNAMIC_CREATED = 1,
+	DYNAMIC_REMOVED = 2,
+	MOVING_CREATED = 3,
+	MOVING_REMOVED = 4
 };
 
 class MapObjectChangedEvent : public MsgEvent {

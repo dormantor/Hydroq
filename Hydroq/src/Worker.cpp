@@ -38,7 +38,7 @@ bool WorkerIdleState::FindTaskToDo() {
 
 			if (nodeToBuildfrom != nullptr) {
 
-				MLOGDEBUG("Hydroq", "Got task for bridge building at position [%d,%d]", position.x, position.y);
+				COGLOGDEBUG("Hydroq", "Got task for bridge building at position [%d,%d]", position.x, position.y);
 
 				// change state from IDLE to BRIDGE_BUILD
 				auto stateToChange = GetParent()->FindLocalState(StringHash(STATE_WORKER_BUILD));
@@ -127,7 +127,7 @@ void WorkerBridgeBuildState::OnMessage(Msg& msg) {
 		TaskAbortEvent* msgTask = msg.GetDataS<TaskAbortEvent>();
 		if (msgTask->taskToAbort == task) {
 			if (buildGoal != nullptr) {
-				MLOGDEBUG("Hydroq", "BridgeBuildState: aborting process");
+				COGLOGDEBUG("Hydroq", "BridgeBuildState: aborting process");
 				buildGoal->Abort();
 			}
 		}
@@ -150,7 +150,7 @@ void WorkerBridgeBuildState::OnStart() {
 	ofVec2f precisePosition = ofVec2f(targetSafePos.x + (position.x - targetSafePos.x) / 2.0f + 0.5f, 
 		targetSafePos.y + (position.y - targetSafePos.y) / 2.0f + 0.5f);
 
-	MLOGDEBUG("Hydroq", "Going from [%.2f, %.2f] to [%.2f, %.2f]", workerPos.x, workerPos.y, precisePosition.x, precisePosition.y);
+	COGLOGDEBUG("Hydroq", "Going from [%.2f, %.2f] to [%.2f, %.2f]", workerPos.x, workerPos.y, precisePosition.x, precisePosition.y);
 
 	auto composite = new GoalComposite(StringHash(), false);
 	composite->AddSubgoal(new GotoPositionGoal(Vec2i(workerPos.x, workerPos.y), targetSafePos,workerPos, precisePosition));

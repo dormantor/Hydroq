@@ -2,51 +2,32 @@
 #include "Node.h"
 #include "MultiSelection.h"
 #include "TransformMath.h"
+#include "Scene.h"
 
-void MultiplayerMenu::AddServer(string ip) {
-
-	int index = foundIps.size() - 1;
+void MultiplayerMenu::AddServer(string ip, int index) {
 
 	Node* hosts_list = owner->GetScene()->FindNodeByTag("hosts_list");
+	Helper::SetPanelItem(owner, hosts_list, index, StringHash("SELECTION_SERVER"), ATTR_SERVER_IP, ip);
+}
 
-	Node* plane = new Node("plane");
-	plane->AddBehavior(new HitEvent());
+void MultiplayerMenu::LoadMaps() {
+	auto set = this->mapConfig.GetSetting("maps_icons");
+	auto items = set.items;
 
-	plane->AddBehavior(new MultiSelection(StringToColor("0x00000000"), StringToColor("0xFFFFFF88"), StringHash("SELECTION_SERVER")));
-	plane->AddAttr(ATTR_SERVER_IP, ip);
-	auto shape = spt<Plane>(new Plane(1, 1));
-	shape->SetColor(StringToColor("0x00000000"));
-	plane->SetShape(shape);
+	Node* maps_list = owner->GetScene()->FindNodeByTag("maps_list");
+	int index = 0;
 
-	auto sceneSettings = owner->GetScene()->GetSettings();
-	int gridWidth = sceneSettings.GetSettingValInt("transform", "grid_width");
-	int gridHeight = sceneSettings.GetSettingValInt("transform", "grid_height");
+	for (auto& key : items) {
+		auto val = key.second;
+		string mapName = val.key;
+		Helper::SetPanelItem(owner, maps_list, index, StringHash("SELECTION_MAP"), ATTR_MAP, mapName);
+		index++;
+	}
+}
 
-	TransformEnt transformEnt = TransformEnt();
-	transformEnt.pos = ofVec2f(0.05f, 0.22f + 0.18f*index);
-	transformEnt.pType = CalcType::PER;
-	transformEnt.size = ofVec2f(17, 3);
-	transformEnt.sType = CalcType::GRID;
-	TransformMath math = TransformMath();
-	math.SetTransform(plane, hosts_list, transformEnt, gridWidth, gridHeight);
-
-	hosts_list->AddChild(plane);
-
-
-	Node* text = new Node("text");
-	auto shape2 = spt<Text>(new Text(CogGetFont("MotionControl-Bold.otf", 35), ip));
-	shape2->SetColor(StringToColor("0xFFFFFF"));
-	text->SetShape(shape2);
-
-	transformEnt = TransformEnt();
-	transformEnt.pos = ofVec2f(0.1f, 0.22f + 0.04f + 0.18f*index);
-	transformEnt.pType = CalcType::PER;
-	transformEnt.size = ofVec2f(1);
-	transformEnt.anchor = ofVec2f(0);
-	math.SetTransform(text, hosts_list, transformEnt, gridWidth, gridHeight);
-
-	hosts_list->AddChild(text);
-
+void MultiplayerMenu::DeselectServer() {
+	RefreshServers();
+	this->selectedIp = "";
 }
 
 void MultiplayerMenu::RefreshServers() {
@@ -57,10 +38,29 @@ void MultiplayerMenu::RefreshServers() {
 		hosts_list->RemoveChild(child, true);
 	}
 
+	int counter = 0;
 	for (auto& ip : foundIps) {
-		AddServer(ip);
+		AddServer(ip, counter++);
 	}
 
 	// disable CONNECT button
 	owner->GetScene()->FindNodeByTag("connect_but")->SetState(StringHash(STATES_DISABLED));
+}
+
+void MultiplayerMenu::SelectFaction(Faction fact) {
+	auto node = owner->GetScene()->FindNodeByTag((fact == Faction::BLUE ? "faction_blue" : "faction_red"));
+	node->SetState(StringHash(STATES_SELECTED));
+}
+
+void MultiplayerMenu::SelectMap(string map) {
+	auto list = owner->GetScene()->FindNodeByTag("maps_list");
+	auto children = list->GetChildren();
+
+	for (auto& child : children) {
+		if (child->HasAttr(ATTR_MAP) && child->GetAttr<string>(ATTR_MAP).compare(map) == 0) {
+			// select map
+			child->SetState(StringHash(STATES_SELECTED));
+		}
+	}
+
 }

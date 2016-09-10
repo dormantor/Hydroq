@@ -15,26 +15,31 @@ private:
 
 public:
 
-	BrickMap* LoadBricks() {
+	BrickMap* LoadBricks(string selectedMap) {
 		// load map config
 		auto xml = CogLoadXMLFile("mapconfig.xml");
 		xml->pushTag("settings");
 		mapConfig.LoadFromXml(xml);
 		xml->popTag();
 
+		string mapPath = mapConfig.GetSettingVal("maps_files", selectedMap);
+
+		if (mapPath.empty()) throw ConfigErrorException(string_format("Path to map %s not found",  selectedMap.c_str()));
+
 		// load map
 		MapLoader mapLoad = MapLoader();
-		return mapLoad.LoadFromPNGImage("map_2.png", mapConfig.GetSetting("names"));
+		return mapLoad.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names"));
 	}
 
 	void OnInit() {
 		cache = GETCOMPONENT(ResourceCache);
+		auto gameModel = GETCOMPONENT(HydroqGameModel);
+		string selectedMap = gameModel->GetMapName();
 
 		// 1) load collection of bricks
-		auto bricks = LoadBricks();
+		auto bricks = LoadBricks(selectedMap);
 
 		// 2) create game map
-		auto gameModel = GETCOMPONENT(HydroqGameModel);
 		gameModel->GetMap()->LoadMap(bricks);
 
 		// 3) load static sprites and assign it to the map_board node
