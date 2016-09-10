@@ -72,6 +72,14 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			auto sprite = spriteTypes[mapNode->mapNodeName][0];
 			sprEntity->sprite = sprite;
 		}
+		else if (evt->changeType == ObjectChangeType::RIG_CAPTURED) {
+			auto node = evt->changedNode;
+			Vec2i pos = Vec2i(node->GetTransform().localPos.x, node->GetTransform().localPos.y);
+			staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spriteTypes["rig_blue"][0];
+			staticSpriteMap[Vec2i(pos.x + 1, pos.y)]->sprite = spriteTypes["rig_blue"][1];
+			staticSpriteMap[Vec2i(pos.x, pos.y + 1)]->sprite = spriteTypes["rig_blue"][2];
+			staticSpriteMap[Vec2i(pos.x + 1, pos.y + 1)]->sprite = spriteTypes["rig_blue"][3];
+		}
 	}
 }
 
@@ -156,7 +164,6 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 	StringHash stateIdle = StringHash(STATE_WORKER_IDLE);
 	StringHash stateBuild = StringHash(STATE_WORKER_BUILD);
 	StringHash stateAttract = StringHash(STATE_WORKER_ATTRACTOR_FOLLOW);
-	
 
 	// update transformation of all objects
 	for (auto& dynObj : movingObjects) {
@@ -249,6 +256,52 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 			else {
 				(*it)->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame));
 				++it;
+			}
+		}
+	}
+
+	if (CogGetFrameCounter() % 2 == 0) {
+		if (!spriteTypes["rig_platform"].empty()) {
+			int platformDefFrame = spriteTypes["rig_platform"][0]->GetFrame();
+			int platformStompBlueFrame = spriteTypes["rig_platform_stomp_blue"][0]->GetFrame();
+			int platformStompRedFrame = spriteTypes["rig_platform_stomp_red"][0]->GetFrame();
+			int platformStompBothFrame = spriteTypes["rig_platform_stomp_both"][0]->GetFrame();
+
+			for (auto& rig : model->GetRigs()) {
+				
+				auto rigHoldings = rig.second->GetAttr<spt<vector<RigPlatform>>>(ATTR_PLATFORMS);
+
+				for (auto& holding : *rigHoldings) {
+					auto platform = this->staticSpriteMap[holding.position];
+
+					if (holding.factionHoldings[Faction::BLUE] == 0 && holding.factionHoldings[Faction::RED] == 0) {
+
+						if (platform->sprite->GetFrame() != platformDefFrame) {
+							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet,platformDefFrame));
+						}
+
+					}else if (holding.factionHoldings[Faction::BLUE] > holding.factionHoldings[Faction::RED]) {
+
+						if (platform->sprite->GetFrame() != platformStompBlueFrame) {
+							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, platformStompBlueFrame));
+						}
+
+					}
+					else if(holding.factionHoldings[Faction::BLUE] == holding.factionHoldings[Faction::RED]){
+
+						if (platform->sprite->GetFrame() != platformStompBothFrame) {
+							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, platformStompBothFrame));
+						}
+
+					}
+					else {
+
+						if (platform->sprite->GetFrame() != platformStompRedFrame) {
+							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, platformStompRedFrame));
+						}
+
+					}
+				}
 			}
 		}
 	}

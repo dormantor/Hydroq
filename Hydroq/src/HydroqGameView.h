@@ -22,6 +22,7 @@ private:
 
 	// collection of static sprites
 	spt<SpritesShape> staticSprites;
+
 	// collection of static sprites, mapping by position
 	map<Vec2i, spt<SpriteEntity>> staticSpriteMap;
 	// collection of dynamic sprites

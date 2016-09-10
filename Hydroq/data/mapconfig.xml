@@ -21,6 +21,9 @@
 	  <item key="worker_red" value="78" />
 	  <item key="worker_blue" value="74" />
 	  <item key="rig_platform" value="70" />
+	  <item key="rig_platform_stomp_blue" value="96" />
+	  <item key="rig_platform_stomp_red" value="97" />
+	  <item key="rig_platform_stomp_both" value="98" />
 	  <item key="explosion" value="82" />
 	</setting>
 	

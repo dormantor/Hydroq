@@ -12,6 +12,12 @@
 #include "CellPartitioner.h"
 #include "HydroqPlayerModel.h"
 
+class RigPlatform {
+public:
+	Vec2i position;
+	map<Faction, int> factionHoldings;
+};
+
 /**
 * Hydroq game model
 */
@@ -33,7 +39,7 @@ private:
 	map<Vec2i, Node*> rigs;
 	// attractors
 	map<Vec2i, Node*> attractors;
-
+	
 	// scene and its root node that run separately from the view
 	// part of the game
 	Scene* gameScene;
@@ -184,6 +190,8 @@ public:
 
 	float CalcAttractorAbsCardinality(int attractorId);
 
+	void ChangeRigOwner(Node* rig, Faction faction);
+
 	/**
 	* Gets collection of dynamic objects
 	*/
@@ -205,6 +213,10 @@ public:
 		return this->gameTasks;
 	}
 
+	map<Vec2i, Node*>& GetRigs() {
+		return rigs;
+	}
+
 	/**
 	* Gets copy of game tasks
 	*/
@@ -217,6 +229,7 @@ public:
 	Node* FindNearestRigByFaction(Faction fact, ofVec2f startPos);
 
 	vector<Node*> GetRigsByFaction(Faction fact);
+
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 

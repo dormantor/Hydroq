@@ -177,6 +177,12 @@ void HydroqGameModel::BuildPlatform(Vec2i position, Faction faction, int identif
 	// send a message that the static object has been changed
 	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0, new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr));
 
+	// for all tasks, update their DELAY status; this is because some building tasks are not reachable yet but if some new platform is built,
+	// the situation may be different
+	for (auto& task : gameTasks) {
+		task->isDelayed = false;
+	}
+
 	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
 			new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::BRIDGE, faction, position, 0, 0));
@@ -262,6 +268,22 @@ float HydroqGameModel::CalcAttractorAbsCardinality(int attractorId) {
 		cardinalitySum += card;
 	}
 	return attrCardinality / cardinalitySum;
+}
+
+void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
+	auto oldFaction = rig->GetAttr<Faction>(ATTR_FACTION);
+	if (oldFaction == Faction::NONE) {
+		playerModel->AddBuildings(1);
+	}
+	else {
+		// todo ...
+		playerModel->AddBuildings(1);
+	}
+
+	rig->ChangeAttr(ATTR_FACTION, faction);
+
+	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+		new MapObjectChangedEvent(ObjectChangeType::RIG_CAPTURED, nullptr, rig));
 }
 
 vector<spt<GameTask>> HydroqGameModel::GetGameTaskCopy() {
@@ -364,9 +386,45 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 	rootNode->SubmitChanges(true);
 	rootNode->Update(delta, absolute);
 
-	// update cellspace
 	for (auto& node : this->movingObjects) {
+		// update cellspace
 		this->cellSpace->UpdateNode(node);
+	}
+
+	if (CogGetFrameCounter() % 4 == 0) {
+		StringHash factionAttr = StringHash(ATTR_FACTION);
+		for (auto& rig : this->rigs) {
+			int totalForBlue = 0;
+			int totalForRed = 0;
+
+			auto rigHoldings = rig.second->GetAttr<spt<vector<RigPlatform>>>(ATTR_PLATFORMS);
+			vector<Node*> nodes = vector<Node*>();
+			for (auto& rigHolding : *rigHoldings) {
+				rigHolding.factionHoldings.clear();
+				rigHolding.factionHoldings[Faction::BLUE] = 0;
+				rigHolding.factionHoldings[Faction::RED] = 0;
+				cellSpace->CalcNeighbors(ofVec2f(rigHolding.position.x + 0.5f, rigHolding.position.y + 0.5f), 0.5f, nodes);
+
+				for (auto node : nodes) {
+					Faction fc = node->GetAttr<Faction>(factionAttr);
+					rigHolding.factionHoldings[fc]++;
+					if (fc == Faction::BLUE) totalForBlue++;
+					else totalForRed++;
+				}
+				nodes.clear();
+			}
+
+			if (totalForBlue != totalForRed) {
+				auto rigFaction = rig.second->GetAttr<Faction>(ATTR_FACTION);
+
+				if (totalForBlue > totalForRed && rigFaction != Faction::BLUE) {
+					ChangeRigOwner(rig.second, Faction::BLUE);
+				}
+				else if(totalForBlue < totalForRed && rigFaction != Faction::RED) {
+					ChangeRigOwner(rig.second, Faction::RED);
+				}
+			}
+		}
 	}
 }
 
@@ -538,5 +596,33 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 		dynObjects[rig] = gameNode;
 		rigs[rig] = gameNode;
 
+		// create platform collection
+		vector<Vec2i> platforms = vector<Vec2i>();
+		auto pos = hydMapNode->pos;
+		platforms.push_back(Vec2i(pos.x - 1, pos.y - 1));
+		platforms.push_back(Vec2i(pos.x, pos.y - 1));
+		platforms.push_back(Vec2i(pos.x + 1, pos.y - 1));
+		platforms.push_back(Vec2i(pos.x + 2, pos.y - 1));
+		platforms.push_back(Vec2i(pos.x + 2, pos.y));
+		platforms.push_back(Vec2i(pos.x + 2, pos.y + 1));
+		platforms.push_back(Vec2i(pos.x + 2, pos.y + 2));
+		platforms.push_back(Vec2i(pos.x + 1, pos.y + 2));
+		platforms.push_back(Vec2i(pos.x, pos.y + 2));
+		platforms.push_back(Vec2i(pos.x - 1, pos.y + 2));
+		platforms.push_back(Vec2i(pos.x - 1, pos.y + 1));
+		platforms.push_back(Vec2i(pos.x - 1, pos.y));
+
+		spt<vector<RigPlatform>> rigPlatforms = spt<vector<RigPlatform>>(new vector <RigPlatform> ());
+
+		for (auto platformPos : platforms) {
+			RigPlatform rg = RigPlatform();
+			rg.position = platformPos;
+			rigPlatforms->push_back(rg);
+		}
+
+		gameNode->AddAttr(ATTR_PLATFORMS, rigPlatforms);
 	}
+
+	// add rig into player model
+	playerModel->AddBuildings(1);
 }

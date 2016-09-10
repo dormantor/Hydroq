@@ -32,7 +32,7 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 
 	for (auto& task : allTasks) {
 		
-		if (!task->isEnded && !task->isProcessing && 
+		if (!task->isDelayed && !task->isEnded && !task->isProcessing && 
 			(!task->isReserved || (task->isReserved && (absolute - task->reserverTime) > 10000))
 			&& (task->type == GameTaskType::BRIDGE_BUILD || task->type == GameTaskType::BRIDGE_DESTROY || task->type == GameTaskType::ATTRACT)) {
 			
@@ -144,6 +144,11 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 									task->reserverNodes.push_back(worker);
 									task->reserverTime = absolute;
 									workerFound = true;
+									break;
+								}
+								else {
+									// no path could be found as well -> set delay property
+									task->isDelayed = true;
 									break;
 								}
 							}

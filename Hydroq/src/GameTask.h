@@ -22,6 +22,7 @@ public:
 	// node that serves the task
 	Node* handlerNode = nullptr;
 
+	bool isDelayed = false;
 	// indicator, if the task is reserved
 	bool isReserved = false;
 	// node that reserved the task
