@@ -37,10 +37,7 @@ public:
 
 			selectedAction = which->after;
 
-			if (which->after == HydroqAction::GATHER) {
-				floatingGameScene->SetListenerState(ListenerState::DISABLED);
-			}
-			else if (which->after == HydroqAction::ATTACK) {
+			if (which->after == HydroqAction::ATTRACT) {
 				floatingGameScene->SetListenerState(ListenerState::DISABLED);
 			}
 			else if (which->after == HydroqAction::NONE) {
@@ -48,7 +45,7 @@ public:
 			}
 		}
 		else {
-			if (selectedAction == HydroqAction::GATHER || selectedAction == HydroqAction::ATTACK) {
+			if (selectedAction == HydroqAction::ATTRACT) {
 
 				if (msg.GetSourceObject()->GetId() == owner->GetId()) {
 
@@ -98,6 +95,9 @@ public:
 
 								RefreshAttractorPosition(absPos, trans.scale);
 							}
+							else {
+								placedAttractor->GetTransform().rotation = 0;
+							}
 						}
 					}
 					else if (msg.HasAction(ACT_OBJECT_HIT_LOST) || msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
@@ -141,11 +141,8 @@ public:
 	void InsertAttractor(ofVec2f position) {
 		
 		placedAttractor = new Node("attractor");
-		if (selectedAction == HydroqAction::GATHER) {
-			placedAttractor->SetShape(spt<Image>(new Image(CogGet2DImage("game/functions_cmd_gather.png"))));
-		}
-		else {
-			placedAttractor->SetShape(spt<Image>(new Image(CogGet2DImage("game/functions_cmd_attack.png"))));
+		if (selectedAction == HydroqAction::ATTRACT) {
+			placedAttractor->SetShape(spt<Image>(new Image(CogGet2DImage("game/functions_cmd_attract_placement.png"))));
 		}
 
 		attrPlaced++;
@@ -159,6 +156,8 @@ public:
 
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
-
+		for (auto& attr : attractors) {
+			attr->GetTransform().rotation += 0.4f;
+		}
 	}
 };

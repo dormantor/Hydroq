@@ -12,7 +12,6 @@ class SingleGameMenu : public Behavior {
 	void OnInit() {
 		RegisterListening(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED);
 
-
 		// load map config
 		auto xml = CogLoadXMLFile("mapconfig.xml");
 		xml->pushTag("settings");

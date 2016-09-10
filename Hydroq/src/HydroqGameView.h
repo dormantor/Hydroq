@@ -18,7 +18,7 @@ private:
 	// link to default sprite set
 	spt<SpriteSet> defaultSpriteSet;
 	// collection of all sprite types, mapped by its name
-	map<string, spt<Sprite>> spriteTypes;
+	map<string, vector<spt<Sprite>>> spriteTypes;
 
 	// collection of static sprites
 	spt<SpritesShape> staticSprites;

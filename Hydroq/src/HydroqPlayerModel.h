@@ -6,7 +6,7 @@
 
 
 enum class HydroqAction {
-	NONE, BUILD, DESTROY, FORBID, GUARD, GATHER, ATTACK
+	NONE, BUILD, DESTROY, FORBID, ATTRACT
 };
 
 /**

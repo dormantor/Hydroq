@@ -2,6 +2,7 @@
 
 #include "ofxCogMain.h"
 #include "Scene.h"
+#include "HydroqPlayerModel.h"
 
 class MenuIconBehavior : public Behavior {
 	OBJECT_PROTOTYPE(MenuIconBehavior)
@@ -16,15 +17,14 @@ class MenuIconBehavior : public Behavior {
 
 	void OnStart() {
 		Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
-		originTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(150, 6), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
-		animTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(100, 6), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
+		originTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(94.3f, 0), 10, CalcType::GRID, ofVec2f(0, 0), ofVec2f(1), CalcType::LOC, 0));
+		animTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(100, 0), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
 	}
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_TRANSFORM_ENDED) && msg.GetSourceObject()->GetTag().compare("rightpanel") == 0) {
 			owner->ResetState(StringHash(STATES_LOCKED));
 		}
-
 
 		if (msg.HasAction(ACT_BUTTON_CLICKED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
 			if (!owner->HasState(StringHash(STATES_LOCKED))) {
@@ -36,6 +36,12 @@ class MenuIconBehavior : public Behavior {
 					Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
 					TransformAnim* anim = new TransformAnim(animTrans, originTrans, 250, 0, false, AnimBlend::OVERLAY);
 					menu->AddBehavior(anim);
+
+					// if user selected GATHER action, unselect it 
+					auto playerModel = GETCOMPONENT(HydroqPlayerModel);
+					if (playerModel->GetHydroqAction() == HydroqAction::ATTRACT) {
+						playerModel->SetHydroqAction(HydroqAction::NONE);
+					}
 				}
 				else {
 					owner->SetState(StringHash(STATES_ENABLED));

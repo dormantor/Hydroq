@@ -45,7 +45,7 @@
   
   <spritesheets>
     <spritesheet name="game_board" img="bricks/brickmap.png">
-	  <spriteset frames="64" sprite_width="128" sprite_height="128"  />
+	  <spriteset frames="256" sprite_width="256" sprite_height="256"  />
 	</spritesheet>
   </spritesheets>
 
@@ -415,23 +415,29 @@
       </node>
 
       <node name="rightpanel" img="game/gm_rightpanel.png">
-        <transform pos_x="100gr" pos_y="6gr" anchor_x="0" z_index="10" />
+        <transform pos_x="94.3gr" pos_y="0gr" anchor_x="0" z_index="10" />
 		<behavior type="HitEvent" />
 		<behavior type="RightPanel" />
 		<behavior type="RightPanelSections" />
 		 
+		
+		<node name="menuicon" img="game/gm_menuicon.png" img_click="game/gm_menuicon_clicked.png" >
+          <transform pos_x="100.3gr" pos_y="4gr" anchor_x="1"  z_index="10" />
+		  <behavior type="MenuIconBehavior" />
+        </node>
+ 
 		<node name="icon_build" img="game/gm_setbuild.png" img_multiselect="game/gm_setbuild_act.png">
-		  <transform pos_x="0.25r" pos_y="0.2r" anchor_y="1"   />
+		  <transform pos_x="0.35r" pos_y="0.23r" anchor_y="1"   />
 		  <state>SELECTED</state>
 		</node>
 		
 		<node name="icon_flag" img="game/gm_setflag.png" img_multiselect="game/gm_setflag_act.png">
-		  <transform pos_x="0.65r" pos_y="0.2r" anchor_y="1"  />
+		  <transform pos_x="0.65r" pos_y="0.23r" anchor_y="1"  />
 		</node>
 		
 				
 		<node name="section_build">
-		  <transform pos_x="0.05r" pos_y="0.30r" anchor="0" width="0.99r" height="0.7r" />
+		  <transform pos_x="0.12r" pos_y="0.40r" anchor="0" width="0.99r" height="0.7r" />
 		  
 		  
 		  <node name="command_build">
@@ -468,90 +474,34 @@
 		    <behavior type="HitEvent" />
 		  
 		    <node img="game/functions_cmd_forbid.png">
-		      <transform pos_x="0.3r" anchor="0.5" pos_y="0.3r"  />
+		      <transform pos_x="0.5r" anchor="0.5" pos_y="0.35r"  />
 		    </node>
 		    <node>
-              <transform pos_x="0.3r" pos_y="0.45r" anchor="0.5"  />
+              <transform pos_x="0.5r" pos_y="0.5r" anchor="0.5"  />
 		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Forbid</text>
-            </node>
-		  </node>
-		  
-		  <node name="command_guard">
-		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
-		    <transform size="1r" />
-		    <behavior type="HitEvent" />
-		  
-		    <node img="game/functions_cmd_guard.png">
-		      <transform pos_x="0.7r" anchor="0.5" pos_y="0.3r" />
-		    </node>
-		    <node>
-              <transform pos_x="0.7r" pos_y="0.45r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Guard</text>
             </node>
 		  </node>
 		</node>
 		
 		<node name="section_flag">
-		  <transform pos_x="0.05r" pos_y="0.30r" anchor="0" width="0.99r" height="0.7r" />
+		  <transform pos_x="0.12r" pos_y="0.40r" anchor="0" width="0.99r" height="0.7r" />
 		  
 		  
-		  <node name="command_gather">
+		  <node name="command_attract">
 		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1r" />
 		    <behavior type="HitEvent"/>
 		  
-		    <node img="game/functions_cmd_gather.png">
-		      <transform pos_x="0.3r" anchor="0.5" pos_y="0.1r"  />
+		    <node img="game/functions_cmd_attract.png">
+		      <transform pos_x="0.5r" anchor="0.5" pos_y="0.1r"  />
 		    </node>
-		    <node name="command_gather_text">
-              <transform pos_x="0.3r" pos_y="0.25r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Gather</text>
-            </node>
-		  </node>
-		  
-		  <node name="command_attack">
-	   	    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
-		    <transform size="1r" />
-		    <behavior type="HitEvent"/>
-		  
-		    <node img="game/functions_cmd_attack.png">
-		      <transform pos_x="0.7r" anchor="0.5" pos_y="0.1r"  />
-		    </node>
-		    <node>
-              <transform pos_x="0.7r" pos_y="0.25r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Attack</text>
-            </node>
-		  </node>
-		  
-		  <node name="command_spawnpriority">
-		    <transform size="1r" />
-		  
-		    <node img="game/gm_worker.png">
-		      <transform pos_x="0.1r" anchor="0.5" pos_y="0.4r"  />
-		    </node>
-			<node img="game/gm_warrior.png">
-		      <transform pos_x="0.9r" anchor="0.5" pos_y="0.4r"  />
-		    </node>
-			<node name="slider_border" img="game/slider_border.png">
-			  <behavior type="HitEvent" />
-			  <behavior type="Slider" body="slider_body" text="slider_text"  />
-		      <transform pos_x="0.5r" anchor="0.5" pos_y="0.4r"  />
-		    </node>
-			<node name="slider_body" img="game/slider.png">
-		      <transform pos_x="0.5r" anchor="0.5" pos_y="0.4r" />
-		    </node>
-		    <node name="slider_text">
-              <transform pos_x="0.5r" pos_y="0.41r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="40" color="0xFFFFFF">0%</text>
+		    <node name="command_attract_text">
+              <transform pos_x="0.5r" pos_y="0.4r" anchor="0.5"  />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Attractor</text>
             </node>
 		  </node>
 		</node>
 
-      </node>
-
-      <node name="menuicon" img="game/gm_menuicon.png" img_click="game/gm_menuicon_clicked.png" >
-        <transform pos_x="100gr" pos_y="0gr" anchor_x="1"  z_index="10" />
-		<behavior type="MenuIconBehavior" />
       </node>
 
 	  <node name="selected_func" img="game/functions_build_seedbed.png">

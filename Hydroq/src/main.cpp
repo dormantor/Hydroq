@@ -26,6 +26,64 @@
 #include "HydAIAction.h"
 #include "HydAISimulator.h"
 #include "HydAIState.h"
+#include "SpriteSheetGenerator.h"
+
+void RegenerateSpriteSheets() {
+	SpriteSheetGenerator generator = SpriteSheetGenerator();
+	generator.AddImage("F:\\rig.png");
+	
+	generator.AddImage("F:\\rb1.png");
+	generator.AddImage("F:\\rb2.png");
+	generator.AddImage("F:\\rb3.png");
+	generator.AddImage("F:\\rb4.png");
+	generator.AddImage("F:\\rb5.png");
+	generator.AddImage("F:\\rb6.png");
+	generator.AddImage("F:\\rb7.png");
+	generator.AddImage("F:\\rb8.png");
+
+	generator.AddImage("F:\\rr1.png");
+	generator.AddImage("F:\\rr2.png");
+	generator.AddImage("F:\\rr3.png");
+	generator.AddImage("F:\\rr4.png");
+	generator.AddImage("F:\\rr5.png");
+	generator.AddImage("F:\\rr6.png");
+	generator.AddImage("F:\\rr7.png");
+	generator.AddImage("F:\\rr8.png");
+
+	generator.AddImage("F:\\water.png");
+	generator.AddImage("F:\\platform.png");
+	generator.AddImage("F:\\rigplace.png");
+	generator.AddImage("F:\\tobuild.png");
+	generator.AddImage("F:\\forbidden.png");
+	generator.AddImage("F:\\destroy.png");
+
+	generator.AddImage("F:\\worker_blue_1.png");
+	generator.AddImage("F:\\worker_blue_2.png");
+	generator.AddImage("F:\\worker_blue_3.png");
+	generator.AddImage("F:\\worker_blue_4.png");
+	generator.AddImage("F:\\worker_red_1.png");
+	generator.AddImage("F:\\worker_red_2.png");
+	generator.AddImage("F:\\worker_red_3.png");
+	generator.AddImage("F:\\worker_red_4.png");
+
+
+	generator.AddImage("F:\\explo_01.png");
+	generator.AddImage("F:\\explo_02.png");
+	generator.AddImage("F:\\explo_03.png");
+	generator.AddImage("F:\\explo_04.png");
+	generator.AddImage("F:\\explo_05.png");
+	generator.AddImage("F:\\explo_06.png");
+	generator.AddImage("F:\\explo_07.png");
+	generator.AddImage("F:\\explo_08.png");
+	generator.AddImage("F:\\explo_09.png");
+	generator.AddImage("F:\\explo_10.png");
+	generator.AddImage("F:\\explo_11.png");
+
+
+	generator.GenerateSheet(256, 256, 4096, 4096, "F:\\result.png");
+}
+
+
 
 /**
 * Back button simulator that checks BACKSPACE key
@@ -128,6 +186,8 @@ public:
 		CogEngine::GetInstance().LoadStageFromXml(this->xmlConfig);
 		stage->GetRootObject()->AddBehavior(new BackButtonKey());
 		stage->GetRootObject()->AddBehavior(new ReportKey());
+
+		//RegenerateSpriteSheets();
 	}
 };
 

@@ -127,26 +127,6 @@ public:
 	void DeleteForbidMark(Vec2i position);
 
 	/**
-	* Returns true, if a guard mark can be placed on selected position
-	*/
-	bool IsPositionFreeForGuard(Vec2i position);
-
-	/**
-	* Returns true, if the position is marked for guard
-	*/
-	bool PositionContainsGuardMark(Vec2i position);
-
-	/**
-	* Marks position that will be guarded
-	*/
-	void MarkPositionForGuard(Vec2i position);
-
-	/**
-	* Deletes guard mark at selected position
-	*/
-	void DeleteGuardMark(Vec2i position);
-
-	/**
 	* Returns true, if the position can be destroyed
 	*/
 	bool IsPositionFreeForDestroy(Vec2i position);

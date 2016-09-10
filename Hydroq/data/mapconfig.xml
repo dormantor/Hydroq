@@ -2,29 +2,26 @@
 	<setting name="names">
 		<item key="0x000000" value="water" />
 		<item key="0xffffff" value="ground" />
-		<item key="0x333300" value="rig_topleft" />
-		<item key="0x333301" value="rig_topright" />
-		<item key="0x333302" value="rig_botleft" />
-		<item key="0x333303" value="rig_botright" />
+		<item key="0x333300" value="rig|0" />
+		<item key="0x333301" value="rig|1" />
+		<item key="0x333302" value="rig|2" />
+		<item key="0x333303" value="rig|3" />
 		<item key="0x333308" value="rig_platform" />
 	</setting>
 	
 	<setting name="sprites">
-	  <item key="water" value="0" />
-	  <item key="ground" value="1" />
-	  <item key="rig_topleft" value="2" />
-	  <item key="rig_topright" value="3" />
-	  <item key="rig_botleft" value="4" />
-	  <item key="rig_botright" value="5" />
-	  <item key="seedbed_red" value="15" />
-	  <item key="seedbed_blue" value="14" />
-	  <item key="bridgemark" value="20" />
-	  <item key="forbidmark" value="21" />
-	  <item key="guardmark" value="22" />
-	  <item key="destroymark" value="23" />
-	  <item key="worker_red" value="24" />
-	  <item key="worker_blue" value="16" />
-	  <item key="rig_platform" value="32" />
+	  <item key="water" value="68" />
+	  <item key="ground" value="69" />
+	  <item key="rig" value="0|1|2|3" />
+	  <item key="rig_blue" value="24|25|26|27" />
+	  <item key="rig_red" value="56|57|58|59" />
+	  <item key="bridgemark" value="71" />
+	  <item key="forbidmark" value="72" />
+	  <item key="destroymark" value="73" />
+	  <item key="worker_red" value="78" />
+	  <item key="worker_blue" value="74" />
+	  <item key="rig_platform" value="70" />
+	  <item key="explosion" value="82" />
 	</setting>
 	
 	<setting name="maps_files">

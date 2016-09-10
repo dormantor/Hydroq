@@ -12,9 +12,7 @@ class RightPanelSections : public Behavior {
 	int nodeCommandBuildId;
 	int nodeCommandDestroyId;
 	int nodeCommandForbidId;
-	int nodeCommandGuardId;
-	int nodeCommandGatherId;
-	int nodeCommandAttackId;
+	int nodeCommandAttractId;
 
 	int selectedNodeId = -1;
 
@@ -24,9 +22,7 @@ class RightPanelSections : public Behavior {
 		nodeCommandBuildId = owner->GetScene()->FindNodeByTag("command_build")->GetId();
 		nodeCommandDestroyId = owner->GetScene()->FindNodeByTag("command_destroy")->GetId();
 		nodeCommandForbidId = owner->GetScene()->FindNodeByTag("command_forbid")->GetId();
-		nodeCommandGuardId = owner->GetScene()->FindNodeByTag("command_guard")->GetId();
-		nodeCommandGatherId = owner->GetScene()->FindNodeByTag("command_gather")->GetId();
-		nodeCommandAttackId = owner->GetScene()->FindNodeByTag("command_attack")->GetId();
+		nodeCommandAttractId = owner->GetScene()->FindNodeByTag("command_attract")->GetId();
 	}
 
 
@@ -53,17 +49,9 @@ class RightPanelSections : public Behavior {
 					SelectCommandForbid();
 					SelectNode(nodeCommandForbidId);
 				}
-				else if (targetId == nodeCommandGuardId) {
-					SelectCommandGuard();
-					SelectNode(nodeCommandGuardId);
-				}
-				else if (targetId == nodeCommandGatherId) {
-					SelectCommandGather();
-					SelectNode(nodeCommandGatherId);
-				}
-				else if (targetId == nodeCommandAttackId) {
-					SelectCommandAttack();
-					SelectNode(nodeCommandAttackId);
+				else if (targetId == nodeCommandAttractId) {
+					SelectCommandAttract();
+					SelectNode(nodeCommandAttractId);
 				}
 			}
 		}
@@ -93,16 +81,8 @@ class RightPanelSections : public Behavior {
 		playerModel->SetHydroqAction(HydroqAction::FORBID);
 	}
 
-	void SelectCommandGuard() {
-		playerModel->SetHydroqAction(HydroqAction::GUARD);
-	}
-
-	void SelectCommandGather() {
-		playerModel->SetHydroqAction(HydroqAction::GATHER);
-	}
-
-	void SelectCommandAttack() {
-		playerModel->SetHydroqAction(HydroqAction::ATTACK);
+	void SelectCommandAttract() {
+		playerModel->SetHydroqAction(HydroqAction::ATTRACT);
 	}
 
 public:

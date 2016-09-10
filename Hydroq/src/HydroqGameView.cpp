@@ -20,7 +20,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			// new dynamic or moving object
 			auto trans = evt->changedNode->GetTransform();
 			// create new sprite
-			auto sprite = spriteTypes[evt->changedNode->GetTag()];
+			auto sprite = spriteTypes[evt->changedNode->GetTag()][0];
 
 			Trans transform = Trans();
 			// moving objects will have its origin set to the middle of the cell
@@ -59,7 +59,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			auto mapNode = evt->changedMapNode;
 			// get sprite entity and change its frame
 			spt<SpriteEntity> sprEntity = staticSpriteMap[mapNode->pos];
-			auto sprite = spriteTypes[mapNode->mapNodeName];
+			auto sprite = spriteTypes[mapNode->mapNodeName][0];
 			sprEntity->sprite = sprite;
 		}
 	}
@@ -75,9 +75,18 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 
 	// load all sprite types
 	for (auto& it : sprites.items) {
-		int index = it.second.GetValInt();
+		auto indices = it.second.GetValues();
+		
+		auto sprites = vector<spt<Sprite>>();
+		// one sprite could be on various indices
+		for (auto index : indices) {
+			int indexInt = ofToInt(index);
+			auto sprite =spt<Sprite>(new Sprite(defaultSpriteSet, indexInt));
+			sprites.push_back(sprite);
+		}
+
 		string name = it.second.key;
-		spriteTypes[name] = spt<Sprite>(new Sprite(defaultSpriteSet, index));
+		spriteTypes[name] = sprites;
 	}
 
 	// load all sprites on the map
@@ -85,7 +94,7 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 		for (int j = 0; j < map->GetHeight(); j++) {
 			auto obj = map->GetNode(i, j);
 
-			spt<Sprite> sprite = spriteTypes[obj->mapNodeName];
+			spt<Sprite> sprite = spriteTypes[obj->mapNodeName][obj->mapNodeTypeIndex];
 
 			Trans transform = Trans();
 			transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
@@ -102,20 +111,21 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	for (auto& dyn : dynObjects) {
 		if (dyn.second->GetTag().compare("rig") == 0) {
 			Faction fact = dyn.second->GetAttr<Faction>(ATTR_FACTION);
+			
 			Vec2i pos = ofVec2f(dyn.second->GetTransform().localPos);
 			int index = staticSpriteMap[pos]->sprite->GetFrame();
 
 			if (fact == Faction::BLUE) {	
-				staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 4));
-				staticSpriteMap[Vec2i(pos.x+1, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 5));
-				staticSpriteMap[Vec2i(pos.x, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 6));
-				staticSpriteMap[Vec2i(pos.x+1, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 7));
+				staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spriteTypes["rig_blue"][0];
+				staticSpriteMap[Vec2i(pos.x+1, pos.y)]->sprite = spriteTypes["rig_blue"][1];
+				staticSpriteMap[Vec2i(pos.x, pos.y+1)]->sprite = spriteTypes["rig_blue"][2];
+				staticSpriteMap[Vec2i(pos.x+1, pos.y+1)]->sprite = spriteTypes["rig_blue"][3];
 			}
 			else if (fact == Faction::RED) {
-				staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 8));
-				staticSpriteMap[Vec2i(pos.x+1, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 9));
-				staticSpriteMap[Vec2i(pos.x, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 10));
-				staticSpriteMap[Vec2i(pos.x+1, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 11));
+				staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spriteTypes["rig_red"][0];
+				staticSpriteMap[Vec2i(pos.x+1, pos.y)]->sprite = spriteTypes["rig_red"][1];
+				staticSpriteMap[Vec2i(pos.x, pos.y+1)]->sprite = spriteTypes["rig_red"][2];
+				staticSpriteMap[Vec2i(pos.x+1, pos.y+1)]->sprite = spriteTypes["rig_red"][3];
 			}
 		}
 	}
@@ -147,15 +157,21 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 
 		if (dynObj->HasState(stateIdle)) {
 			// set image according to state
-			sprite->sprite = spriteTypes[dynObj->GetTag()]; 
+			sprite->sprite = spriteTypes[dynObj->GetTag()][0]; 
 		}
 		else if (dynObj->HasState(stateBuild)) {
 			// set animation
-			int frame = spriteTypes[dynObj->GetTag()]->GetFrame();
-			if (CogGetFrameCounter() % 5 == 0) frame += 1;
-			else frame += 2;
+			int startFrame = spriteTypes[dynObj->GetTag()][0]->GetFrame()+1;
+			int actualFrame = sprite->sprite->GetFrame();
+			int frames = 3;
 
-			sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frame));
+			if (CogGetFrameCounter() % 2 == 0) {
+				int frameToSet = 0;
+				if (startFrame > actualFrame) frameToSet = startFrame;
+				else if (actualFrame == (startFrame + frames - 1)) frameToSet = startFrame;
+				else frameToSet = actualFrame + 1;
+				sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frameToSet));
+			}
 		}
 	}
 }

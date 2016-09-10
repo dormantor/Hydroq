@@ -41,8 +41,42 @@ public:
 		this->mapNodeName = Helper::GetMapNameByNodeType(newType);
 	}
 
-	HydMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {
-		
+	bool IsWalkable() {
+		return this->mapNodeType == MapNodeType::GROUND || this->mapNodeType == MapNodeType::RIG_PLATFORM;
+	}
+
+
+	HydMapNode* FindWalkableNeighbor(Vec2i preferredPosition) {
+
+		if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
+			if (top != nullptr && top->IsWalkable()) return top;
+			if (left != nullptr && left->IsWalkable()) return left;
+			if (right != nullptr && right->IsWalkable()) return right;
+			if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+		}
+		else if (preferredPosition.x <= pos.x && preferredPosition.y > pos.y) {
+			if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+			if (left != nullptr && left->IsWalkable()) return left;
+			if (right != nullptr && right->IsWalkable()) return right;
+			if (top != nullptr && top->IsWalkable()) return top;
+		}
+		else if (preferredPosition.x > pos.x && preferredPosition.y <= pos.y) {
+			if (top != nullptr && top->IsWalkable()) return top;
+			if (right != nullptr && right->IsWalkable()) return right;
+			if (left != nullptr && left->IsWalkable()) return left;
+			if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+		}
+		else if (preferredPosition.x > pos.x && preferredPosition.y > pos.y) {
+			if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+			if (right != nullptr && right->IsWalkable()) return right;
+			if (left != nullptr && left->IsWalkable()) return left;
+			if (top != nullptr && top->IsWalkable()) return top;
+		}
+
+		return nullptr;
+	}
+
+	HydMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {	
 		if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
 			if (top != nullptr && top->mapNodeType == type) return top;
 			if (left != nullptr && left->mapNodeType == type) return left;
@@ -120,11 +154,10 @@ public:
 				Brick br = brickMap->GetBrick(i, j);
 			
 				HydMapNode* node = new HydMapNode();
-				int index = 0;
 				
 				node->mapNodeName = br.name;
-				node->mapNodeType = Helper::GetMapNodeTypeByName(index, br.name);
-				node->mapNodeTypeIndex = index;
+				node->mapNodeTypeIndex = br.index;
+				node->mapNodeType = Helper::GetMapNodeTypeByName(br.name);
 				node->pos = Vec2i(i, j);
 				nodes.push_back(node);
 
@@ -132,7 +165,8 @@ public:
 					rigs.push_back(node);
 				}
 
-				if (node->mapNodeType != MapNodeType::GROUND) {
+				// add obstruction into grid for A* search
+				if (!node->IsWalkable()) {
 					gridNoBlock.AddBlock(i, j);
 					gridWithBlocks.AddBlock(i, j);
 				}
@@ -164,7 +198,7 @@ public:
 		if (i < (width - 1) && j < (height - 1)) node->bottomRight = GetNode(i + 1, j + 1); // bottomright
 		if (i < (width - 1) && j > 0) node->topRight = GetNode(i + 1, j - 1); // topright
 
-		if (node->mapNodeType == MapNodeType::GROUND) {
+		if (node->mapNodeType == MapNodeType::GROUND || node->mapNodeType == MapNodeType::RIG_PLATFORM) {
 			gridNoBlock.RemoveBlock(i, j);
 			gridWithBlocks.RemoveBlock(i, j);
 		}

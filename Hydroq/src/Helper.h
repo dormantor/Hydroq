@@ -10,7 +10,7 @@ enum class MapNodeType;
 
 class Helper {
 public:
-	static MapNodeType GetMapNodeTypeByName(int& index, string name);
+	static MapNodeType GetMapNodeTypeByName(string name);
 
 	static string GetMapNameByNodeType(MapNodeType type);
 

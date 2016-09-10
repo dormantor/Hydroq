@@ -119,38 +119,6 @@ void HydroqGameModel::DeleteForbidMark(Vec2i position) {
 	DestroyDynamicObject(position);
 }
 
-bool HydroqGameModel::IsPositionFreeForGuard(Vec2i position) {
-	auto node = hydroqMap->GetNode(position.x, position.y);
-	bool isFree = node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end();
-	return isFree;
-}
-
-
-bool HydroqGameModel::PositionContainsGuardMark(Vec2i position) {
-	return IsPositionOfType(position, EntityType::GUARD_MARK);
-}
-
-void HydroqGameModel::MarkPositionForGuard(Vec2i position) {
-	COGLOGDEBUG("Hydroq", "Position for guard at [%d, %d]", position.x, position.y);
-	CreateDynamicObject(position, EntityType::GUARD_MARK, this->faction, 0);
-}
-
-void HydroqGameModel::DeleteGuardMark(Vec2i position) {
-	COGLOGDEBUG("Hydroq", "Deleted guard position at [%d, %d]", position.x, position.y);
-	auto obj = dynObjects[position];
-	for (auto task : gameTasks) {
-		if (task->taskNode->GetId() == obj->GetId()) {
-			COGLOGDEBUG("Hydroq", "Aborting guard task because of deleted guard mark");
-			SendMessageOutside(StringHash(ACT_TASK_ABORTED), 0, new TaskAbortEvent(task));
-			task->isEnded = true; // for sure
-			RemoveGameTask(task);
-			break;
-		}
-	}
-	DestroyDynamicObject(position);
-}
-
-
 bool HydroqGameModel::IsPositionFreeForDestroy(Vec2i position) {
 	auto node = hydroqMap->GetNode(position.x, position.y);
 	bool isFree = (node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end());
@@ -190,6 +158,7 @@ void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identif
 			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, node->GetId(), 0));
 	}
 }
+
 
 void HydroqGameModel::BuildPlatform(Vec2i position) {
 	BuildPlatform(position, this->faction, 0);
@@ -414,9 +383,6 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 	else if (entityType == EntityType::FORBID_MARK) {
 		nd->SetTag("forbidmark");
 	}
-	else if (entityType == EntityType::GUARD_MARK) {
-		nd->SetTag("guardmark");
-	}
 	else if (entityType == EntityType::RIG) {
 		nd->SetTag("rig");
 		
@@ -511,5 +477,6 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 		auto gameNode = CreateNode(EntityType::RIG, rig, fact, 0);
 		dynObjects[rig] = gameNode;
 		rigs[rig] = gameNode;
+
 	}
 }

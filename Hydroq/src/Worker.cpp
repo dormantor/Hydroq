@@ -23,6 +23,7 @@ bool WorkerIdleState::FindTaskToDo() {
 		return a->taskNode->GetTransform().localPos.distance(start) < b->taskNode->GetTransform().localPos.distance(start);
 	});
 
+
 	auto map = model->GetMap();
 
 	// get the nearest task
@@ -41,13 +42,14 @@ bool WorkerIdleState::FindTaskToDo() {
 
 				if (task->type == GameTaskType::BRIDGE_BUILD) {
 					// find first safe platform the worker can stay on
-					nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(start.x, start.y));
+					nodeToWorkFrom = mapNode->FindWalkableNeighbor(Vec2i(start.x, start.y));
 				}
 				else {
 					// find platform the worker can return to base from
 					auto nearestBase = model->FindNearestRigByFaction(model->GetFaction(), start);
 					ofVec2f preferredPosition = (nearestBase != nullptr) ? nearestBase->GetTransform().localPos : start;
-					nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(preferredPosition.x, preferredPosition.y));
+					nodeToWorkFrom = mapNode->FindWalkableNeighbor(Vec2i(preferredPosition.x, preferredPosition.y));
+					if (nodeToWorkFrom == nullptr) nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::RIG_PLATFORM, Vec2i(preferredPosition.x, preferredPosition.y));
 				}
 
 

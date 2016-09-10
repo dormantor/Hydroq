@@ -60,7 +60,8 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 					// position the worker stays
 					auto nodeLocation = worker->GetTransform().localPos;
 					// find nearest node the worker will stay during the building (worker cannot go to the water)
-					auto nodeToBuildfrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(nodeLocation.x, nodeLocation.y));
+					auto nodeToBuildfrom = mapNode->FindWalkableNeighbor(Vec2i(nodeLocation.x, nodeLocation.y));
+
 					if (nodeToBuildfrom != nullptr) {
 						vector<Vec2i> path = map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), nodeToBuildfrom->pos, true, 2 * manhattanDistance);
 
@@ -84,7 +85,7 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 					if (assignedTasks.find(worker->GetId()) == assignedTasks.end() || assignedTasks[worker->GetId()] <= 2) {
 
 						auto nodeLocation = worker->GetTransform().localPos;
-						auto nodeToBuildfrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(nodeLocation.x, nodeLocation.y));
+						auto nodeToBuildfrom = mapNode->FindWalkableNeighbor(Vec2i(nodeLocation.x, nodeLocation.y));
 
 						if (nodeToBuildfrom != nullptr) {
 							vector<Vec2i> path = map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), Vec2i(taskLocation.x, taskLocation.y), true, 0);

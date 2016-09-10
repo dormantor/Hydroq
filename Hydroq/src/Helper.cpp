@@ -5,28 +5,13 @@
 
 using namespace Cog;
 
- MapNodeType Helper::GetMapNodeTypeByName(int& index, string name) {
-	index = 0;
-
+ MapNodeType Helper::GetMapNodeTypeByName(string name) {
+	
 	if (name.compare("water") == 0) return MapNodeType::WATER;
 	else if (name.compare("ground") == 0) return MapNodeType::GROUND;
-	else if (name.compare("rig_topleft") == 0) {
-		index = 0;
+	else if (name.compare("rig") == 0) {
 		return MapNodeType::RIG;
-	}
-	else if (name.compare("rig_topright") == 0) {
-		index = 1;
-		return MapNodeType::RIG;
-	}
-	else if (name.compare("rig_botleft") == 0) {
-		index = 2;
-		return MapNodeType::RIG;
-	}
-	else if (name.compare("rig_botright") == 0) {
-		index = 3;
-		return MapNodeType::RIG;
-	}
-	else if (name.compare("rig_platform") == 0) {
+	}else if (name.compare("rig_platform") == 0) {
 		return MapNodeType::RIG_PLATFORM;
 	}
 
@@ -38,7 +23,7 @@ using namespace Cog;
 	 case MapNodeType::GROUND:
 		 return "ground";
 	 case MapNodeType::RIG:
-		 return "rig_topleft";
+		 return "rig";
 	 case MapNodeType::WATER:
 		 return "water";
 	 case MapNodeType::RIG_PLATFORM:
