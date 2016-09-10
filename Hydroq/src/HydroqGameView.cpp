@@ -48,12 +48,21 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			auto oldEntity = dynamicSpriteEntities[evt->changedNode->GetId()];
 			dynamicSpriteEntities.erase(evt->changedNode->GetId());
 
-			// todo: performance!
-			for (auto it = dynamicSprites->GetSprites().begin(); it != dynamicSprites->GetSprites().end(); ++it) {
-				if ((*it)->id == oldEntity->id) {
-					dynamicSprites->GetSprites().erase(it);
-					break;
-				}
+			dynamicSprites->RemoveSprite(oldEntity);
+			
+			if (evt->changedMapNode->mapNodeType == MapNodeType::GROUND) {
+					// add explosion effect
+					Trans transform = evt->changedNode->GetTransform();
+					transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * transform.localPos.x;
+					transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * transform.localPos.y;
+
+					transform.localPos.z += 10; // increase z-index little bit
+					auto sprite = spriteTypes["explosion"][0];
+					auto explos = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
+					this->explosions.push_back(explos);
+					dynamicSprites->GetSprites().push_back(explos);
+					dynamicSprites->RefreshZIndex();
+				
 			}
 		}
 		else if (evt->changeType == ObjectChangeType::STATIC_CHANGED) {
@@ -147,6 +156,7 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 	StringHash stateIdle = StringHash(STATE_WORKER_IDLE);
 	StringHash stateBuild = StringHash(STATE_WORKER_BUILD);
 	StringHash stateAttract = StringHash(STATE_WORKER_ATTRACTOR_FOLLOW);
+	
 
 	// update transformation of all objects
 	for (auto& dynObj : movingObjects) {
@@ -173,6 +183,72 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 				else if (actualFrame == (startFrame + frames - 1)) frameToSet = startFrame;
 				else frameToSet = actualFrame + 1;
 				sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frameToSet));
+			}
+		}
+	}
+
+	if (CogGetFrameCounter() % 5 == 0) {
+		auto spriteType = spriteTypes["rig_blue"];
+		for (auto& rig : model->GetRigsByFaction(Faction::BLUE)) {
+			if (!spriteType.empty()) {
+				auto startFrame = spriteType[0]->GetFrame();
+
+				auto pos = ofVec2f(rig->GetTransform().localPos);
+
+				auto sprite1 = this->staticSpriteMap[Vec2i(pos.x, pos.y)];
+				auto sprite2 = this->staticSpriteMap[Vec2i(pos.x + 1, pos.y)];
+				auto sprite3 = this->staticSpriteMap[Vec2i(pos.x, pos.y + 1)];
+				auto sprite4 = this->staticSpriteMap[Vec2i(pos.x + 1, pos.y + 1)];
+
+				if (sprite1 && sprite2 && sprite3 &&sprite4) {
+					auto actualFrame = sprite1->sprite->GetFrame() + 4;
+					if (actualFrame == startFrame + 4 * 3) actualFrame = startFrame;
+
+					sprite1->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame));
+					sprite2->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 1));
+					sprite3->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 2));
+					sprite4->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 3));
+				}
+			}
+		}
+
+		spriteType = spriteTypes["rig_red"];
+		for (auto& rig : model->GetRigsByFaction(Faction::RED)) {
+			if (!spriteType.empty()) {
+				auto startFrame = spriteType[0]->GetFrame();
+
+				auto pos = ofVec2f(rig->GetTransform().localPos);
+
+				auto sprite1 = this->staticSpriteMap[Vec2i(pos.x, pos.y)];
+				auto sprite2 = this->staticSpriteMap[Vec2i(pos.x + 1, pos.y)];
+				auto sprite3 = this->staticSpriteMap[Vec2i(pos.x, pos.y + 1)];
+				auto sprite4 = this->staticSpriteMap[Vec2i(pos.x + 1, pos.y + 1)];
+
+				if (sprite1 && sprite2 && sprite3 &&sprite4) {
+					auto actualFrame = sprite1->sprite->GetFrame() + 4;
+					if (actualFrame == startFrame + 4 * 3) actualFrame = startFrame;
+
+					sprite1->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame));
+					sprite2->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 1));
+					sprite3->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 2));
+					sprite4->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 3));
+				}
+			}
+		}
+	}
+
+	if (CogGetFrameCounter() % 3 == 0) {
+		auto spriteType = spriteTypes["explosion"];
+		for (auto it = explosions.begin(); it != explosions.end();) {
+			int startFrame = spriteType[0]->GetFrame();
+			int actualFrame = (*it)->sprite->GetFrame() + 1;
+			if ((actualFrame - startFrame) > 11) {
+				dynamicSprites->RemoveSprite(*it);
+				it = explosions.erase(it);
+			}
+			else {
+				(*it)->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame));
+				++it;
 			}
 		}
 	}

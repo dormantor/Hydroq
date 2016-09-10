@@ -26,6 +26,8 @@ private:
 	map<Vec2i, spt<SpriteEntity>> staticSpriteMap;
 	// collection of dynamic sprites
 	spt<SpritesShape> dynamicSprites;
+
+	vector<spt<SpriteEntity>> explosions;
 	// collection of dynamic sprites, mapping by identifier
 	map<int, spt<SpriteEntity>> dynamicSpriteEntities;
 	

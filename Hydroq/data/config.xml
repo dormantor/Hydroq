@@ -349,7 +349,7 @@
         <transform pos="0gr" z_index="10" />
 
         <node name="playertext">
-          <transform pos_x="1gr" pos_y="2gr" />
+          <transform pos_x="1.3gr" pos_y="2.4gr" />
 		  <text font="MotionControl-Bold.otf" size="54" color="0xFFFFFF">Player Mojo</text>
         </node>
 
@@ -363,34 +363,22 @@
 		  <shape type="plane" size="100" color="0xFFFFFF" no_fill="true" />
         </node>
 		
-        <node name="flashicon" img="game/gm_flashicon.png">
-          <transform pos_x="20gr" pos_y="4gr" anchor="0"   />
-        </node>
-
-        <node name="electricity" img="game/gm_electricity_border.png">
-          <transform pos_x="19gr" pos_y="6.4gr" />
-		  
-		  <node name="electricity_val" img="game/gm_electricity.png">
-		    <transform pos="0.5r" anchor="0.5"  />
-		  </node>
-        </node>
-
 		<node name="counters">
-		  <transform pos_x="1gr" pos_y="27gr"  />
+		  <transform pos_x="18gr" pos_y="12gr" />
 		  <node img="game/gm_counter1.png" >
 		    <transform anchor_y="2.6"  />
 			
 			<node name="counter_units">
-              <transform pos_x="1.5r"  anchor_y="-0.3" />
+              <transform pos_x="1.8r"  anchor_y="-0.3" />
 		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">18/25</text>
             </node>
 		  </node>
 		  
 		  <node img="game/gm_counter3.png" >
-		   <transform anchor_y="2.6" anchor_x="-3.4"  />
+		   <transform anchor_y="1.3" anchor_x="0"  />
 		   
 		   	<node name="counter_buildings">
-              <transform pos_x="1.5r" anchor_y="-0.3"/>
+              <transform pos_x="1.8r" anchor_y="-0.3"/>
 		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">38</text>
             </node>
 		  </node>

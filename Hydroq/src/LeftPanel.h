@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ofxCogMain.h"
-
+#include "HydroqPlayerModel.h"
+#include "HydroqDef.h"
+#include "Board.h"
 
 class LeftPanel : public Behavior {
 	OBJECT_PROTOTYPE(LeftPanel)
@@ -85,7 +87,7 @@ private:
 		ofVec2f size = shape->GetWidth() > shape->GetHeight() ? ofVec2f(0.55f, 0) : ofVec2f(0, 0.55f);
 
 		// reload transform
-		TransformEnt trans = TransformEnt(ofVec2f(0.35f, 0.45f), 10, CalcType::PER, ofVec2f(0.5f), size, CalcType::PER);
+		TransformEnt trans = TransformEnt(ofVec2f(0.345f, 0.55f), 10, CalcType::PER, ofVec2f(0.5f), size, CalcType::PER);
 		TransformMath math = TransformMath();
 		math.SetTransform(mapIcon, mapIcon->GetParent(), trans);
 	}
