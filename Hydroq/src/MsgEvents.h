@@ -28,19 +28,19 @@ class MapObjectChangedEvent : public MsgPayload {
 public:
 	// type of change
 	ObjectChangeType changeType;
-	// changed map node
-	GameMapNode* changedMapNode;
+	// changed map tile
+	GameMapTile* changedMapTile;
 	// changed game node
 	Node* changedNode = nullptr;
 
-	MapObjectChangedEvent(ObjectChangeType changeType, GameMapNode* changedMapNode) :
-		changedMapNode(changedMapNode), changeType(changeType)
+	MapObjectChangedEvent(ObjectChangeType changeType, GameMapTile* changedMapTile) :
+		changedMapTile(changedMapTile), changeType(changeType)
 	{
 
 	}
 
-	MapObjectChangedEvent(ObjectChangeType changeType, GameMapNode* changedMapNode, Node* changedNode) :
-		changedMapNode(changedMapNode), changeType(changeType), changedNode(changedNode)
+	MapObjectChangedEvent(ObjectChangeType changeType, GameMapTile* changedMapTile, Node* changedNode) :
+		changedMapTile(changedMapTile), changeType(changeType), changedNode(changedNode)
 	{
 
 	}

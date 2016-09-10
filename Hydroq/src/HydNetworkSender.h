@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Component.h"
-#include "DeltaInfo.h"
+#include "UpdateInfo.h"
 #include "MsgEvents.h"
-#include "DeltaMessage.h"
+#include "UpdateMessage.h"
 #include "HydroqNetMsg.h"
 #include "HydroqDef.h"
 #include "Behavior.h"
@@ -17,7 +17,7 @@ class GameModel;
 */
 class HydNetworkSender : public Behavior {
 private:
-	HydroqNetworkState networkState = HydroqNetworkState::NONE;
+	HydroqConnectionType connectionType = HydroqConnectionType::NONE;
 	GameModel* model = nullptr;
 	uint64 lastUpdateMsgTime = 0;
 	float updateFrequency = 5;
@@ -27,18 +27,18 @@ public:
 
 	void OnMessage(Msg& msg);
 
-	HydroqNetworkState GetNetworkState() {
-		return this->networkState;
+	HydroqConnectionType GetConnectionType() const {
+		return this->connectionType;
 	}
 
-	void SetNetworkState(HydroqNetworkState networkState) {
-		this->networkState = networkState;
+	void SetConnectionType(HydroqConnectionType connectionType) {
+		this->connectionType = connectionType;
 	}
 
 	/**
 	* Gets frequency how many times the update message should be sent per second
 	*/
-	float GetUpdateFrequency() {
+	float GetUpdateFrequency() const {
 		return updateFrequency;
 	}
 

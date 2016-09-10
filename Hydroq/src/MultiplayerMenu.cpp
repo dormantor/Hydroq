@@ -162,7 +162,7 @@ void MultiplayerMenu::ConnectToHost(spt<HydroqServerInitMsg> serverMsg) {
 	auto model = GETCOMPONENT(PlayerModel);
 	// select the other faction than host
 	Faction selectedFaction = (serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
-	model->StartGame(selectedFaction, serverMsg->GetMap(), HydroqNetworkState::CLIENT);
+	model->StartGame(selectedFaction, serverMsg->GetMap(), HydroqConnectionType::CLIENT);
 	communicator->ConnectToPeer(serverMsg->GetIpAddress());
 	auto stage = GETCOMPONENT(Stage);
 	auto scene = stage->FindSceneByName("game");

@@ -14,7 +14,8 @@ void GotoPositionGoal::OnStart() {
 void GotoPositionGoal::RecalcPath() {
 
 	// find path
-	vector<Vec2i> map = gameModel->GetMap()->FindPath(startCell, endCell, true, 0);
+	vector<Vec2i> map;
+	gameModel->GetMap()->FindPath(startCell, endCell, true,map, 0);
 
 	if (!map.empty()) {
 		ofVec2f firstPoint = map.size() >= 2 ? ofVec2f(map[1].x, map[1].y) + 0.5f : targetPosition;
@@ -22,16 +23,17 @@ void GotoPositionGoal::RecalcPath() {
 
 		for (int i = 2; i < map.size(); i++) {
 			auto point = map[i];
+			// always keep at the center
 			pth->AddSegment(ofVec2f(point.x + 0.5f, point.y + 0.5f));
 		}
 
 		if (map.size() >= 2) {
-			// add the last point
+			// add the last segment
 			pth->AddSegment(targetPosition);
 		}
 
 		// run follow behavior
-		innerBehavior = new FollowBehavior(pth, 60, 0.25f, 0.1f);
+		innerBehavior = new FollowBehavior(pth, 60, 10, 0.25f, 0.1f);
 		owner->AddBehavior(innerBehavior);
 	}
 	else {
@@ -72,7 +74,8 @@ void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 		goalStarted = absolute;
 	}
 	else {
-		if ((absolute - goalStarted) > 100) {
+		// building lasts 350ms
+		if ((absolute - goalStarted) > 350) {
 
 			CogLogDebug("Hydroq", "Building bridge");
 			
@@ -91,11 +94,12 @@ void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 		goalStarted = absolute;
 	}
 	else {
-		if ((absolute - goalStarted) > 3500) {
+		// destroying lasts 2 sec
+		if ((absolute - goalStarted) > 2000) {
 			
 			if (CogGetFrameCounter() % 10 == 0) {
 				
-				// check if nobody is inside the square
+				// check if nobody is inside the area that will be destroyed
 				auto position = ofVec2f(task->GetTaskNode()->GetTransform().localPos + 0.5f);
 				vector<NodeCellObject*> neighbours;
 				gameModel->GetCellSpace()->CalcNeighbors(position, 0.5f, neighbours);
@@ -104,7 +108,6 @@ void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 
 					CogLogDebug("Hydroq", "Destroying bridge");
 
-					// destroy bridge at 3.5s
 					auto position = Vec2i(task->GetTaskNode()->GetTransform().localPos);
 					gameModel->DestroyPlatform(position);
 					task->SetIsEnded(true);

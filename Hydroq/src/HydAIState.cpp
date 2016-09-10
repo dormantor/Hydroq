@@ -25,26 +25,27 @@ void HydAIState::RemoveFromArray(int index, vector<int>& ar) {
 
 
 void HydAIState::Recalc() {
+	// sort all distances from the nearest
 	sort(distancesRed.begin(), distancesRed.end(),
 		[](const int & a, const int & b) -> bool
 	{
-		return a > b;
+		return a < b;
 	});
 	sort(distancesBlue.begin(), distancesBlue.end(),
 		[](const int & a, const int & b) -> bool
 	{
-		return a > b;
+		return a < b;
 	});
 	sort(distancesRedEmpty.begin(), distancesRedEmpty.end(),
 		[](const int & a, const int & b) -> bool
 	{
-		return a > b;
+		return a < b;
 	});
 
 	sort(distancesBlueEmpty.begin(), distancesBlueEmpty.end(),
 		[](const int & a, const int & b) -> bool
 	{
-		return a > b;
+		return a < b;
 	});
 }
 

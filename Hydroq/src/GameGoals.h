@@ -7,6 +7,10 @@
 
 using namespace Cog;
 
+// ========================================================
+//			    Goals for goal-driven behavior
+// ========================================================
+
 class GameModel;
 
 /**
@@ -27,8 +31,8 @@ public:
 
 	GameModel* gameModel;
 
-	GotoPositionGoal(GameModel* gameModel, spt<GameTask> task, Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) : Goal(StrId(GOAL_GOTO_POSITION)),
-		task(task), startCell(startCell), endCell(endCell), startPosition(startPr), targetPosition(targetPr), gameModel(gameModel) {
+	GotoPositionGoal(GameModel* gameModel, spt<GameTask> task, Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) 
+		: Goal(StrId(GOAL_GOTO_POSITION)), task(task), startCell(startCell), endCell(endCell), startPosition(startPr), targetPosition(targetPr), gameModel(gameModel) {
 
 	}
 

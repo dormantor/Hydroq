@@ -24,9 +24,6 @@ void GameView::OnInit() {
 
 
 void GameView::OnMessage(Msg& msg) {
-	if (msg.HasAction(ACT_SCENE_SWITCHED)) {
-		bool mojo = false;
-	}
 	if (msg.HasAction(ACT_SCENE_SWITCHED) 
 		&& msg.GetContextNode()->GetScene()->GetSceneType() != SceneType::DIALOG
 		&& msg.GetContextNode()->GetId() != owner->GetSceneRoot()->GetId()) {
@@ -72,7 +69,7 @@ void GameView::OnMessage(Msg& msg) {
 
 			dynamicSprites->RemoveSprite(oldEntity);
 			
-			if (evt->changedMapNode->mapNodeType == MapNodeType::GROUND) {
+			if (evt->changedMapTile->GetMapTileType() == MapTileType::GROUND) {
 					// add explosion effect
 					Trans transform = evt->changedNode->GetTransform();
 					transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * transform.localPos.x;
@@ -88,10 +85,10 @@ void GameView::OnMessage(Msg& msg) {
 			}
 		}
 		else if (evt->changeType == ObjectChangeType::STATIC_CHANGED) {
-			auto mapNode = evt->changedMapNode;
+			auto mapNode = evt->changedMapTile;
 			// get sprite entity and change its frame
-			spt<SpriteInst> sprEntity = staticSpriteMap[mapNode->pos];
-			auto sprite = spriteTypes[mapNode->mapNodeName][0];
+			spt<SpriteInst> sprEntity = staticSpriteMap[mapNode->GetPosition()];
+			auto sprite = spriteTypes[mapNode->GetMapTileName()][0];
 			sprEntity->sprite = sprite;
 		}
 		else if (evt->changeType == ObjectChangeType::RIG_CAPTURED || evt->changeType == ObjectChangeType::RIG_TAKEN) {
@@ -185,9 +182,9 @@ void GameView::LoadSprites(Setting sprites) {
 	// load all sprites on the map
 	for (int i = 0; i < map->GetWidth(); i++) {
 		for (int j = 0; j < map->GetHeight(); j++) {
-			auto obj = map->GetNode(i, j);
+			auto obj = map->GetTile(i, j);
 
-			Sprite& sprite = spriteTypes[obj->mapNodeName][obj->mapNodeTypeIndex];
+			Sprite& sprite = spriteTypes[obj->GetMapTileName()][obj->GetMapTileTypeIndex()];
 
 			Trans transform = Trans();
 			transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
@@ -292,7 +289,10 @@ void GameView::Update(const uint64 delta, const uint64 absolute) {
 
 	if (CogGetFrameCounter() % 5 == 0) {
 		auto spriteType = spriteTypes["rig_blue"];
-		for (auto& rig : gameModel->GetRigsByFaction(Faction::BLUE)) {
+		vector<Node*> blueRigs;
+		gameModel->GetRigsByFaction(Faction::BLUE, blueRigs);
+
+		for (auto& rig : blueRigs) {
 			if (!spriteType.empty()) {
 				auto startFrame = spriteType[0].GetFrame();
 
@@ -318,7 +318,10 @@ void GameView::Update(const uint64 delta, const uint64 absolute) {
 		}
 
 		spriteType = spriteTypes["rig_red"];
-		for (auto& rig : gameModel->GetRigsByFaction(Faction::RED)) {
+		vector<Node*> redRigs;
+		gameModel->GetRigsByFaction(Faction::RED, redRigs);
+
+		for (auto& rig : redRigs) {
 			if (!spriteType.empty()) {
 				auto startFrame = spriteType[0].GetFrame();
 
@@ -369,26 +372,26 @@ void GameView::Update(const uint64 delta, const uint64 absolute) {
 
 			for (auto& rig : gameModel->GetRigs()) {
 				
-				auto rigHoldings = rig.second->GetAttr<spt<vector<RigPlatform>>>(ATTR_PLATFORMS);
-
-				for (auto& holding : *rigHoldings) {
-					auto platform = this->staticSpriteMap[holding.position];
+				for (auto platformPos :rig.second.platforms) {
+					auto platform = this->staticSpriteMap[platformPos];
 					if (!platform) return;
 
-					if (holding.factionHoldings[Faction::BLUE] == 0 && holding.factionHoldings[Faction::RED] == 0) {
+					auto& holding = rig.second.factionHoldings[platformPos];
+
+					if (holding.blueNumber == 0 && holding.redNumber == 0) {
 
 						if (platform->sprite.GetFrame() != platformDefFrame) {
 							platform->sprite = GetSprite(platformDefFrame);
 						}
 
-					}else if (holding.factionHoldings[Faction::BLUE] > holding.factionHoldings[Faction::RED]) {
+					}else if (holding.blueNumber > holding.redNumber) {
 
 						if (platform->sprite.GetFrame() != platformStompBlueFrame) {
 							platform->sprite = GetSprite(platformStompBlueFrame);
 						}
 
 					}
-					else if(holding.factionHoldings[Faction::BLUE] == holding.factionHoldings[Faction::RED]){
+					else if(holding.blueNumber == holding.redNumber){
 
 						if (platform->sprite.GetFrame() != platformStompBothFrame) {
 							platform->sprite = GetSprite(platformStompBothFrame);

@@ -28,7 +28,7 @@ void GameBoard::OnInit() {
 	owner->GetScene()->FindNodeByTag("object_board")->SetMesh(dynamicSprites);
 
 	// zoom the board little bit out
-	owner->GetTransform().scale /= 2.5f;
+	owner->GetTransform().scale /= 3.5f;
 
 	auto boardShape = owner->GetMesh<Cog::Rectangle>();
 	boardShape->SetWidth(staticSprites->GetWidth());
@@ -36,7 +36,9 @@ void GameBoard::OnInit() {
 
 	// find a player's rig and zoom to it so the rig will be at the center of the game board
 	Faction fact = playerModel->GetFaction();
-	auto ownerRig = gameModel->GetRigsByFaction(fact)[0];
+	vector<Node*> allRigs;
+	gameModel->GetRigsByFaction(fact, allRigs);
+	auto ownerRig = allRigs[0];
 	auto ownerRigPos = ownerRig->GetTransform().localPos;
 	auto mapWidth = gameModel->GetMap()->GetWidth();
 	auto mapHeight = gameModel->GetMap()->GetHeight();

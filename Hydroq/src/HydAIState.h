@@ -9,13 +9,13 @@
 */
 class HydAIState : public AIState {
 public:
-	// distances of all red rigs
+	// distances to all red rigs
 	vector<int> distancesRed;
-	// distances of all blue rigs
+	// distances to all blue rigs
 	vector<int> distancesBlue;
-	// distances of all empty rigs from blue perspective
+	// distances of all empty rigs from blue faction
 	vector<int> distancesBlueEmpty;
-	// distances of all empty rigs from red perspective
+	// distances of all empty rigs from red faction
 	vector<int> distancesRedEmpty;
 
 	HydAIState() {
@@ -39,17 +39,22 @@ public:
 		RemoveFromArray(index, distancesRedEmpty);
 	}
 
+	/**
+	* Gets number of blue rigs
+	*/
 	int GetBlueRigsNum() {
 		return distancesBlue.size();
 	}
 
+	/**
+	* Gets number of red rigs
+	*/
 	int GetRedRigsNum() {
 		return distancesRed.size();
 	}
 
 private:
 	void RemoveFromArray(int index, vector<int>& ar);
-
 
 	void Recalc();
 

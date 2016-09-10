@@ -3,12 +3,12 @@
 void PlayerModel::OnInit() {
 	hydroqAction = HydroqAction::NONE;
 	units = 0;
-	buildings = 0;
+	rigs = 0;
 	faction = Faction::NONE;
 	gameEnded = false;
 	playerWin = false;
 	isMultiplayer = false;
-	networkState = HydroqNetworkState::NONE;
+	connectionType = HydroqConnectionType::NONE;
 }
 
 void PlayerModel::StartGame(Faction faction, string map) {
@@ -18,12 +18,12 @@ void PlayerModel::StartGame(Faction faction, string map) {
 	this->isMultiplayer = false;
 }
 
-void PlayerModel::StartGame(Faction faction, string map, HydroqNetworkState networkState) {
+void PlayerModel::StartGame(Faction faction, string map, HydroqConnectionType connectionType) {
 	OnInit();
 	this->faction = faction;
 	this->map = map;
 	this->isMultiplayer = true;
-	this->networkState = networkState;
+	this->connectionType = connectionType;
 }
 
 void PlayerModel::SetHydroqAction(HydroqAction hydroqAction) {
@@ -43,12 +43,12 @@ void PlayerModel::RemoveUnit(int num) {
 	SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(units - num, num)));
 }
 
-void PlayerModel::AddBuildings(int num) {
-	this->buildings += num;
-	SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(buildings - num, num)));
+void PlayerModel::AddRigs(int num) {
+	this->rigs += num;
+	SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(rigs - num, num)));
 }
 
-void PlayerModel::RemoveBuilding(int num) {
-	this->buildings -= num;
-	SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(buildings - num, num)));
+void PlayerModel::RemoveRigs(int num) {
+	this->rigs -= num;
+	SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(rigs - num, num)));
 }

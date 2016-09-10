@@ -28,8 +28,11 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 }
 
 void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
-	auto allTasks = gameModel->GetGameTasksByFaction(faction);
-	auto allWorkers = gameModel->GetMovingObjectsByType(EntityType::WORKER, faction);
+	vector<spt<GameTask>> allTasks;
+	gameModel->GetGameTasksByFaction(faction, allTasks);
+	
+	vector<Node*> allWorkers;
+	gameModel->GetMovingObjectsByType(EntityType::WORKER, faction, allWorkers);
 	auto map = gameModel->GetMap();
 
 	std::map<int, int> assignedTasks;
@@ -47,7 +50,7 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 			auto taskLocation = task->GetTaskNode()->GetTransform().localPos;
 
 			// node at position the bridge will stay
-			auto mapNode = map->GetNode((int)taskLocation.x, (int)taskLocation.y);
+			auto mapNode = map->GetTile((int)taskLocation.x, (int)taskLocation.y);
 
 			// sort nodes by nearest
 			sort(allWorkers.begin(), allWorkers.end(),
@@ -60,8 +63,8 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 				float absCardinality = gameModel->CalcAttractorAbsCardinality(faction, task->GetTaskNode()->GetId());
 				int neededDistance = absCardinality * 4;
 
-				vector<GameMapNode*> nearestNodes;
-				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);
+				vector<GameMapTile*> nearestNodes;
+				mapNode->FindWalkableNeighbors(neededDistance, nearestNodes);
 
 				if (!nearestNodes.empty()) {
 					vector<Node*> freeWorkers;
@@ -70,7 +73,10 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 						if (assignedTasks.find(worker->GetId()) == assignedTasks.end()) {
 							// if this worker is close to another attractor, skip him
 							bool skip = false;
-							for (auto& attr : gameModel->GetAttractorsByFaction(faction)) {
+							vector<Node*> attractors;
+							gameModel->GetAttractorsByFaction(faction, attractors);
+
+							for (auto& attr : attractors) {
 								if (attr->GetId() != task->GetTaskNode()->GetId()) {
 									ofVec2f attrLoc = (attr->GetTransform().localPos) + 0.5f;
 									if (attrLoc.distance(worker->GetTransform().localPos) < 5) {
@@ -118,7 +124,8 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 							auto nodeToBuildfrom = mapNode->FindWalkableNeighbor(Vec2i(nodeLocation.x, nodeLocation.y));
 
 							if (nodeToBuildfrom != nullptr) {
-								vector<Vec2i> path = map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), nodeToBuildfrom->pos, true, 2 * manhattanDistance);
+								vector<Vec2i> path;
+								map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), nodeToBuildfrom->GetPosition(), true, path, 2 * manhattanDistance);
 
 								if (!path.empty()) {
 									// assign
@@ -144,7 +151,8 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 							auto nodeToBuildfrom = mapNode->FindWalkableNeighbor(Vec2i(nodeLocation.x, nodeLocation.y));
 
 							if (nodeToBuildfrom != nullptr) {
-								vector<Vec2i> path = map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), Vec2i(taskLocation.x, taskLocation.y), true, 0);
+								vector<Vec2i> path;
+								map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), Vec2i(taskLocation.x, taskLocation.y), true, path, 0);
 
 								if (!path.empty()) {
 									// assign

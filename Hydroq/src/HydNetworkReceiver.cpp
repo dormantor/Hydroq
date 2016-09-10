@@ -3,7 +3,7 @@
 
 void HydNetworkReceiver::OnInit() {
 	auto playerModel = GETCOMPONENT(PlayerModel);
-	if (playerModel->GetNetworkState() == HydroqNetworkState::NONE) {
+	if (playerModel->GetConnectionType() == HydroqConnectionType::NONE) {
 		owner->RemoveBehavior(this, true);
 	}
 
@@ -27,9 +27,9 @@ void HydNetworkReceiver::OnMessage(Msg& msg) {
 			}
 		}
 		else if (type == NetMsgType::UPDATE) {
-			if (action == NET_MSG_DELTA_UPDATE) {
+			if (action == NET_MSG_UPDATE) {
 				// update message
-				ProcessDeltaUpdate(netMsg);
+				ProcessUpdateMsg(netMsg);
 			}
 			else if (action == NET_MULTIPLAYER_COMMAND) {
 				// command message
@@ -39,13 +39,13 @@ void HydNetworkReceiver::OnMessage(Msg& msg) {
 	}
 }
 
-void HydNetworkReceiver::ProcessDeltaUpdate(spt<NetInputMessage> netMsg) {
-	// just transform message and resend it to the DeltaUpdate component
-	spt<DeltaMessage> deltaMsg = netMsg->GetData<DeltaMessage>();
-	spt<DeltaInfo> deltaInfo = spt<DeltaInfo>(new DeltaInfo(netMsg->GetMsgTime(), deltaMsg->GetDeltas(), deltaMsg->GetTeleports()));
+void HydNetworkReceiver::ProcessUpdateMsg(spt<NetInputMessage> netMsg) {
+	// just transform message and resend it to the Interpolator component
+	spt<UpdateMessage> updateMsg = netMsg->GetData<UpdateMessage>();
+	spt<UpdateInfo> deltaInfo = spt<UpdateInfo>(new UpdateInfo(netMsg->GetMsgTime(), updateMsg->GetContinuousValues(), updateMsg->GetDiscreteValues()));
 
-	auto deltaUpdate = GETCOMPONENT(DeltaUpdate);
-	deltaUpdate->AcceptDeltaUpdate(deltaInfo);
+	auto deltaUpdate = GETCOMPONENT(Interpolator);
+	deltaUpdate->AcceptUpdateMessage(deltaInfo);
 }
 
 void HydNetworkReceiver::ProcessMultiplayerInit(spt<NetInputMessage> netMsg) {

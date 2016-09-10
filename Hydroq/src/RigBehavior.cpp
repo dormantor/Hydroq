@@ -4,37 +4,23 @@
 #include "Node.h"
 
 
-void RigBehavior::OnStart() {
-	frequencySh = StrId(ATTR_SEEDBED_FREQUENCY);
-	lastSpawnSh = StrId(ATTR_SEEDBED_LASTSPAWN);
-
-	// set spawn frequency
-	if (!owner->HasAttr(frequencySh)) {
-		owner->AddAttr(frequencySh, 0.3f);
-	}
-
-	if (!owner->HasAttr(lastSpawnSh)) {
-		owner->AddAttr(lastSpawnSh, (uint64)0);
-	}
-}
 
 void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
-	// spawns per second
-	float frequency = owner->GetAttr<float>(frequencySh);
-	uint64 lastSpawn = owner->GetAttr<uint64>(lastSpawnSh);
-
+	
 	if (lastSpawn == 0) {
-		// set initial value of the last spawn
-		owner->ChangeAttr(lastSpawnSh, absolute);
+		// first spawn after 1s
+		lastSpawn = absolute+1000*spawnFrequency;
 	}
 	else {
-		int spawnDelay = absolute - lastSpawn;
+		
 
-		float spawnDelayRat = (spawnDelay)/1000.0f;
-		if (spawnDelayRat > 1.0f/frequency) {
+		if (IsProperTime(lastSpawn,absolute, spawnFrequency)) {
+		
 			// spawn a worker
-			owner->ChangeAttr(lastSpawnSh, absolute);
-
+			lastSpawn = absolute;
+			
+			// set starting position as a random position near
+			// the drilling rig
 			float circuitPosition = ofRandom(0, 8);
 			float posX = 0;
 			float posY = 0;
@@ -57,10 +43,11 @@ void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 				posY = thisPos.y + (8 - circuitPosition);
 			}
 
+			// spawn worker
 			Faction faction = owner->GetAttr<Faction>(ATTR_FACTION);
 			gameModel->SpawnWorker(ofVec2f(posX, posY),faction,0, Vec2i(owner->GetTransform().localPos.x, owner->GetTransform().localPos.y));
 
-			if (totalWorkers++ > 20) Finish();
+			if (totalWorkers++ > maxWorkers) Finish();
 		}
 	}
 }

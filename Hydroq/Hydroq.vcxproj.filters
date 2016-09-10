@@ -205,6 +205,9 @@
     <ClInclude Include="src\MenuIconBehavior.h">
       <Filter>GameGUI</Filter>
     </ClInclude>
+    <ClInclude Include="src\Rig.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

@@ -10,28 +10,28 @@
 
 using namespace Cog;
 
- MapNodeType Helper::GetMapNodeTypeByName(string name) {
+ MapTileType Helper::GetMapTileTypeByName(string name) {
 	
-	if (name.compare("water") == 0) return MapNodeType::WATER;
-	else if (name.compare("ground") == 0) return MapNodeType::GROUND;
+	if (name.compare("water") == 0) return MapTileType::WATER;
+	else if (name.compare("ground") == 0) return MapTileType::GROUND;
 	else if (name.compare("rig") == 0) {
-		return MapNodeType::RIG;
+		return MapTileType::RIG;
 	}else if (name.compare("rig_platform") == 0) {
-		return MapNodeType::RIG_PLATFORM;
+		return MapTileType::RIG_PLATFORM;
 	}
 
-	return MapNodeType::NONE;
+	return MapTileType::NONE;
 }
 
- string Helper::GetMapNameByNodeType(MapNodeType type) {
+ string Helper::GetMapNameByTileType(MapTileType type) {
 	 switch (type) {
-	 case MapNodeType::GROUND:
+	 case MapTileType::GROUND:
 		 return "ground";
-	 case MapNodeType::RIG:
+	 case MapTileType::RIG:
 		 return "rig";
-	 case MapNodeType::WATER:
+	 case MapTileType::WATER:
 		 return "water";
-	 case MapNodeType::RIG_PLATFORM:
+	 case MapTileType::RIG_PLATFORM:
 		 return "rig_platform";
 	 }
 

@@ -104,7 +104,7 @@ void HostInit::Update(const uint64 delta, const uint64 absolute) {
 		auto model = GETCOMPONENT(PlayerModel);
 		
 		// select the other faction than client
-		model->StartGame(GetSelectedFaction(), GetSelectedMap(), HydroqNetworkState::SERVER);
+		model->StartGame(GetSelectedFaction(), GetSelectedMap(), HydroqConnectionType::SERVER);
 		auto stage = GETCOMPONENT(Stage);
 		auto scene = stage->FindSceneByName("game");
 

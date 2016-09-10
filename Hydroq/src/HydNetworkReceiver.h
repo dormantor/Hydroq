@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Component.h"
-#include "DeltaInfo.h"
+#include "UpdateInfo.h"
 #include "HydroqNetMsg.h"
-#include "DeltaUpdate.h"
+#include "Interpolator.h"
 #include "HydroqDef.h"
 #include "MsgEvents.h"
 #include "GameModel.h"
@@ -22,9 +22,9 @@ public:
 	void OnMessage(Msg& msg);
 
 	/**
-	* Processes delta update message
+	* Processes update message
 	*/
-	void ProcessDeltaUpdate(spt<NetInputMessage> netMsg);
+	void ProcessUpdateMsg(spt<NetInputMessage> netMsg);
 
 	/**
 	* Processes multiplayer initialization message

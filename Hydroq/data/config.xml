@@ -16,7 +16,7 @@
       <setting name="logger" level="DEBUG">
         <item key="channel" value="console" />
 		<item key="module_include">
-		  <value>Hydroqbla</value>
+		  <value>GameAI</value>
 		</item>
       </setting>
 	  

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NetMessage.h"
-#include "DeltaMessage.h"
+#include "UpdateMessage.h"
 #include "HydroqDef.h"
 #include "Vec2i.h"
 

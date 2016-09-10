@@ -55,11 +55,11 @@ void HydAISimulator::MakeAction(HydAIAction act) {
 	else if (act.type == HydAIActionType::GOTO_EMPTY) {
 		if (IsBlueEnemy()) {
 			actualState.distancesRedEmpty[index]--;
-			SetRewards(2, 0);
+			SetRewards(5, 0);
 		}
 		else {
 			actualState.distancesBlueEmpty[index]--;
-			SetRewards(0, 2);
+			SetRewards(0, 5);
 		}
 	}
 	else if (act.type == HydAIActionType::GOTO_ENEMY) {
@@ -92,7 +92,8 @@ void HydAISimulator::RecalcPossibleActions() {
 			possibleActions.push_back(HydAIAction(HydAIActionType::CAPTURE_ENEMY, i));
 		}
 		else {
-			// non-zero distance
+			// if the distance to the rig is no zero, it means that there is no bridge
+			// that leads directly to the rig and therefore the bridge must be built first
 			possibleActions.push_back(HydAIAction(HydAIActionType::GOTO_ENEMY, i));
 		}
 	}

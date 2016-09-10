@@ -8,7 +8,7 @@ namespace Cog {
 	class Node;
 }
 
-enum class MapNodeType;
+enum class MapTileType;
 
 /**
 * Static class with helping methods
@@ -16,14 +16,14 @@ enum class MapNodeType;
 class Helper {
 public:
 	/**
-	* Gets type of mapnode by its name
+	* Gets type of maptile by its name
 	*/
-	static MapNodeType GetMapNodeTypeByName(string name);
+	static MapTileType GetMapTileTypeByName(string name);
 
 	/**
-	* Gets name of mapnode by its type
+	* Gets name of maptile by its type
 	*/
-	static string GetMapNameByNodeType(MapNodeType type);
+	static string GetMapNameByTileType(MapTileType type);
 
 	/**
 	* Sets item of a panel - simulates listview

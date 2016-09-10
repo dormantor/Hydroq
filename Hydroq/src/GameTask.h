@@ -14,6 +14,9 @@ enum class GameTaskType {
 	ATTRACT				/** task for comming to the attractor position */
 };
 
+/**
+* Crate describing game task to do
+*/
 class GameTask {
 private:
 	// task type

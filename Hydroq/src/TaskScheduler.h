@@ -10,6 +10,10 @@
 #include "PlayerModel.h"
 #include "ComponentStorage.h"
 
+/**
+* Scheduler that searches in a set of not assigned tasks and tries to
+* assign them to available workers
+*/
 class TaskScheduler : public Behavior {
 
 private:
@@ -21,21 +25,33 @@ public:
 
 	}
 
-	virtual void OnInit() {
+	void OnInit() {
 		playerModel = GETCOMPONENT(PlayerModel);
 	}
 
-	void CalcAssignedTasks(vector<spt<GameTask>>& tasks, map<int, int>& output);
-
-	void ScheduleTasks(uint64 absolute);
-
-	void ScheduleTasksForFaction(uint64 absolute, Faction faction);
-
 	virtual void Update(const uint64 delta, const uint64 absolute) {
-		
-		if (CogGetFrameCounter() % 30 == 0) {
+		if (CogGetFrameCounter() % 60 == 0) {
 			ScheduleTasks(absolute);
 		}
 	}
+
+
+protected:
+	/**
+	* Calculates for each worker a number of assigned tasks
+	* @param tasks collection of tasks
+	* @param output map of worker identifiers and number of tasks they have assigned
+	*/
+	void CalcAssignedTasks(vector<spt<GameTask>>& tasks, map<int, int>& output);
+
+	/**
+	* Schedules tasks for all workers
+	*/
+	void ScheduleTasks(uint64 absolute);
+
+	/**
+	* Schedules tasks for selected faction (only for games against AI)
+	*/
+	void ScheduleTasksForFaction(uint64 absolute, Faction faction);
 
 };

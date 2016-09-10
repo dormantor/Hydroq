@@ -12,15 +12,24 @@
 class PlayerModel : public Component {
 
 private:
+	// selected action
 	HydroqAction hydroqAction;
+	// number of units
 	int units = 0;
-	int buildings = 0;
+	// number of captured rigs
+	int rigs = 0;
+	// player faction
 	Faction faction;
+	// indicator whether player won
 	bool playerWin = false;
+	// indicator whether game ended
 	bool gameEnded = false;
+	// selected map
 	string map;
+	// indicator for multiplayer
 	bool isMultiplayer = false;
-	HydroqNetworkState networkState;
+	// state of the network
+	HydroqConnectionType connectionType;
 public:
 
 	~PlayerModel() {
@@ -29,68 +38,136 @@ public:
 
 	void OnInit();
 
+	/**
+	* Starts a new game
+	* @param faction selected faction
+	* @param map selected map
+	*/
 	void StartGame(Faction faction, string map);
 
-	void StartGame(Faction faction, string map, HydroqNetworkState networkState);
+	/**
+	* Starts a new game
+	* @param faction selected faction
+	* @param map selected map
+	* @param connectionType type of the connection
+	*/
+	void StartGame(Faction faction, string map, HydroqConnectionType connectionType);
 
-	bool IsMultiplayer() {
+	/**
+	* Gets indicator whether multiplayer mode is selected
+	*/
+	bool IsMultiplayer() const {
 		return isMultiplayer;
 	}
 
-	string GetMap() {
+	/**
+	* Gets name of selected map
+	*/
+	string GetMap() const {
 		return map;
 	}
 
-	HydroqNetworkState GetNetworkState() {
-		return networkState;
+	/**
+	* Gets connection type
+	*/
+	HydroqConnectionType GetConnectionType() const {
+		return connectionType;
 	}
 
-	HydroqAction GetHydroqAction() {
+	/**
+	* Gets type of selected action
+	*/
+	HydroqAction GetHydroqAction() const {
 		return hydroqAction;
 	}
 
-	Faction GetFaction() {
+	/**
+	* Gets selected faction
+	*/
+	Faction GetFaction() const {
 		return faction;
 	}
 
-	bool PlayerWin() {
-		return playerWin;
-	}
-
-	void SetPlayerWin(bool win) {
-		this->playerWin = win;
-	}
-
-	bool GameEnded() {
-		return gameEnded;
-	}
-
-	void SetGameEnded(bool gameEnded) {
-		this->gameEnded = gameEnded;
-	}
-
+	/**
+	* Sets selected faction
+	*/
 	void SetFaction(Faction faction) {
 		this->faction = faction;
 	}
 
+	/**
+	* Gets indicator whether player won
+	*/
+	bool PlayerWin() const {
+		return playerWin;
+	}
+
+	/**
+	* Sets indicator whether player won
+	*/
+	void SetPlayerWin(bool win) {
+		this->playerWin = win;
+	}
+
+	/**
+	* Gets indicator whether game ended
+	*/
+	bool GameEnded() const {
+		return gameEnded;
+	}
+
+	/**
+	* Sets indicator whether game ended
+	*/
+	void SetGameEnded(bool gameEnded) {
+		this->gameEnded = gameEnded;
+	}
+
+	/**
+	* Sets selected faction
+	* @param hydroqAction action to select
+	*/
 	void SetHydroqAction(HydroqAction hydroqAction);
 
-	int GetUnits() {
+	/**
+	* Gets number of units of this player
+	*/
+	int GetUnits() const {
 		return units;
 	}
 
+	/**
+	* Adds new units 
+	* @param num units to add
+	*/
 	void AddUnit(int num);
 
+	/**
+	* Removes units
+	* @param num units to remove
+	*/
 	void RemoveUnit(int num);
 
-	int GetBuildings() {
-		return buildings;
+	/**
+	* Gets number of rigs of the player
+	*/
+	int GetRigs() const {
+		return rigs;
 	}
 
-	void AddBuildings(int num);
+	/**
+	* Adds new rigs
+	* @param num number of rigs to add
+	*/
+	void AddRigs(int num);
 
-	void RemoveBuilding(int num);
+	/**
+	* Removes rigs
+	* @param num number of rigs to remove
+	*/
+	void RemoveRigs(int num);
 
 	virtual void Update(const uint64 delta, const uint64 absolute) {
+
 	}
 };

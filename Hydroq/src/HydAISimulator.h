@@ -15,6 +15,9 @@ using namespace Cog;
 
 /**
 * Simulator for AI; takes actions and transforms states
+*
+* The Hydroq simulator doesn't work with units nor with map; it only knows distances
+* of paths between rigs and his decisions are transformed to list of tasks for units 
 */
 class HydAISimulator : public Simulator<HydAIState, HydAIAction>
 {
@@ -37,7 +40,9 @@ public:
 		return copy;
 	}
 
-
+	/**
+	* Returns true, if the enemy faction is a blue faction
+	*/
 	bool IsBlueEnemy();
 
 	void SetRewards(int blueReward, int redReward);

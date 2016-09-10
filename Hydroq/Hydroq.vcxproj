@@ -251,6 +251,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\GameGoals.h" />
     <ClInclude Include="src\HydroqNetMsg.h" />
     <ClInclude Include="src\PlayerController.h" />
+    <ClInclude Include="src\Rig.h" />
     <ClInclude Include="src\TileEventBehavior.h" />
     <ClInclude Include="src\Helper.h" />
     <ClInclude Include="src\GameMap.h" />

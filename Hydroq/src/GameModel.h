@@ -10,12 +10,7 @@
 #include "Scene.h"
 #include "NodeCellObject.h"
 #include "PlayerModel.h"
-
-class RigPlatform {
-public:
-	Vec2i position;
-	map<Faction, int> factionHoldings;
-};
+#include "Rig.h"
 
 /**
 * Hydroq game model
@@ -23,33 +18,28 @@ public:
 class GameModel : public Behavior {
 
 private:
-	// static objects (map, water, platforms)
+	// map of static objects (map, water, platforms)
 	GameMap* hydroqMap;
 	// cell partitioner for moving objects
 	GridSpace<NodeCellObject>* cellSpace;
-	
-	// dynamic objects (buildings)
+	// dynamic objects (building marks, forbidden marks)
 	map<Vec2i, Node*> dynObjects;
-	// moving objects (units)
+	// moving objects (workers)
 	vector<Node*> movingObjects;
-	// subset of dynamic objects -> rigs
-	map<Vec2i, Node*> rigs;
-	// attractors
+	// placed attractors
 	map<Faction, map<Vec2i, Node*>> attractors;
-
-	// rigs positions and workers the rig created
-	map<Vec2i, vector<Node*>> workers;
+	// rig entities
+	map<Vec2i, Rig> rigs;
 	
-	// scene and its root node that run separately from the view
-	// part of the game
+	// game scene that runs separately from the stage
 	Scene* gameScene;
+	// root node of the game scene
 	Node* rootNode;
-
-	
+	// name of selected map
 	string mapName;
 	// list of waiting tasks
 	vector<spt<GameTask>> gameTasks;
-	
+	// link to player model
 	PlayerModel* playerModel;
 
 public:
@@ -60,29 +50,35 @@ public:
 
 	void OnInit();
 
-	Node* GetRootNode() {
+	/**
+	* Gets root node of the scene that belongs to the behavior and
+	* is updated separately from the Stage
+	*/
+	Node* GetRootNode() const {
 		return rootNode;
 	}
 
-	GameMap* GetMap() {
+	/**
+	* Gets map
+	*/
+	GameMap* GetMap() const {
 		return hydroqMap;
 	}
 
-	GridSpace<NodeCellObject>* GetCellSpace() {
+	/**
+	* Gets partitioned map space for quick search
+	*/
+	GridSpace<NodeCellObject>* GetCellSpace() const {
 		return cellSpace;
 	}
 
-	string GetMapName() {
+	/**
+	* Gets name of actual map
+	*/
+	string GetMapName() const {
 		return mapName;
 	}
 
-	map<Faction, map<Vec2i, Node*>>& GetAttractors() {
-		return attractors;
-	}
-
-	vector<Node*>& GetWorkersOfRigAtPosition(Vec2i pos) {
-		return workers[pos];
-	}
 
 	/**
 	* Returns true, if a building can be built on selected position
@@ -90,7 +86,7 @@ public:
 	bool IsPositionFreeForBuilding(Vec2i position);
 
 	/**
-	* Returns true, if a bridge (platform) can be built on selected position
+	* Returns true, if a bridge can be built on selected position
 	*/
 	bool IsPositionFreeForBridge(Vec2i position);
 
@@ -104,6 +100,9 @@ public:
 	*/
 	void MarkPositionForBridge(Vec2i position, Faction faction);
 
+	/**
+	* Deletes mark for building a bridge
+	*/
 	void DeleteBridgeMark(Vec2i position);
 
 	/**
@@ -122,7 +121,7 @@ public:
 	void MarkPositionForForbid(Vec2i position);
 
 	/**
-	* Delete forbidden mark
+	* Deletes forbidden mark
 	*/
 	void DeleteForbidMark(Vec2i position);
 
@@ -137,7 +136,7 @@ public:
 	bool PositionContainsDestroyMark(Vec2i position);
 
 	/**
-	* Marks selected position to be intended for destroy
+	* Marks selected position to be destroyed
 	*/
 	void MarkPositionForDestroy(Vec2i position, Faction faction);
 
@@ -157,7 +156,7 @@ public:
 	void BuildPlatform(Vec2i position);
 
 	/**
-	* Creates a platform on selected position
+	* Creates a platform on selected position for selected faction
 	*/
 	void BuildPlatform(Vec2i position, Faction faction, int identifier);
 
@@ -171,16 +170,34 @@ public:
 	*/
 	void DestroyPlatform(Vec2i position, Faction faction, int identifier);
 
+	/**
+	* Adds a new attractor at selected position
+	*/
 	void AddAttractor(Vec2i position, Faction faction, float cardinality);
 
+	/**
+	* Destroys selected attractor
+	*/
 	void DestroyAttractor(Vec2i position, Faction faction);
 
+	/**
+	* Destroys all attractors of selected faction
+	*/
 	void DestroyAllAttractors(Faction faction);
 
+	/**
+	* Changes cardinality of an attractor at selected position
+	*/
 	void ChangeAttractorCardinality(Vec2i position, Faction faction, float cardinality);
 
+	/**
+	* Calculates cardinality of attractor with selected id
+	*/
 	float CalcAttractorAbsCardinality(Faction faction, int attractorId);
 
+	/**
+	* Changes owner of a rig
+	*/
 	void ChangeRigOwner(Node* rig, Faction faction);
 
 	/**
@@ -204,32 +221,70 @@ public:
 		return this->gameTasks;
 	}
 
-	map<Vec2i, Node*>& GetRigs() {
+	/**
+	* Gets collection of rigs
+	*/
+	map<Vec2i, Rig>& GetRigs() {
 		return rigs;
+	}
+
+	/**
+	* Gets rig by position
+	*/
+	Rig& GetRigAtPosition(Vec2i pos)  {
+		return rigs[pos];
+	}
+
+	/**
+	* Gets collection of placed attractors
+	*/
+	map<Faction, map<Vec2i, Node*>>& GetAttractors() {
+		return attractors;
 	}
 
 	/**
 	* Gets copy of game tasks
 	*/
-	vector<spt<GameTask>> GetGameTasksByFaction(Faction faction);
+	void GetGameTasksByFaction(Faction faction, vector<spt<GameTask>>& output);
 
-	vector<Node*> GetMovingObjectsByType(EntityType type, Faction faction);
+	/**
+	* Gets collection of moving objects by type
+	*/
+	void GetMovingObjectsByType(EntityType type, Faction faction, vector<Node*>& output);
 
+	/**
+	* Removes game task
+	*/
 	bool RemoveGameTask(spt<GameTask> task);
 
+	/**
+	* Finds nearest rig around selected position by its faction
+	*/
 	Node* FindNearestRigByFaction(Faction fact, ofVec2f startPos);
 
-	vector<Node*> GetRigsByFaction(Faction fact);
+	/**
+	* Gets collection of rigs by faction
+	*/
+	void GetRigsByFaction(Faction fact, vector<Node*>& output);
 
-	vector<Node*> GetAttractorsByFaction(Faction fact);
+	/**
+	* Gets collection of attractors by faction
+	*/
+	void GetAttractorsByFaction(Faction fact, vector<Node*>& output);
 
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 
-	private:
+private:
 
+	/**
+	* Returns true, if the map at selected position is of a given type
+	*/
 	bool IsPositionOfType(Vec2i position, EntityType type);
 
+	/**
+	* Creates dynamic object at selected position
+	*/
 	Node* CreateDynamicObject(Vec2i position, EntityType entityType, Faction faction, int identifier);
 
 	/**
@@ -237,13 +292,28 @@ public:
 	*/
 	void DestroyDynamicObject(Vec2i position);
 
+	/**
+	* Creates moving object at selected position
+	*/
 	Node* CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier);
 
+	/**
+	* Sends message outside the game scene (to the stage)
+	*/
 	void SendMessageOutside(StrId action, int subaction, spt<MsgPayload> data);
 
+	/**
+	* Sends message to the game scene that runs separately from the stage
+	*/
 	void SendMessageToModel(StrId action, int subaction, spt<MsgPayload> data);
 
+	/**
+	* Creates a new node of a given type
+	*/
 	Node* CreateNode(EntityType entityType, ofVec2f position, Faction faction, int identifier);
 
+	/**
+	* Divides rigs into factions
+	*/
 	void DivideRigsIntoFactions();
 };

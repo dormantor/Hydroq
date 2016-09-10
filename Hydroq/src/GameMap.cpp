@@ -5,27 +5,27 @@
 // ===================================== GameMapNode ========================================
 
 
-GameMapNode* GameMapNode::FindWalkableNeighbor(Vec2i preferredPosition) {
+GameMapTile* GameMapTile::FindWalkableNeighbor(Vec2i preferredDirection) {
 
-	if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
+	if (preferredDirection.x <= pos.x && preferredDirection.y <= pos.y) {
 		if (top != nullptr && top->IsWalkable()) return top;
 		if (left != nullptr && left->IsWalkable()) return left;
 		if (right != nullptr && right->IsWalkable()) return right;
 		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 	}
-	else if (preferredPosition.x <= pos.x && preferredPosition.y > pos.y) {
+	else if (preferredDirection.x <= pos.x && preferredDirection.y > pos.y) {
 		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 		if (left != nullptr && left->IsWalkable()) return left;
 		if (right != nullptr && right->IsWalkable()) return right;
 		if (top != nullptr && top->IsWalkable()) return top;
 	}
-	else if (preferredPosition.x > pos.x && preferredPosition.y <= pos.y) {
+	else if (preferredDirection.x > pos.x && preferredDirection.y <= pos.y) {
 		if (top != nullptr && top->IsWalkable()) return top;
 		if (right != nullptr && right->IsWalkable()) return right;
 		if (left != nullptr && left->IsWalkable()) return left;
 		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 	}
-	else if (preferredPosition.x > pos.x && preferredPosition.y > pos.y) {
+	else if (preferredDirection.x > pos.x && preferredDirection.y > pos.y) {
 		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 		if (right != nullptr && right->IsWalkable()) return right;
 		if (left != nullptr && left->IsWalkable()) return left;
@@ -35,53 +35,52 @@ GameMapNode* GameMapNode::FindWalkableNeighbor(Vec2i preferredPosition) {
 	return nullptr;
 }
 
-void GameMapNode::FindWalkableNeighbor(int distance, vector<GameMapNode*>& output) {
+void GameMapTile::FindWalkableNeighbors(int distance, vector<GameMapTile*>& output) {
 
 	if (this->IsWalkable()) output.push_back(this);
 
 	if (distance > 0) {
-		if (top != nullptr) top->FindWalkableNeighbor(distance - 1, output);
-		if (topRight != nullptr) topRight->FindWalkableNeighbor(distance - 1, output);
-		if (right != nullptr) right->FindWalkableNeighbor(distance - 1, output);
-		if (bottomRight != nullptr) bottomRight->FindWalkableNeighbor(distance - 1, output);
-		if (bottom != nullptr) bottom->FindWalkableNeighbor(distance - 1, output);
-		if (left != nullptr) left->FindWalkableNeighbor(distance - 1, output);
-		if (topLeft != nullptr) topLeft->FindWalkableNeighbor(distance - 1, output);
-		if (bottomLeft != nullptr) bottomLeft->FindWalkableNeighbor(distance - 1, output);
+		if (top != nullptr) top->FindWalkableNeighbors(distance - 1, output);
+		if (topRight != nullptr) topRight->FindWalkableNeighbors(distance - 1, output);
+		if (right != nullptr) right->FindWalkableNeighbors(distance - 1, output);
+		if (bottomRight != nullptr) bottomRight->FindWalkableNeighbors(distance - 1, output);
+		if (bottom != nullptr) bottom->FindWalkableNeighbors(distance - 1, output);
+		if (left != nullptr) left->FindWalkableNeighbors(distance - 1, output);
+		if (topLeft != nullptr) topLeft->FindWalkableNeighbors(distance - 1, output);
+		if (bottomLeft != nullptr) bottomLeft->FindWalkableNeighbors(distance - 1, output);
 	}
 }
 
-GameMapNode* GameMapNode::FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {
-	if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
-		if (top != nullptr && top->mapNodeType == type) return top;
-		if (left != nullptr && left->mapNodeType == type) return left;
-		if (right != nullptr && right->mapNodeType == type) return right;
-		if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
+GameMapTile* GameMapTile::FindNeighborByType(MapTileType type, Vec2i preferredDirection) {
+	if (preferredDirection.x <= pos.x && preferredDirection.y <= pos.y) {
+		if (top != nullptr && top->mapTileType == type) return top;
+		if (left != nullptr && left->mapTileType == type) return left;
+		if (right != nullptr && right->mapTileType == type) return right;
+		if (bottom != nullptr && bottom->mapTileType == type) return bottom;
 	}
-	else if (preferredPosition.x <= pos.x && preferredPosition.y > pos.y) {
-		if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
-		if (left != nullptr && left->mapNodeType == type) return left;
-		if (right != nullptr && right->mapNodeType == type) return right;
-		if (top != nullptr && top->mapNodeType == type) return top;
+	else if (preferredDirection.x <= pos.x && preferredDirection.y > pos.y) {
+		if (bottom != nullptr && bottom->mapTileType == type) return bottom;
+		if (left != nullptr && left->mapTileType == type) return left;
+		if (right != nullptr && right->mapTileType == type) return right;
+		if (top != nullptr && top->mapTileType == type) return top;
 	}
-	else if (preferredPosition.x > pos.x && preferredPosition.y <= pos.y) {
-		if (top != nullptr && top->mapNodeType == type) return top;
-		if (right != nullptr && right->mapNodeType == type) return right;
-		if (left != nullptr && left->mapNodeType == type) return left;
-		if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
+	else if (preferredDirection.x > pos.x && preferredDirection.y <= pos.y) {
+		if (top != nullptr && top->mapTileType == type) return top;
+		if (right != nullptr && right->mapTileType == type) return right;
+		if (left != nullptr && left->mapTileType == type) return left;
+		if (bottom != nullptr && bottom->mapTileType == type) return bottom;
 	}
-	else if (preferredPosition.x > pos.x && preferredPosition.y > pos.y) {
-		if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
-		if (right != nullptr && right->mapNodeType == type) return right;
-		if (left != nullptr && left->mapNodeType == type) return left;
-		if (top != nullptr && top->mapNodeType == type) return top;
+	else if (preferredDirection.x > pos.x && preferredDirection.y > pos.y) {
+		if (bottom != nullptr && bottom->mapTileType == type) return bottom;
+		if (right != nullptr && right->mapTileType == type) return right;
+		if (left != nullptr && left->mapTileType == type) return left;
+		if (top != nullptr && top->mapTileType == type) return top;
 	}
 
 	return nullptr;
 }
 
-vector<GameMapNode*> GameMapNode::GetNeighbors() {
-	vector<GameMapNode*> output;
+void GameMapTile::GetNeighbors(vector<GameMapTile*>& output) {
 	if (top != nullptr) output.push_back(top);
 	if (topRight != nullptr) output.push_back(topRight);
 	if (right != nullptr) output.push_back(right);
@@ -90,18 +89,13 @@ vector<GameMapNode*> GameMapNode::GetNeighbors() {
 	if (bottomLeft != nullptr) output.push_back(bottomLeft);
 	if (left != nullptr) output.push_back(left);
 	if (topLeft != nullptr) output.push_back(topLeft);
-
-	return output;
 }
 
-vector<GameMapNode*> GameMapNode::GetNeighborsFourDirections() {
-	vector<GameMapNode*> output;
+void GameMapTile::GetNeighborsFourDirections(vector<GameMapTile*>& output) {
 	if (top != nullptr) output.push_back(top);
 	if (right != nullptr) output.push_back(right);
 	if (bottom != nullptr) output.push_back(bottom);
 	if (left != nullptr) output.push_back(left);
-
-	return output;
 }
 
 
@@ -111,40 +105,42 @@ void GameMap::LoadMap(Settings mapConfig, string selectedMap) {
 
 	this->mapConfig = mapConfig;
 
+	// load path to map from config
 	string mapPath = mapConfig.GetSettingVal("maps_files", selectedMap);
 
 	if (mapPath.empty()) throw ConfigErrorException(string_format("Path to map %s not found", selectedMap.c_str()));
-	// load map
+	
+	// load map from PNG image
 	MapLoader mapLoad = MapLoader();
 	TileMap tileMap;
 	mapLoad.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names"), tileMap);
 	this->LoadMap(tileMap);
 }
 
-void GameMap::LoadMap(TileMap& brickMap) {
-	this->width = brickMap.width;
-	this->height = brickMap.height;
+void GameMap::LoadMap(TileMap& tileMap) {
+	this->width = tileMap.width;
+	this->height = tileMap.height;
 	gridNoBlock = GridGraph(width, height);
 	gridWithBlocks = GridGraph(width, height);
 
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
-			Tile br = brickMap.GetTile(i, j);
+			
+			Tile br = tileMap.GetTile(i, j);
+			GameMapTile* tile = new GameMapTile();
 
-			GameMapNode* node = new GameMapNode();
+			tile->mapTileName = br.name;
+			tile->mapTileTypeIndex = br.index;
+			tile->mapTileType = Helper::GetMapTileTypeByName(br.name);
+			tile->pos = Vec2i(i, j);
+			tiles.push_back(tile);
 
-			node->mapNodeName = br.name;
-			node->mapNodeTypeIndex = br.index;
-			node->mapNodeType = Helper::GetMapNodeTypeByName(br.name);
-			node->pos = Vec2i(i, j);
-			nodes.push_back(node);
-
-			if (node->mapNodeType == MapNodeType::RIG && node->mapNodeTypeIndex == 0) {
-				rigs.push_back(node);
+			if (tile->mapTileType == MapTileType::RIG && tile->mapTileTypeIndex == 0) {
+				rigs.push_back(tile);
 			}
 
 			// add obstruction into grid for A* search
-			if (!node->IsWalkable()) {
+			if (!tile->IsWalkable()) {
 				gridNoBlock.AddBlock(i, j);
 				gridWithBlocks.AddBlock(i, j);
 			}
@@ -152,25 +148,27 @@ void GameMap::LoadMap(TileMap& brickMap) {
 	}
 
 	// assign neighbors
-	for (auto node : nodes) {
-		RefreshNode(node);
+	for (auto tile : tiles) {
+		RefreshTile(tile);
 	}
 }
 
-void GameMap::RefreshNode(GameMapNode* node) {
-	int i = node->pos.x;
-	int j = node->pos.y;
+void GameMap::RefreshTile(GameMapTile* tile) {
+	int i = tile->pos.x;
+	int j = tile->pos.y;
 
-	if (i > 0) node->left = GetNode(i - 1, j); // left
-	if (i > 0 && j > 0) node->topLeft = GetNode(i - 1, j - 1);	// topleft
-	if (i > 0 && j < (height - 1)) node->bottomLeft = GetNode(i - 1, j + 1); // bottomleft
-	if (j > 0) node->top = GetNode(i, j - 1); // top
-	if (j < (height - 1)) node->bottom = GetNode(i, j + 1); // bottom
-	if (i < (width - 1)) node->right = GetNode(i + 1, j); // right
-	if (i < (width - 1) && j < (height - 1)) node->bottomRight = GetNode(i + 1, j + 1); // bottomright
-	if (i < (width - 1) && j > 0) node->topRight = GetNode(i + 1, j - 1); // topright
+	// refresh neighbors
+	if (i > 0) tile->left = GetTile(i - 1, j); // left
+	if (i > 0 && j > 0) tile->topLeft = GetTile(i - 1, j - 1);	// topleft
+	if (i > 0 && j < (height - 1)) tile->bottomLeft = GetTile(i - 1, j + 1); // bottomleft
+	if (j > 0) tile->top = GetTile(i, j - 1); // top
+	if (j < (height - 1)) tile->bottom = GetTile(i, j + 1); // bottom
+	if (i < (width - 1)) tile->right = GetTile(i + 1, j); // right
+	if (i < (width - 1) && j < (height - 1)) tile->bottomRight = GetTile(i + 1, j + 1); // bottomright
+	if (i < (width - 1) && j > 0) tile->topRight = GetTile(i + 1, j - 1); // topright
 
-	if (node->mapNodeType == MapNodeType::GROUND || node->mapNodeType == MapNodeType::RIG_PLATFORM) {
+	// fix A* grid (the map may have changed)
+	if (tile->mapTileType == MapTileType::GROUND || tile->mapTileType == MapTileType::RIG_PLATFORM) {
 		gridNoBlock.RemoveBlock(i, j);
 		gridWithBlocks.RemoveBlock(i, j);
 	}
@@ -179,12 +177,13 @@ void GameMap::RefreshNode(GameMapNode* node) {
 		gridWithBlocks.AddBlock(i, j);
 	}
 
-	if (node->forbidden) {
+	// map with forbidden areas is separate grid
+	if (tile->forbidden) {
 		gridWithBlocks.AddBlock(i, j);
 	}
 }
 
-vector<Vec2i> GameMap::FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, int maxIteration ) {
+void GameMap::FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, vector<Vec2i>& output, int maxIteration) {
 
 	COGMEASURE_BEGIN("HYDROQ_PATHFINDING");
 
@@ -193,21 +192,17 @@ vector<Vec2i> GameMap::FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea,
 
 	// prefer grid with forbidden areas
 	bool found = srch.Search(gridWithBlocks, start, end, context, maxIteration);
+	// try it again for grid with forbidden areas
 	if (!found && crossForbiddenArea) {
 		context = AStarSearchContext();
 		found = srch.Search(gridNoBlock, start, end, context, maxIteration);
 	}
 
 	if (found) {
-		vector<Vec2i> path; 
-		srch.CalcPathFromSteps(start, end, context.steps, path);
-		COGMEASURE_END("HYDROQ_PATHFINDING");
-		return path;
+		srch.CalcPathFromSteps(start, end, context.steps, output);
 	}
-	else {
-		COGMEASURE_END("HYDROQ_PATHFINDING");
-		return vector<Vec2i>();
-	}
+
+	COGMEASURE_END("HYDROQ_PATHFINDING");
 }
 
 int GameMap::CalcNearestReachablePosition(Vec2i start, Vec2i end, Vec2i& nearestBlock, int maxIteration) {

@@ -13,7 +13,7 @@ void PlayerController::OnMessage(Msg& msg) {
 		auto clickEvent = msg.GetData<SpriteClickEvent>();
 
 		// get clicked entity directly from model
-		auto mapNode = gameModel->GetMap()->GetNode(clickEvent->spritePosX, clickEvent->spritePosY);
+		auto mapNode = gameModel->GetMap()->GetTile(clickEvent->spritePosX, clickEvent->spritePosY);
 
 		if (playerModel->GetHydroqAction() != HydroqAction::NONE) {
 			Vec2i pos = Vec2i(clickEvent->spritePosX, clickEvent->spritePosY);

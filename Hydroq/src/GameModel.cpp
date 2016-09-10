@@ -10,7 +10,7 @@
 #include "GameTask.h"
 #include "Move.h"
 #include "Scene.h"
-#include "DeltaUpdate.h"
+#include "Interpolator.h"
 #include "TaskScheduler.h"
 #include "PlayerModel.h"
 #include "GameAI.h"
@@ -45,20 +45,22 @@ void GameModel::OnInit() {
 
 
 bool GameModel::IsPositionFreeForBuilding(Vec2i position) {
-	auto node = hydroqMap->GetNode(position.x, position.y);
-	return node->mapNodeType == MapNodeType::GROUND && !node->occupied;
+	auto tile = hydroqMap->GetTile(position.x, position.y);
+	return tile->GetMapTileType() == MapTileType::GROUND && !tile->IsOccupied();
 }
 
 bool GameModel::IsPositionFreeForBridge(Vec2i position) {
-	auto node = hydroqMap->GetNode(position.x, position.y);
-	bool isFree = node->mapNodeType == MapNodeType::WATER && dynObjects.find(position) == dynObjects.end();
+	auto tile = hydroqMap->GetTile(position.x, position.y);
+	bool isFree = tile->GetMapTileType() == MapTileType::WATER && dynObjects.find(position) == dynObjects.end();
 
 	if (isFree) {
+		vector<GameMapTile*> neighbors;
+		tile->GetNeighborsFourDirections(neighbors);
 		// at least one neighbor mustn't be water or it is already marked
-		for (auto neighbor : node->GetNeighborsFourDirections()) {
-			if (neighbor->mapNodeType != MapNodeType::WATER ||
-				(dynObjects.find(neighbor->pos) != dynObjects.end() &&
-					dynObjects[neighbor->pos]->GetAttr<EntityType>(ATTR_ENTITYTYPE) == EntityType::BRIDGE_MARK))
+		for (auto neighbor : neighbors) {
+			if (neighbor->GetMapTileType() != MapTileType::WATER ||
+				(dynObjects.find(neighbor->GetPosition()) != dynObjects.end() &&
+					dynObjects[neighbor->GetPosition()]->GetAttr<EntityType>(ATTR_ENTITYTYPE) == EntityType::BRIDGE_MARK))
 				return true;
 		}
 	}
@@ -93,15 +95,15 @@ void GameModel::DeleteBridgeMark(Vec2i position) {
 		}
 	}
 
-	this->hydroqMap->GetNode(position)->forbidden = false;
-	this->hydroqMap->RefreshNode(position);
+	this->hydroqMap->GetTile(position)->SetIsForbidden(false);
+	this->hydroqMap->RefreshTile(position);
 
 	DestroyDynamicObject(position);
 }
 
 bool GameModel::IsPositionFreeForForbid(Vec2i position) {
-	auto node = hydroqMap->GetNode(position.x, position.y);
-	bool isFree = node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end();
+	auto node = hydroqMap->GetTile(position.x, position.y);
+	bool isFree = node->GetMapTileType() == MapTileType::GROUND && !node->IsOccupied() && dynObjects.find(position) == dynObjects.end();
 	return isFree;
 }
 
@@ -113,8 +115,8 @@ bool GameModel::PositionContainsForbidMark(Vec2i position) {
 void GameModel::MarkPositionForForbid(Vec2i position) {
 	COGLOGDEBUG("Hydroq", "Forbidden position at [%d, %d]", position.x, position.y);
 	CreateDynamicObject(position, EntityType::FORBID_MARK, playerModel->GetFaction(), 0);
-	this->hydroqMap->GetNode(position)->forbidden = true;
-	this->hydroqMap->RefreshNode(position);
+	this->hydroqMap->GetTile(position)->SetIsForbidden(true);
+	this->hydroqMap->RefreshTile(position);
 }
 
 void GameModel::DeleteForbidMark(Vec2i position) {
@@ -123,8 +125,8 @@ void GameModel::DeleteForbidMark(Vec2i position) {
 }
 
 bool GameModel::IsPositionFreeForDestroy(Vec2i position) {
-	auto node = hydroqMap->GetNode(position.x, position.y);
-	bool isFree = (node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end());
+	auto node = hydroqMap->GetTile(position.x, position.y);
+	bool isFree = (node->GetMapTileType() == MapTileType::GROUND && !node->IsOccupied() && dynObjects.find(position) == dynObjects.end());
 	return isFree;
 }
 
@@ -138,8 +140,8 @@ void GameModel::MarkPositionForDestroy(Vec2i position, Faction faction) {
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_DESTROY, faction));
 	newTask->SetTaskNode(node);
 	gameTasks.push_back(newTask);
-	this->hydroqMap->GetNode(position)->forbidden = true;
-	this->hydroqMap->RefreshNode(position);
+	this->hydroqMap->GetTile(position)->SetIsForbidden(true);
+	this->hydroqMap->RefreshTile(position);
 }
 
 
@@ -152,9 +154,8 @@ void GameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, V
 	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
 	
 	cellSpace->AddObject(new NodeCellObject(node));
-
-	this->workers[rigPosition].push_back(node);
-
+	this->rigs[rigPosition].spawnedWorkers.push_back(node);
+	
 	if (faction == playerModel->GetFaction()) {
 		playerModel->AddUnit(1);
 	}
@@ -176,10 +177,10 @@ void GameModel::BuildPlatform(Vec2i position, Faction faction, int identifier) {
 	// destroy bridge mark
 	DestroyDynamicObject(position);
 	// change node to ground
-	auto node = this->hydroqMap->GetNode(position.x, position.y);
-	node->ChangeMapNodeType(MapNodeType::GROUND);
+	auto node = this->hydroqMap->GetTile(position.x, position.y);
+	node->SetMapTileType(MapTileType::GROUND);
 	// refresh other models the node figures
-	hydroqMap->RefreshNode(node);
+	hydroqMap->RefreshTile(node);
 	// send a message that the static object has been changed
 	SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0, spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr)));
 
@@ -204,10 +205,10 @@ void GameModel::DestroyPlatform(Vec2i position, Faction faction, int identifier)
 	// destroy delete mark
 	DestroyDynamicObject(position);
 	// change node to water
-	auto node = this->hydroqMap->GetNode(position.x, position.y);
-	node->ChangeMapNodeType(MapNodeType::WATER);
+	auto node = this->hydroqMap->GetTile(position.x, position.y);
+	node->SetMapTileType(MapTileType::WATER);
 	// refresh other models the node figures
-	hydroqMap->RefreshNode(node);
+	hydroqMap->RefreshTile(node);
 
 	// when a platform is destroyed, all path-finding tasks must be recalculated
 	for (auto task : gameTasks) {
@@ -296,9 +297,9 @@ float GameModel::CalcAttractorAbsCardinality(Faction faction, int attractorId) {
 void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 	auto oldFaction = rig->GetAttr<Faction>(ATTR_FACTION);
 	if (oldFaction == Faction::NONE) {
-		if(faction == playerModel->GetFaction()) playerModel->AddBuildings(1);
+		if(faction == playerModel->GetFaction()) playerModel->AddRigs(1);
 		rig->ChangeAttr(ATTR_FACTION, faction);
-		if(!playerModel->IsMultiplayer()) rig->AddBehavior(new RigBehavior(this));
+		if(!playerModel->IsMultiplayer()) rig->AddBehavior(new RigBehavior(this, 0.3f));
 		SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0,
 			spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::RIG_TAKEN, nullptr, rig)));
 
@@ -307,13 +308,15 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 			spt<GameStateChangedEvent>(new GameStateChangedEvent(GameChangeType::EMPTY_RIG_CAPTURED, faction)));
 	}
 	else {
-		if (oldFaction == playerModel->GetFaction()) playerModel->RemoveBuilding(1);
-		else playerModel->AddBuildings(1);
+		if (oldFaction == playerModel->GetFaction()) playerModel->RemoveRigs(1);
+		else playerModel->AddRigs(1);
 
 		rig->ChangeAttr(ATTR_FACTION, faction);
 		
 		auto rigPos = Vec2i(rig->GetTransform().localPos.x, rig->GetTransform().localPos.y);
-		for (auto worker : workers[rigPos]) {
+		auto& workers = rigs[rigPos].spawnedWorkers;
+
+		for (auto worker : workers) {
 			// change workers faction according to the new rig owner
 			worker->ChangeAttr(ATTR_FACTION, faction);
 			worker->SetTag(faction == Faction::RED ? "worker_red" : "worker_blue");
@@ -327,8 +330,10 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 		// send message about game state change
 		SendMessageToModel(StrId(ACT_GAMESTATE_CHANGED), 0,
 			spt<GameStateChangedEvent>(new GameStateChangedEvent(GameChangeType::ENEMY_RIG_CAPTURED, faction)));
-
-		if (GetRigsByFaction(oldFaction).size() == 0) {
+		
+		vector<Node*> rigs;
+		GetRigsByFaction(oldFaction, rigs);
+		if (rigs.size() == 0) {
 			playerModel->SetGameEnded(true);
 			playerModel->SetPlayerWin(oldFaction != playerModel->GetFaction());
 		}
@@ -336,19 +341,15 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 }
 
 
-vector<spt<GameTask>> GameModel::GetGameTasksByFaction(Faction faction) {
-	vector<spt<GameTask>> output;
+void GameModel::GetGameTasksByFaction(Faction faction, vector<spt<GameTask>>& output) {
 	for (auto task : gameTasks) {
 		if (task->GetFaction() == faction) {
 			output.push_back(task);
 		}
 	}
-	return output;
 }
 
-vector<Node*> GameModel::GetMovingObjectsByType(EntityType type, Faction faction) {
-	
-	vector<Node*> output;
+void GameModel::GetMovingObjectsByType(EntityType type, Faction faction, vector<Node*>& output) {
 	
 	for (auto& obj : movingObjects) {
 		if (obj->GetAttr<Faction>(StrId(ATTR_FACTION)) == faction) {
@@ -358,8 +359,6 @@ vector<Node*> GameModel::GetMovingObjectsByType(EntityType type, Faction faction
 			}
 		}
 	}
-
-	return output;
 
 }
 
@@ -400,24 +399,19 @@ Node* GameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 	return nearestSoFar;
 }
 
-vector<Node*> GameModel::GetRigsByFaction(Faction fact) {
-	vector<Node*> output;
-
+void GameModel::GetRigsByFaction(Faction fact, vector<Node*>& output) {
+	
 	for (auto rig : rigs) {
-		if (rig.second->GetAttr<Faction>(ATTR_FACTION) == fact) output.push_back(rig.second);
+		if (rig.second.gameNode->GetAttr<Faction>(ATTR_FACTION) == fact) output.push_back(rig.second.gameNode);
 	}
-
-	return output;
 }
 
-vector<Node*> GameModel::GetAttractorsByFaction(Faction fact) {
-	vector<Node*> output;
+void GameModel::GetAttractorsByFaction(Faction fact, vector<Node*>& output) {
 
 	for (auto attractor : attractors[fact]) {
 		output.push_back(attractor.second);
 	}
 
-	return output;
 }
 
 void GameModel::Update(const uint64 delta, const uint64 absolute) {
@@ -432,22 +426,22 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 	}
 
 	if (playerModel->IsMultiplayer()) {
-		// update deltas
-		auto deltaUpdate = GETCOMPONENT(DeltaUpdate);
-		auto actual = deltaUpdate->GetActualDelta();
+		// update from network interpolator
+		auto interpolator = GETCOMPONENT(Interpolator);
+		auto actual = interpolator->GetActualUpdate();
 
 		if (actual) {
 			for (auto& node : this->movingObjects) {
 				if (node->GetSecondaryId() != 0) {
 					int subType = node->GetSecondaryId();
 
-					auto& deltas = actual->GetDeltas();
+					auto& values = actual->GetContinuousValues();
 
-					if (deltas.find(subType*3) != deltas.end()) {
+					if (values.find(subType*3) != values.end()) {
 
-						float rotation = deltas[subType * 3 + 0];
-						float posX = deltas[subType * 3 + 1];
-						float posY = deltas[subType * 3 + 2];
+						float rotation = values[subType * 3 + 0];
+						float posX = values[subType * 3 + 1];
+						float posY = values[subType * 3 + 2];
 
 						node->GetTransform().localPos.x = posX;
 						node->GetTransform().localPos.y = posY;
@@ -469,32 +463,39 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 			int totalForBlue = 0;
 			int totalForRed = 0;
 
-			auto rigHoldings = rig.second->GetAttr<spt<vector<RigPlatform>>>(ATTR_PLATFORMS);
+			auto& platforms = rig.second.platforms;
 			vector<NodeCellObject*> cellObjects;
-			for (auto& rigHolding : *rigHoldings) {
-				rigHolding.factionHoldings.clear();
-				rigHolding.factionHoldings[Faction::BLUE] = 0;
-				rigHolding.factionHoldings[Faction::RED] = 0;
-				cellSpace->CalcNeighbors(ofVec2f(rigHolding.position.x + 0.5f, rigHolding.position.y + 0.5f), 0.5f, cellObjects);
+			rig.second.factionHoldings.clear();
+			
+			for (auto platform: platforms) {
+				FactionHolding holding;
+				rig.second.factionHoldings[platform] = holding;
+				
+				cellSpace->CalcNeighbors(ofVec2f(platform.x + 0.5f, platform.y + 0.5f), 0.5f, cellObjects);
 
 				for (auto obj : cellObjects) {
 					auto node = obj->node;
 					Faction fc = node->GetAttr<Faction>(factionAttr);
-					rigHolding.factionHoldings[fc]++;
-					if (fc == Faction::BLUE) totalForBlue++;
-					else totalForRed++;
+					if (fc == Faction::BLUE) {
+						rig.second.factionHoldings[platform].blueNumber++;
+						totalForBlue++;
+					}
+					else {
+						rig.second.factionHoldings[platform].redNumber++;
+						totalForRed++;
+					}
 				}
 				cellObjects.clear();
 			}
 
 			if (totalForBlue != totalForRed) {
-				auto rigFaction = rig.second->GetAttr<Faction>(ATTR_FACTION);
+				auto rigFaction = rig.second.gameNode->GetAttr<Faction>(ATTR_FACTION);
 
 				if (totalForBlue > totalForRed && rigFaction != Faction::BLUE) {
-					ChangeRigOwner(rig.second, Faction::BLUE);
+					ChangeRigOwner(rig.second.gameNode, Faction::BLUE);
 				}
 				else if(totalForBlue < totalForRed && rigFaction != Faction::RED) {
-					ChangeRigOwner(rig.second, Faction::RED);
+					ChangeRigOwner(rig.second.gameNode, Faction::RED);
 				}
 			}
 		}
@@ -512,8 +513,8 @@ bool GameModel::IsPositionOfType(Vec2i position, EntityType type) {
 }
 
 Node* GameModel::CreateDynamicObject(Vec2i position, EntityType entityType, Faction faction, int identifier) {
-	auto hydMapNode = hydroqMap->GetNode(position.x, position.y);
-	hydMapNode->occupied = true;
+	auto hydMapNode = hydroqMap->GetTile(position.x, position.y);
+	hydMapNode->SetIsOccupied(true);
 	auto gameNode = CreateNode(entityType, position, faction, identifier);
 	dynObjects[position] = gameNode;
 
@@ -523,10 +524,10 @@ Node* GameModel::CreateDynamicObject(Vec2i position, EntityType entityType, Fact
 }
 
 void GameModel::DestroyDynamicObject(Vec2i position) {
-	auto node = hydroqMap->GetNode(position.x, position.y);
+	auto node = hydroqMap->GetTile(position.x, position.y);
 	// change state of static node
-	node->occupied = false;
-	node->forbidden = false;
+	node->SetIsOccupied(false);
+	node->SetIsForbidden(false);
 	// remove dynamic object
 	if (dynObjects.find(position) != dynObjects.end()) {
 		auto obj = dynObjects[position];
@@ -534,14 +535,14 @@ void GameModel::DestroyDynamicObject(Vec2i position) {
 		rootNode->RemoveChild(obj, true);
 
 		// refresh node
-		this->hydroqMap->RefreshNode(position);
+		this->hydroqMap->RefreshTile(position);
 
 		// send message
 		SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0,
 			spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj)));
 	}
 	else {
-		this->hydroqMap->RefreshNode(position);
+		this->hydroqMap->RefreshTile(position);
 	}
 }
 
@@ -585,7 +586,7 @@ Node* GameModel::CreateNode(EntityType entityType, ofVec2f position, Faction fac
 		nd->SetTag("rig");
 		
 		if (faction == playerModel->GetFaction() || (!playerModel->IsMultiplayer() && faction != Faction::NONE)) {
-			nd->AddBehavior(new RigBehavior(this));
+			nd->AddBehavior(new RigBehavior(this, 0.3f));
 		}
 	}
 	else if (entityType == EntityType::WORKER) {
@@ -601,8 +602,8 @@ Node* GameModel::CreateNode(EntityType entityType, ofVec2f position, Faction fac
 		if (identifier == 0) {
 			auto nodeBeh = new StateMachine();
 			((StateMachine*)nodeBeh)->ChangeState(new WorkerIdleState(this));
-			((StateMachine*)nodeBeh)->AddLocalState(new WorkerBridgeBuildState(this));
-			((StateMachine*)nodeBeh)->AddLocalState(new WorkerAttractorFollowState(this));
+			((StateMachine*)nodeBeh)->AddLocalState(new WorkerBuildState(this));
+			((StateMachine*)nodeBeh)->AddLocalState(new WorkerAttractState(this));
 
 			nd->AddBehavior(nodeBeh);
 			// add moving behavior
@@ -673,15 +674,20 @@ void GameModel::DivideRigsIntoFactions() {
 		if (rig == redRig) fact = Faction::RED;
 		else if (rig == blueRig) fact = Faction::BLUE;
 
-		auto hydMapNode = hydroqMap->GetNode(rig.x, rig.y);
-		hydMapNode->occupied = true;
+		auto hydMapNode = hydroqMap->GetTile(rig.x, rig.y);
+		hydMapNode->SetIsOccupied(true);
 		auto gameNode = CreateNode(EntityType::RIG, rig, fact, 0);
+
+		Rig rigEntity;
+		rigEntity.gameNode = gameNode;
+		rigEntity.position = rig;
+
 		dynObjects[rig] = gameNode;
-		rigs[rig] = gameNode;
+		rigs[rig] = rigEntity;
 
 		// create platform collection
 		vector<Vec2i> platforms;
-		auto pos = hydMapNode->pos;
+		auto pos = hydMapNode->GetPosition();
 		platforms.push_back(Vec2i(pos.x - 1, pos.y - 1));
 		platforms.push_back(Vec2i(pos.x, pos.y - 1));
 		platforms.push_back(Vec2i(pos.x + 1, pos.y - 1));
@@ -695,17 +701,14 @@ void GameModel::DivideRigsIntoFactions() {
 		platforms.push_back(Vec2i(pos.x - 1, pos.y + 1));
 		platforms.push_back(Vec2i(pos.x - 1, pos.y));
 
-		spt<vector<RigPlatform>> rigPlatforms = spt<vector<RigPlatform>>(new vector <RigPlatform>());
-
 		for (auto platformPos : platforms) {
-			RigPlatform rg = RigPlatform();
-			rg.position = platformPos;
-			rigPlatforms->push_back(rg);
+			rigEntity.platforms.push_back(platformPos);
 		}
 
-		gameNode->AddAttr(ATTR_PLATFORMS, rigPlatforms);
+		// add entity into game object
+		gameNode->AddAttr(ATTR_RIGENTITY, rigEntity);
 	}
 
 	// add rig into player model
-	playerModel->AddBuildings(1);
+	playerModel->AddRigs(1);
 }

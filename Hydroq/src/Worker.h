@@ -11,43 +11,53 @@ namespace Cog {
 	class ArriveBehavior;
 }
 
+/**
+* Functional logic for idle state (wander around local position)
+*/
 class WorkerIdleState : public State {
-	
-public:
+private:
 	ArriveBehavior* movingAround = nullptr;
 	GameModel* gameModel;
-
-	WorkerIdleState(GameModel* gameModel) : State(StrId(STATE_WORKER_IDLE)), gameModel(gameModel) {
-
-	}
-
-	void OnMessage(Msg& msg) {
-
+public:
+	
+	WorkerIdleState(GameModel* gameModel) 
+		: State(StrId(STATE_WORKER_IDLE)), gameModel(gameModel) {
 	}
 
 	virtual void OnStart();
 
 	void OnFinish();
 
+	/**
+	* Pick a task that could be done
+	*/
 	bool FindTaskToDo();
 
-	void MoveAround();
+	/**
+	* Wander around local position
+	*/
+	void WanderAround();
 
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
 
-class WorkerBridgeBuildState : public State {
-
-public:
+/**
+* Functional logic for building state
+*/
+class WorkerBuildState : public State {
+private:
+	// link to task
 	spt<GameTask> task;
-	GameMapNode* nodeToBuildfrom;
+	// tile the worker should stand while building
+	GameMapTile* tileToBuildfrom;
 	GameModel* gameModel;
-
-	// composite of goals to build the bridge
+public:
+	// goal composite that ensures construction of the bridge
 	Goal* buildGoal;
-	WorkerBridgeBuildState(GameModel* gameModel) :State(StrId(STATE_WORKER_BUILD)), gameModel(gameModel) {
 
+	WorkerBuildState(GameModel* gameModel) 
+		: State(StrId(STATE_WORKER_BUILD)), gameModel(gameModel) {
 	}
 
 	void OnInit() {
@@ -58,17 +68,25 @@ public:
 
 	void OnMessage(Msg& msg);
 
+	/**
+	* Gets link to the game task
+	*/
+	spt<GameTask> GetGameTask() const {
+		return this->task;
+	}
 
+	/**
+	* Sets link to game task
+	*/
 	void SetGameTask(spt<GameTask> task) {
 		this->task = task;
 	}
 
-	void SetNodeToBuildFrom(GameMapNode* node) {
-		this->nodeToBuildfrom = node;
-	}
-
-	spt<GameTask> GetGameTask() {
-		return this->task;
+	/**
+	* Sets tile the worker should stand while building
+	*/
+	void SetTileToBuildFrom(GameMapTile* tile) {
+		this->tileToBuildfrom = tile;
 	}
 
 	virtual void OnStart();
@@ -77,15 +95,22 @@ public:
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
 
-class WorkerAttractorFollowState : public State {
-
-public:
+/**
+* Functional logic for attractor follow state
+*/
+class WorkerAttractState : public State {
+private:
+	// link to task
 	spt<GameTask> task;
-	GameMapNode* nodeToFollow;
+	// tile to attract
+	GameMapTile* tileToFollow;
 	GameModel* gameModel;
-	// composite of goals to build the bridge
+public:
+	// composite goal that ensures this job
 	Goal* followGoal;
-	WorkerAttractorFollowState(GameModel* gameModel) :State(StrId(STATE_WORKER_ATTRACTOR_FOLLOW)), gameModel(gameModel) {
+
+	WorkerAttractState(GameModel* gameModel) 
+		: State(StrId(STATE_WORKER_ATTRACTOR_FOLLOW)), gameModel(gameModel) {
 
 	}
 
@@ -97,17 +122,25 @@ public:
 
 	void OnMessage(Msg& msg);
 
+	/**
+	* Gets link to the game task
+	*/
+	spt<GameTask> GetGameTask() {
+		return this->task;
+	}
 
+	/**
+	* Sets link to the game task
+	*/
 	void SetGameTask(spt<GameTask> task) {
 		this->task = task;
 	}
 
-	void SetNodeToFollow(GameMapNode* node) {
-		this->nodeToFollow = node;
-	}
-
-	spt<GameTask> GetGameTask() {
-		return this->task;
+	/**
+	* Sets tile to attract
+	*/
+	void SetTileToFollow(GameMapTile* tile) {
+		this->tileToFollow = tile;
 	}
 
 	virtual void OnStart();

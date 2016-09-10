@@ -23,7 +23,7 @@ enum class Faction {
 };
 
 /** Type of network connection */
-enum class HydroqNetworkState {
+enum class HydroqConnectionType {
 	NONE,	/** undefined */
 	SERVER,	/** listening peer */
 	CLIENT	/** connected peer*/
@@ -59,7 +59,7 @@ enum class HydroqAction {
 #define ATTR_MAP "MAP"
 #define ATTR_BRICK_POS "BRICK_POS"
 #define ATTR_CARDINALITY "CARDINALITY"
-#define ATTR_PLATFORMS "PLATFORMS"
+#define ATTR_RIGENTITY "RIGENTITY"
 
 // states
 #define STATE_WORKER_IDLE "WORKER_IDLE"

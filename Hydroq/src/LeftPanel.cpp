@@ -55,7 +55,7 @@ void LeftPanel::OnMessage(Msg& msg) {
 
 void LeftPanel::RefreshCounters() {
 	counterUnits->GetMesh<Text>()->SetText(ofToString(playerModel->GetUnits()));
-	counterBuildings->GetMesh<Text>()->SetText(ofToString(playerModel->GetBuildings()));
+	counterBuildings->GetMesh<Text>()->SetText(ofToString(playerModel->GetRigs()));
 }
 
 

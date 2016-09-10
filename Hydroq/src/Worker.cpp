@@ -15,7 +15,8 @@ bool WorkerIdleState::FindTaskToDo() {
 
 	auto playerModel = GETCOMPONENT(PlayerModel);
 	auto faction = owner->GetAttr<Faction>(ATTR_FACTION);
-	auto allTasks = gameModel->GetGameTasksByFaction(faction);
+	vector<spt<GameTask>> allTasks;
+	gameModel->GetGameTasksByFaction(faction, allTasks);
 
 	// order tasks by distance
 	sort(allTasks.begin(), allTasks.end(),
@@ -33,36 +34,36 @@ bool WorkerIdleState::FindTaskToDo() {
 			// position of the place the bridge will stay
 			auto position = task->GetTaskNode()->GetTransform().localPos;
 			// node at position the bridge will stay
-			auto mapNode = map->GetNode((int)position.x, (int)position.y);
+			auto mapTile = map->GetTile((int)position.x, (int)position.y);
 			// position the worker stays
 			auto start = owner->GetTransform().localPos;
 
 			if (task->GetType() == GameTaskType::BRIDGE_BUILD || task->GetType() == GameTaskType::BRIDGE_DESTROY) {
 
-				GameMapNode* nodeToWorkFrom;
+				GameMapTile* tileToWorkFrom;
 
 				if (task->GetType() == GameTaskType::BRIDGE_BUILD) {
 					// find first safe platform the worker can stay on
-					nodeToWorkFrom = mapNode->FindWalkableNeighbor(Vec2i(start.x, start.y));
+					tileToWorkFrom = mapTile->FindWalkableNeighbor(Vec2i(start.x, start.y));
 				}
 				else {
 					// find platform the worker can return to base from
 					auto nearestBase = gameModel->FindNearestRigByFaction(playerModel->GetFaction(), start);
 					ofVec2f preferredPosition = (nearestBase != nullptr) ? nearestBase->GetTransform().localPos : start;
-					nodeToWorkFrom = mapNode->FindWalkableNeighbor(Vec2i(preferredPosition.x, preferredPosition.y));
-					if (nodeToWorkFrom == nullptr) nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::RIG_PLATFORM, Vec2i(preferredPosition.x, preferredPosition.y));
+					tileToWorkFrom = mapTile->FindWalkableNeighbor(Vec2i(preferredPosition.x, preferredPosition.y));
+					if (tileToWorkFrom == nullptr) tileToWorkFrom = mapTile->FindNeighborByType(MapTileType::RIG_PLATFORM, Vec2i(preferredPosition.x, preferredPosition.y));
 				}
 
 
-				if (nodeToWorkFrom != nullptr) {
+				if (tileToWorkFrom != nullptr) {
 
 					COGLOGDEBUG("Hydroq", "Got task for bridge building at position [%d,%d]", position.x, position.y);
 
 					// change state from IDLE to BRIDGE_BUILD
 					auto stateToChange = GetParent()->FindLocalState(StrId(STATE_WORKER_BUILD));
-					auto buildState = static_cast<WorkerBridgeBuildState*>(stateToChange);
+					auto buildState = static_cast<WorkerBuildState*>(stateToChange);
 					buildState->SetGameTask(task);
-					buildState->SetNodeToBuildFrom(nodeToWorkFrom);
+					buildState->SetTileToBuildFrom(tileToWorkFrom);
 					this->GetParent()->ChangeState(StrId(STATE_WORKER_BUILD));
 
 					return true;
@@ -71,19 +72,19 @@ bool WorkerIdleState::FindTaskToDo() {
 			else if (task->GetType() == GameTaskType::ATTRACT) {
 				float cardinality = gameModel->CalcAttractorAbsCardinality(faction, task->GetTaskNode()->GetId());
 				int neededDistance = cardinality * 4;
-				vector<GameMapNode*> nearestNodes;
-				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);
+				vector<GameMapTile*> nearestNodes;
+				mapTile->FindWalkableNeighbors(neededDistance, nearestNodes);
 
 				if (!nearestNodes.empty()) {
 					auto randomNodeToFollow = nearestNodes[ofRandom(0, 1)*nearestNodes.size()];
 
-					COGLOGDEBUG("Hydroq", "Got task for attractor following at position [%d,%d]", randomNodeToFollow->pos.x, randomNodeToFollow->pos.y);
+					COGLOGDEBUG("Hydroq", "Got task for attractor following at position [%d,%d]", randomNodeToFollow->GetPosition().x, randomNodeToFollow->GetPosition().y);
 
 					// change state from IDLE to BRIDGE_BUILD
 					auto stateToChange = GetParent()->FindLocalState(StrId(STATE_WORKER_ATTRACTOR_FOLLOW));
-					auto buildState = static_cast<WorkerAttractorFollowState*>(stateToChange);
-					buildState->SetGameTask(task);
-					buildState->SetNodeToFollow(randomNodeToFollow);
+					auto attractState = static_cast<WorkerAttractState*>(stateToChange);
+					attractState->SetGameTask(task);
+					attractState->SetTileToFollow(randomNodeToFollow);
 					this->GetParent()->ChangeState(StrId(STATE_WORKER_ATTRACTOR_FOLLOW));
 
 					return true;
@@ -95,7 +96,7 @@ bool WorkerIdleState::FindTaskToDo() {
 	return false;
 }
 
-void WorkerIdleState::MoveAround() {
+void WorkerIdleState::WanderAround() {
 	// move around...
 	if (movingAround == nullptr) {
 		movingAround = new ArriveBehavior(10, 10, 0.25f);
@@ -123,7 +124,8 @@ void WorkerIdleState::MoveAround() {
 			auto end = Vec2i(endPrec);
 			
 			// check if we can go at selected location
-			vector<Vec2i> map = gameModel->GetMap()->FindPath(start, end, false, 5);
+			vector<Vec2i> map;
+			gameModel->GetMap()->FindPath(start, end, false, map, 5);
 
 			if (map.size() > 0 && map.size() <= 2) {
 				// go there 
@@ -153,7 +155,7 @@ void WorkerIdleState::Update(const uint64 delta, const uint64 absolute) {
 	}
 
 	if (!foundTask) {
-		MoveAround();
+		WanderAround();
 	}
 	else {
 		// remove moving around behavior
@@ -169,7 +171,7 @@ void WorkerIdleState::Update(const uint64 delta, const uint64 absolute) {
 
 // ========================== WORKER BRIDGE BUILD STATE ==============================
 
-void WorkerBridgeBuildState::OnMessage(Msg& msg) {
+void WorkerBuildState::OnMessage(Msg& msg) {
 	if (msg.GetAction() == StrId(ACT_TASK_ABORTED)) {
 		auto msgTask = msg.GetData<TaskAbortEvent>();
 		if (msgTask->taskToAbort == task) {
@@ -181,7 +183,7 @@ void WorkerBridgeBuildState::OnMessage(Msg& msg) {
 	}
 }
 
-void WorkerBridgeBuildState::OnStart() {
+void WorkerBuildState::OnStart() {
 
 	owner->SetState(StrId(STATE_WORKER_BUILD));
 
@@ -193,7 +195,7 @@ void WorkerBridgeBuildState::OnStart() {
 	// position where the bridge will stay
 	auto position = task->GetTaskNode()->GetTransform().localPos;
 	// safe position the worker can stay during the building
-	auto targetSafePos = nodeToBuildfrom->pos;
+	auto targetSafePos = tileToBuildfrom->GetPosition();
 	// precise position will be little bit close to the edge of the existing platform
 	ofVec2f precisePosition = ofVec2f(targetSafePos.x + (position.x - targetSafePos.x) / 2.0f + 0.5f, 
 		targetSafePos.y + (position.y - targetSafePos.y) / 2.0f + 0.5f);
@@ -213,12 +215,12 @@ void WorkerBridgeBuildState::OnStart() {
 	owner->AddBehavior(composite);
 }
 
-void WorkerBridgeBuildState::OnFinish() {
+void WorkerBuildState::OnFinish() {
 	owner->ResetState(StrId(STATE_WORKER_IDLE));
 }
 
 
-void WorkerBridgeBuildState::Update(const uint64 delta, const uint64 absolute) {
+void WorkerBuildState::Update(const uint64 delta, const uint64 absolute) {
 	if (buildGoal != nullptr && (buildGoal->GoalEnded())) {
 
 		// change back to idle state
@@ -233,7 +235,7 @@ void WorkerBridgeBuildState::Update(const uint64 delta, const uint64 absolute) {
 
 // ========================== WORKER ATTRACTOR FOLLOW STATE ==============================
 
-void WorkerAttractorFollowState::OnMessage(Msg& msg) {
+void WorkerAttractState::OnMessage(Msg& msg) {
 	if (msg.GetAction() == StrId(ACT_TASK_ABORTED)) {
 		auto msgTask = msg.GetData<TaskAbortEvent>();
 		if (msgTask->taskToAbort == task) {
@@ -245,7 +247,7 @@ void WorkerAttractorFollowState::OnMessage(Msg& msg) {
 	}
 }
 
-void WorkerAttractorFollowState::OnStart() {
+void WorkerAttractState::OnStart() {
 
 	owner->SetState(StrId(STATE_WORKER_ATTRACTOR_FOLLOW));
 
@@ -255,7 +257,7 @@ void WorkerAttractorFollowState::OnStart() {
 	// worker position
 	auto workerPos = owner->GetTransform().localPos;
 	// position where the bridge will stay
-	auto position = this->nodeToFollow->pos;
+	auto position = this->tileToFollow->GetPosition();
 	auto precisePosition = ofVec2f(position.x + ofRandom(0,1), position.y+ofRandom(0,1));
 
 	COGLOGDEBUG("Hydroq", "Going from [%.2f, %.2f] to [%.2f, %.2f]", workerPos.x, workerPos.y, precisePosition.x, precisePosition.y);
@@ -264,12 +266,12 @@ void WorkerAttractorFollowState::OnStart() {
 	owner->AddBehavior(followGoal);
 }
 
-void WorkerAttractorFollowState::OnFinish() {
+void WorkerAttractState::OnFinish() {
 	owner->ResetState(StrId(STATE_WORKER_IDLE));
 }
 
 
-void WorkerAttractorFollowState::Update(const uint64 delta, const uint64 absolute) {
+void WorkerAttractState::Update(const uint64 delta, const uint64 absolute) {
 	if (followGoal != nullptr && (followGoal->GoalEnded())) {
 
 		// change back to idle state

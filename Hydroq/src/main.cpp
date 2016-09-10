@@ -170,10 +170,10 @@ public:
 		REGISTER_BEHAVIOR(HydNetworkReceiver);
 
 		auto playerModel = new PlayerModel();
-		auto deltaUpdate = new DeltaUpdate();
+		auto interpolator = new Interpolator();
 
 		REGISTER_COMPONENT(playerModel);
-		REGISTER_COMPONENT(deltaUpdate);
+		REGISTER_COMPONENT(interpolator);
 		REGISTER_COMPONENT(new NetworkCommunicator());
 		REGISTER_COMPONENT(new LuaScripting());
 
@@ -206,6 +206,8 @@ public:
 };
 
 //#define TESTING
+
+
 
 #ifdef WIN32
 #ifdef TESTING

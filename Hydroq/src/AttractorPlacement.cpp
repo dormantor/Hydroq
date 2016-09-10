@@ -56,7 +56,7 @@ void AttractorPlacement::OnMessage(Msg& msg) {
 					ofVec2f endPos = touch->input->position;
 					Vec2i brickPos = GetTilePosition(endPos);
 
-					auto clickedNode = gameModel->GetMap()->GetNode(brickPos.x, brickPos.y);
+					auto clickedNode = gameModel->GetMap()->GetTile(brickPos.x, brickPos.y);
 
 					// don't place attractor nearby another
 					for (auto& attr : attractors) {

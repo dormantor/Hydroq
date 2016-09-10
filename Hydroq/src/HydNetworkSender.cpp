@@ -9,10 +9,10 @@
 
 void HydNetworkSender::OnInit() {
 	auto playerModel = GETCOMPONENT(PlayerModel);
-	this->networkState = playerModel->GetNetworkState();
+	this->connectionType = playerModel->GetConnectionType();
 
 	// remove sender from the scene node if the game is not a multiplayer game
-	if (networkState == HydroqNetworkState::NONE) {
+	if (connectionType == HydroqConnectionType::NONE) {
 		owner->RemoveBehavior(this, true);
 	}
 
@@ -40,14 +40,14 @@ void HydNetworkSender::OnMessage(Msg& msg) {
 
 void HydNetworkSender::Update(const uint64 delta, const uint64 absolute) {
 
-	if (networkState == HydroqNetworkState::CLIENT || networkState == HydroqNetworkState::SERVER) {
+	if (connectionType == HydroqConnectionType::CLIENT || connectionType == HydroqConnectionType::SERVER) {
 		if (IsProperTime(lastUpdateMsgTime, absolute, this->updateFrequency)) {
 
 			lastUpdateMsgTime = absolute;
 			auto communicator = GETCOMPONENT(NetworkCommunicator);
 
-			// send delta message regularly
-			spt<DeltaInfo> deltaInf = spt<DeltaInfo>(new DeltaInfo());
+			// send update message regularly
+			spt<UpdateInfo> updateInf = spt<UpdateInfo>(new UpdateInfo());
 
 			auto& dynObjects = model->GetMovingObjects();
 
@@ -58,18 +58,18 @@ void HydNetworkSender::Update(const uint64 delta, const uint64 absolute) {
 					int id = dynObj->GetId();
 					auto transform = dynObj->GetTransform();
 
-					auto& deltas = deltaInf->GetDeltas();
+					auto& updates = updateInf->GetContinuousValues();
 
-					deltas[id * 3 + 0] = transform.rotation;
-					deltas[id * 3 + 1] = transform.localPos.x;
-					deltas[id * 3 + 2] = transform.localPos.y;
+					updates[id * 3 + 0] = transform.rotation;
+					updates[id * 3 + 1] = transform.localPos.x;
+					updates[id * 3 + 2] = transform.localPos.y;
 				}
 			}
 
-			auto msg = new DeltaMessage(deltaInf);
+			auto msg = new UpdateMessage(updateInf);
 			spt<NetOutputMessage> netMsg = spt<NetOutputMessage>(new NetOutputMessage(1));
 			netMsg->SetData(msg);
-			netMsg->SetAction(StrId(NET_MSG_DELTA_UPDATE));
+			netMsg->SetAction(StrId(NET_MSG_UPDATE));
 
 			if (communicator->GetNetworkState() == NetworkComState::COMMUNICATING) {
 				communicator->PushMessageForSending(netMsg);
