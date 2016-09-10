@@ -55,7 +55,7 @@ bool HydroqGameModel::IsPositionFreeForBridge(Vec2i position) {
 		for (auto neighbor : node->GetNeighbors()) {
 			if (neighbor->mapNodeType != MapNodeType::WATER ||
 				(dynObjects.find(neighbor->pos) != dynObjects.end() &&
-					dynObjects[neighbor->pos]->GetAttr<EntityType>(ATTR_GAME_ENTITY_TYPE) == EntityType::BRIDGE_MARK))
+					dynObjects[neighbor->pos]->GetAttr<EntityType>(ATTR_ENTITYTYPE) == EntityType::BRIDGE_MARK))
 				return true;
 		}
 	}
@@ -296,6 +296,16 @@ Node* HydroqGameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 	return nearestSoFar;
 }
 
+vector<Node*> HydroqGameModel::GetRigsByFaction(Faction fact) {
+	vector<Node*> output = vector<Node*>();
+
+	for (auto rig : rigs) {
+		if (rig.second->GetAttr<Faction>(ATTR_FACTION) == fact) output.push_back(rig.second);
+	}
+
+	return output;
+}
+
 void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 
 	if (multiplayer) {
@@ -334,7 +344,7 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 
 bool HydroqGameModel::IsPositionOfType(Vec2i position, EntityType type) {
 	return (dynObjects.find(position) != dynObjects.end() &&
-		dynObjects.find(position)->second->GetAttr<EntityType>(ATTR_GAME_ENTITY_TYPE) == type);
+		dynObjects.find(position)->second->GetAttr<EntityType>(ATTR_ENTITYTYPE) == type);
 }
 
 Node* HydroqGameModel::CreateDynamicObject(Vec2i position, EntityType entityType, Faction faction, int identifier) {
@@ -407,6 +417,13 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 	else if (entityType == EntityType::GUARD_MARK) {
 		nd->SetTag("guardmark");
 	}
+	else if (entityType == EntityType::RIG) {
+		nd->SetTag("rig");
+		
+		if (faction == this->faction) {
+			nd->AddBehavior(new RigBehavior());
+		}
+	}
 	else if (entityType == EntityType::WORKER) {
 		if (faction == Faction::BLUE) {
 			nd->SetTag("worker_blue");
@@ -415,7 +432,6 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 			nd->SetTag("worker_red");
 		}
 
-		
 		nd->GetTransform().localPos.z = 20;
 
 		if (identifier == 0) {
@@ -429,7 +445,6 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 		}
 	}
 
-	nd->AddAttr(ATTR_GAME_ENTITY_TYPE, entityType);
 	nd->GetTransform().localPos.x = position.x;
 	nd->GetTransform().localPos.y = position.y;
 
@@ -441,7 +456,7 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 void HydroqGameModel::DivideRigsIntoFactions() {
 
 	// find empty rigs
-	auto allRigs = this->hydroqMap->GetRigsByOwner(Faction::NONE);
+	auto allRigs = this->hydroqMap->GetRigsPositions();
 
 	int size = allRigs.size();
 	int width = this->hydroqMap->GetWidth();
@@ -449,22 +464,19 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 
 	// sort them according to their distance to nearest border
 	sort(allRigs.begin(), allRigs.end(),
-		[width, height](HydMapNode* a, HydMapNode* b) -> bool
+		[width, height](Vec2i& a, Vec2i& b) -> bool
 	{
-		Vec2i positionA = a->pos;
-		int dist1x = positionA.x;
-		int dist1y = positionA.y;
-		int dist2x = width - positionA.x;
-		int dist2y = height - positionA.y;
+		int dist1x = a.x;
+		int dist1y = a.y;
+		int dist2x = width - a.x;
+		int dist2y = height - a.y;
 
 		int shortestDistA = min(min(min(dist1x, dist1y),dist2x),dist2y);
 		
-		Vec2i positionB = b->pos;
-
-		dist1x = positionB.x;
-		dist1y = positionB.y;
-		dist2x = width - positionB.x;
-		dist2y = height - positionB.y;
+		dist1x = b.x;
+		dist1y = b.y;
+		dist2x = width - b.x;
+		dist2y = height - b.y;
 
 		int shortestDistB = min(min(min(dist1x, dist1y), dist2x), dist2y);
 
@@ -473,31 +485,31 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 
 	int randomIndex = allRigs.size() >= 4 ? ((int)(ofRandom(0, 1)*allRigs.size() / 2)) : ((int)(ofRandom(0, 1)*allRigs.size()));
 
-	HydMapNode* blueRig = allRigs[randomIndex];
-	Vec2i blueDist = blueRig->pos;
-
+	Vec2i blueRig = allRigs[randomIndex];
+	
 	// now find the rig that is furthest from the blue one
 	// sort them according to their distance to nearest border
 	sort(allRigs.begin(), allRigs.end(),
-		[blueDist](HydMapNode* a, HydMapNode* b) -> bool
+		[blueRig](Vec2i& a, Vec2i& b) -> bool
 	{
-		auto dist1 = Vec2i::Distancef(blueDist, a->pos);
-		auto dist2 = Vec2i::Distancef(blueDist, b->pos);
+		auto dist1 = Vec2i::Distancef(blueRig, a);
+		auto dist2 = Vec2i::Distancef(blueRig, b);
 		return dist1 >= dist2;
 	});
 
 	// pick the first one for red
-	HydMapNode* redRig = allRigs[0];
+	Vec2i redRig = allRigs[0];
 
-	blueRig->owner = Faction::BLUE;
-	redRig->owner = Faction::RED;
-
-	// set owner for other rig parts
-	this->hydroqMap->GetNode(redRig->pos.x+1, redRig->pos.y)->owner = Faction::RED;
-	this->hydroqMap->GetNode(redRig->pos.x, redRig->pos.y+1)->owner = Faction::RED;
-	this->hydroqMap->GetNode(redRig->pos.x+1, redRig->pos.y+1)->owner = Faction::RED;
-
-	this->hydroqMap->GetNode(blueRig->pos.x+1, blueRig->pos.y)->owner = Faction::BLUE;
-	this->hydroqMap->GetNode(blueRig->pos.x,   blueRig->pos.y+1)->owner = Faction::BLUE;
-	this->hydroqMap->GetNode(blueRig->pos.x+1, blueRig->pos.y+1)->owner = Faction::BLUE;
+	// create dynamic objects from rigs
+	for (auto rig : allRigs) {
+		Faction fact = Faction::NONE;
+		if (rig == redRig) fact = Faction::RED;
+		else if (rig == blueRig) fact = Faction::BLUE;
+		
+		auto hydMapNode = hydroqMap->GetNode(rig.x, rig.y);
+		hydMapNode->occupied = true;
+		auto gameNode = CreateNode(EntityType::RIG, rig, fact, 0);
+		dynObjects[rig] = gameNode;
+		rigs[rig] = gameNode;
+	}
 }

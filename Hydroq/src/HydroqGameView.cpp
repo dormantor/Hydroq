@@ -84,18 +84,8 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	for (int i = 0; i < map->GetWidth(); i++) {
 		for (int j = 0; j < map->GetHeight(); j++) {
 			auto obj = map->GetNode(i, j);
-			
-			spt<Sprite> sprite;
-			
-			if (obj->owner == Faction::BLUE && obj->mapNodeType == MapNodeType::RIG) {
-				sprite = spt<Sprite>(new Sprite(defaultSpriteSet, spriteTypes[obj->mapNodeName]->GetFrame()+4));
-			}
-			else if (obj->owner == Faction::RED && obj->mapNodeType == MapNodeType::RIG) {
-				sprite = spt<Sprite>(new Sprite(defaultSpriteSet, spriteTypes[obj->mapNodeName]->GetFrame() + 8));
-			}
-			else {
-				sprite = spriteTypes[obj->mapNodeName];
-			}
+
+			spt<Sprite> sprite = spriteTypes[obj->mapNodeName];
 
 			Trans transform = Trans();
 			transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
@@ -103,6 +93,30 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 			auto sprEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
 			mapSprites.push_back(sprEntity);
 			staticSpriteMap[Vec2i(i, j)] = sprEntity;
+		}
+	}
+
+	// change rigs that have faction initialized
+	auto& dynObjects = gameModel->GetDynamicObjects();
+
+	for (auto& dyn : dynObjects) {
+		if (dyn.second->GetTag().compare("rig") == 0) {
+			Faction fact = dyn.second->GetAttr<Faction>(ATTR_FACTION);
+			Vec2i pos = ofVec2f(dyn.second->GetTransform().localPos);
+			int index = staticSpriteMap[pos]->sprite->GetFrame();
+
+			if (fact == Faction::BLUE) {	
+				staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 4));
+				staticSpriteMap[Vec2i(pos.x+1, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 5));
+				staticSpriteMap[Vec2i(pos.x, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 6));
+				staticSpriteMap[Vec2i(pos.x+1, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 7));
+			}
+			else if (fact == Faction::RED) {
+				staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 8));
+				staticSpriteMap[Vec2i(pos.x+1, pos.y)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 9));
+				staticSpriteMap[Vec2i(pos.x, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 10));
+				staticSpriteMap[Vec2i(pos.x+1, pos.y+1)]->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, index + 11));
+			}
 		}
 	}
 

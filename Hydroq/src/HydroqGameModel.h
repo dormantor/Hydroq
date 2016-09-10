@@ -29,7 +29,9 @@ private:
 	map<Vec2i, Node*> dynObjects;
 	// moving objects (units)
 	vector<Node*> movingObjects;
-	
+	// subset of dynamic objects -> rigs
+	map<Vec2i, Node*> rigs;
+
 	// scene and its root node that run separately from the view
 	// part of the game
 	Scene* gameScene;
@@ -189,7 +191,6 @@ public:
 	*/
 	void DestroyPlatform(Vec2i position, Faction faction, int identifier);
 
-
 	/**
 	* Gets collection of dynamic objects
 	*/
@@ -221,6 +222,8 @@ public:
 	bool RemoveGameTask(spt<GameTask> task);
 
 	Node* FindNearestRigByFaction(Faction fact, ofVec2f startPos);
+
+	vector<Node*> GetRigsByFaction(Faction fact);
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 

@@ -35,7 +35,6 @@ public:
 	bool occupied = false; // true, if is occupied by a building
 	bool forbidden = false; // true, if it is forbidden
 	Vec2i pos;
-	Faction owner = Faction::NONE;
 
 	void ChangeMapNodeType(MapNodeType newType) {
 		this->mapNodeType = newType;
@@ -213,14 +212,11 @@ public:
 		return nodes[pos.y*width + pos.x];
 	}
 
-	vector<HydMapNode*> GetRigsByOwner(Faction faction) {
-		
-		vector<HydMapNode*> output = vector<HydMapNode*>();
+	vector<Vec2i> GetRigsPositions() {
+		vector<Vec2i> output = vector<Vec2i>();
 		
 		for (auto node : this->rigs) {
-			if (node->owner == faction) {
-				output.push_back(node);
-			}
+			output.push_back(node->pos);
 		}
 		return output;
 	}

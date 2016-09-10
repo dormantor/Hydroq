@@ -45,13 +45,12 @@ public:
 		boardShape->SetHeight(staticSprites->GetHeight());
 
 		Faction fact = gameModel->GetFaction();
-		auto ownerRig = gameModel->GetMap()->GetRigsByOwner(fact)[0];
-		auto ownerRigPos = ownerRig->pos;
+		auto ownerRig = gameModel->GetRigsByFaction(fact)[0];
+		auto ownerRigPos = ownerRig->GetTransform().localPos;
 		auto mapWidth = gameModel->GetMap()->GetWidth();
 		auto mapHeight = gameModel->GetMap()->GetHeight();
 
 		// zoom to rig position
-		//ZoomIntoPositionCenter(ofVec2f((ownerRigPos.x+1.0f)/mapWidth, (ownerRigPos.y+1.0f)/mapHeight));
 		ZoomIntoPositionCenter(ofVec2f((ownerRigPos.x+1.0f) / mapWidth, (ownerRigPos.y+1.0f) / mapHeight));
 	}
 
