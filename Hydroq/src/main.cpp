@@ -7,7 +7,10 @@
 #include "BrickClickEvent.h"
 #include "BrickEventBehavior.h"
 #include "SelectedFuncBehavior.h"
+#include "HydroqGameViewModel.h"
 #include "HydroqGameModel.h"
+#include "HydroqSpriteManager.h"
+#include "HydroqGameView.h"
 
 /**
 * Back button simulator that checks BACKSPACE key
@@ -53,7 +56,20 @@ public:
 		REGISTER_BEHAVIOR(RightPanelSections);
 		REGISTER_BEHAVIOR(BrickEventBehavior);
 		REGISTER_BEHAVIOR(SelectedFuncBehavior);
-		REGISTER_COMPONENT(new HydroqGameModel);
+		auto viewModel = new HydroqGameViewModel();
+		auto gameModel = new HydroqGameModel();
+		auto spriteManager = new HydroqSpriteManager();
+		auto view = new HydroqGameView();
+
+		REGISTER_COMPONENT(viewModel);
+		REGISTER_COMPONENT(gameModel);
+		REGISTER_COMPONENT(spriteManager);
+		REGISTER_COMPONENT(view);
+
+		viewModel->Init();
+		gameModel->Init();
+		spriteManager->Init();
+		view->Init();
 	}
 
 	void InitStage(Stage* stage) {

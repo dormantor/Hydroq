@@ -1,13 +1,13 @@
 #pragma once
 
 #include "ofxCogMain.h"
-#include "HydroqGameModel.h"
+#include "HydroqGameViewModel.h"
 
 
 class RightPanelSections : public Behavior {
 	OBJECT_PROTOTYPE(RightPanelSections)
 
-	HydroqGameModel* gameModel;
+	HydroqGameViewModel* gameModel;
 
 	int nodeBuildSeedbedId;
 	int nodeCommandBuildId;
@@ -17,7 +17,7 @@ class RightPanelSections : public Behavior {
 
 	void Init() {
 		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED);
-		gameModel = GETCOMPONENT(HydroqGameModel);
+		gameModel = GETCOMPONENT(HydroqGameViewModel);
 		nodeBuildSeedbedId = owner->GetScene()->FindNodeByTag("build_seedbed")->GetId();
 		nodeCommandBuildId = owner->GetScene()->FindNodeByTag("command_build")->GetId();
 		nodeCommandDestroyId = owner->GetScene()->FindNodeByTag("command_destroy")->GetId();

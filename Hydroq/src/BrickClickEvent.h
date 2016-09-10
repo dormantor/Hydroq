@@ -9,9 +9,9 @@ public:
 	
 	int brickPosX;
 	int brickPosY;
-	pair<spt<Sprite>, Trans> brick;
+	spt<SpriteEntity> brick;
 
-	BrickClickEvent(int brickPosX, int brickPosY, pair<spt<Sprite>, Trans> brick) :
+	BrickClickEvent(int brickPosX, int brickPosY, spt<SpriteEntity> brick) :
 	brickPosX(brickPosX), brickPosY(brickPosY), brick(brick)
 	{
 

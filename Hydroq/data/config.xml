@@ -433,12 +433,12 @@
 	    </behavior>
 		<behavior type="BrickEventBehavior" />
         <behavior type="HitEvent" />
+        <behavior type="HydroqBoard" />
 
     	<transform pos_x="0" pos_y="0" ptype="grid" width="200" stype="grid" z_index="4" />
 		
 		<node name="map_board">
 		  <behavior type="HitEvent" />
-		  <behavior type="HydroqBoard" />
 		</node>
 		
 		<node name="object_board">

@@ -1,6 +1,6 @@
 <settings>
 	<setting name="names">
-		<item key="0x000000" value="sea" />
+		<item key="0x000000" value="water" />
 		<item key="0xffffff" value="ground" />
 		<item key="0x333300" value="rig_topleft" />
 		<item key="0x333301" value="rig_topright" />
@@ -9,7 +9,7 @@
 	</setting>
 	
 	<setting name="sprites">
-	  <item key="sea" value="0" />
+	  <item key="water" value="0" />
 	  <item key="ground" value="1" />
 	  <item key="rig_topleft" value="2" />
 	  <item key="rig_topright" value="3" />

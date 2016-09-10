@@ -4,11 +4,8 @@
 #include "ofxSQLite.h"
 #include "HydroqDef.h"
 #include "Events.h"
-
-
-enum class RightPanelFunc {
-	NONE, SEEDBED, BUILD, DESTROY, FORBID, GUARD
-};
+#include "HydMap.h"
+#include "HydEntity.h"
 
 /**
 * Hydroq game model
@@ -18,7 +15,10 @@ class HydroqGameModel : public Component {
 	OBJECT(HydroqGameModel)
 
 private:
-	RightPanelFunc rightPanelFunc;
+	// static objects (including buildings)
+	HydMap* hydroqMap;
+	// dynamic objects (including buildings)
+	map<Vec2i, spt<HydEntity>> mapObjects;
 
 public:
 
@@ -27,21 +27,14 @@ public:
 	}
 
 	void Init() {
-
+		hydroqMap = new HydMap();
 	}
 
 	void Init(spt<ofxXml> xml) {
-
-
+		hydroqMap = new HydMap();
 	}
 
-	RightPanelFunc GetRightPanelFunc() {
-		return rightPanelFunc;
-	}
-
-	void SetRightPanelFunc(RightPanelFunc rightPanelFunc) {
-		auto previous = this->rightPanelFunc;
-		this->rightPanelFunc = rightPanelFunc;
-		SendMessageNoBubbling(StringHash(ACT_FUNC_SELECTED), 0, new ValueChangeEvent<RightPanelFunc>(previous, rightPanelFunc), nullptr);
+	HydMap* GetMap() {
+		return hydroqMap;
 	}
 };

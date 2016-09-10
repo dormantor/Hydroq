@@ -2,7 +2,7 @@
 
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
-#include "HydroqGameModel.h"
+#include "HydroqGameViewModel.h"
 
 class SelectedFuncBehavior : public Behavior {
 	OBJECT_PROTOTYPE(SelectedFuncBehavior)
