@@ -190,19 +190,37 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AttractorPlacement.cpp" />
+    <ClCompile Include="src\ConfirmDialog.cpp" />
+    <ClCompile Include="src\GameEndDialog.cpp" />
     <ClCompile Include="src\GameTask.cpp" />
     <ClCompile Include="src\Helper.cpp" />
-    <ClCompile Include="src\HydMap.cpp" />
-    <ClCompile Include="src\HydroqAI.cpp" />
-    <ClCompile Include="src\HydroqBoard.cpp" />
-    <ClCompile Include="src\HydroqGameModel.cpp" />
-    <ClCompile Include="src\HydroqGameView.cpp" />
-    <ClCompile Include="src\HydroqGoals.cpp" />
+    <ClCompile Include="src\HostInit.cpp" />
+    <ClCompile Include="src\HydAISimulator.cpp" />
+    <ClCompile Include="src\HydAIState.cpp" />
+    <ClCompile Include="src\GameMap.cpp" />
+    <ClCompile Include="src\HydNetworkReceiver.cpp" />
+    <ClCompile Include="src\HydNetworkSender.cpp" />
+    <ClCompile Include="src\GameAI.cpp" />
+    <ClCompile Include="src\GameBoard.cpp" />
+    <ClCompile Include="src\GameModel.cpp" />
+    <ClCompile Include="src\GameView.cpp" />
+    <ClCompile Include="src\GameGoals.cpp" />
     <ClCompile Include="src\HydroqNetMsg.cpp" />
+    <ClCompile Include="src\PlayerController.cpp" />
+    <ClCompile Include="src\PlayerModel.cpp" />
+    <ClCompile Include="src\LeftPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MenuBehavior.cpp" />
+    <ClCompile Include="src\MenuIconBehavior.cpp" />
     <ClCompile Include="src\MultiplayerMenu.cpp" />
     <ClCompile Include="src\RigBehavior.cpp" />
+    <ClCompile Include="src\RightPanel.cpp" />
+    <ClCompile Include="src\RightPanelSections.cpp" />
+    <ClCompile Include="src\SelectedFuncBehavior.cpp" />
+    <ClCompile Include="src\SingleGameMenu.cpp" />
     <ClCompile Include="src\TaskScheduler.cpp" />
+    <ClCompile Include="src\TileEventBehavior.cpp" />
+    <ClCompile Include="src\TopPanel.cpp" />
     <ClCompile Include="src\Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -222,7 +240,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AttractorPlacement.h" />
-    <ClInclude Include="src\HydroqBoard.h" />
+    <ClInclude Include="src\GameBoard.h" />
     <ClInclude Include="src\ConfirmDialog.h" />
     <ClInclude Include="src\GameEndDialog.h" />
     <ClInclude Include="src\GameTask.h" />
@@ -230,25 +248,24 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\HydNetworkReceiver.h" />
     <ClInclude Include="src\HydNetworkSender.h" />
     <ClInclude Include="src\HydAIAction.h" />
-    <ClInclude Include="src\HydroqGoals.h" />
+    <ClInclude Include="src\GameGoals.h" />
     <ClInclude Include="src\HydroqNetMsg.h" />
-    <ClInclude Include="src\HydroqPlayerController.h" />
-    <ClInclude Include="src\TileClickEvent.h" />
+    <ClInclude Include="src\PlayerController.h" />
     <ClInclude Include="src\TileEventBehavior.h" />
     <ClInclude Include="src\Helper.h" />
-    <ClInclude Include="src\HydEntity.h" />
-    <ClInclude Include="src\HydMap.h" />
+    <ClInclude Include="src\GameEntity.h" />
+    <ClInclude Include="src\GameMap.h" />
     <ClInclude Include="src\HydroqDef.h" />
-    <ClInclude Include="src\HydroqGameModel.h" />
-    <ClInclude Include="src\HydroqGameView.h" />
-    <ClInclude Include="src\HydroqPlayerModel.h" />
+    <ClInclude Include="src\GameModel.h" />
+    <ClInclude Include="src\GameView.h" />
+    <ClInclude Include="src\PlayerModel.h" />
     <ClInclude Include="src\HydAISimulator.h" />
     <ClInclude Include="src\HydAIState.h" />
     <ClInclude Include="src\MsgEvents.h" />
     <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />
     <ClInclude Include="src\MultiplayerMenu.h" />
-    <ClInclude Include="src\HydroqAI.h" />
+    <ClInclude Include="src\GameAI.h" />
     <ClInclude Include="src\RightPanel.h" />
     <ClInclude Include="src\RightPanelSections.h" />
     <ClInclude Include="src\RigBehavior.h" />

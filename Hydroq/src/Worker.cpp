@@ -1,5 +1,5 @@
 #include "Worker.h"
-#include "HydroqGameModel.h"
+#include "GameModel.h"
 #include "SteeringBehavior.h"
 #include "MsgEvents.h"
 
@@ -37,7 +37,7 @@ bool WorkerIdleState::FindTaskToDo() {
 
 			if (task->type == GameTaskType::BRIDGE_BUILD || task->type == GameTaskType::BRIDGE_DESTROY) {
 
-				HydMapNode* nodeToWorkFrom;
+				GameMapNode* nodeToWorkFrom;
 
 				if (task->type == GameTaskType::BRIDGE_BUILD) {
 					// find first safe platform the worker can stay on
@@ -69,7 +69,7 @@ bool WorkerIdleState::FindTaskToDo() {
 			else if (task->type == GameTaskType::ATTRACT) {
 				float cardinality = gameModel->CalcAttractorAbsCardinality(faction, task->taskNode->GetId());
 				int neededDistance = cardinality * 4;
-				vector<HydMapNode*> nearestNodes;
+				vector<GameMapNode*> nearestNodes;
 				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);
 
 				if (!nearestNodes.empty()) {
@@ -128,7 +128,7 @@ void WorkerIdleState::MoveAround() {
 				movingAround->Start();
 				movingAround->SetComponentState(ComponentState::ACTIVE_ALL);
 				// set destination
-				owner->AddAttr(ATTR_STEERING_BEH_SEEK_DEST, ofVec2f(endPrec));
+				owner->AddAttr(ATTR_STEERING_BEH_DEST, ofVec2f(endPrec));
 			}
 		}
 	}
@@ -198,7 +198,7 @@ void WorkerBridgeBuildState::OnStart() {
 
 	COGLOGDEBUG("Hydroq", "Going from [%.2f, %.2f] to [%.2f, %.2f]", workerPos.x, workerPos.y, precisePosition.x, precisePosition.y);
 
-	auto composite = new GoalComposite(StrId(), false);
+	auto composite = new GoalComposite(StrId(), GoalCompositeType::SERIALIZER);
 	composite->AddSubgoal(new GotoPositionGoal(gameModel, task, Vec2i(workerPos.x, workerPos.y), targetSafePos,workerPos, precisePosition));
 	
 	if (task->type == GameTaskType::BRIDGE_BUILD) {

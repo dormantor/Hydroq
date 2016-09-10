@@ -4,8 +4,8 @@
 void AttractorPlacement::OnInit() {
 	SubscribeForMessages(ACT_FUNC_SELECTED, ACT_OBJECT_HIT_OVER, ACT_OBJECT_HIT_ENDED, ACT_OBJECT_HIT_LOST, ACT_OBJECT_HIT_STARTED);
 	floatingGameScene = owner->GetBehavior<FloatingScene>();
-	gameView = owner->GetBehavior<HydroqGameView>();
-	gameModel = owner->GetBehavior<HydroqGameModel>();
+	gameView = owner->GetBehavior<GameView>();
+	gameModel = owner->GetBehavior<GameModel>();
 }
 
 Vec2i AttractorPlacement::GetTilePosition(ofVec2f objectAbsPos) {
@@ -97,7 +97,7 @@ void AttractorPlacement::OnMessage(Msg& msg) {
 				}
 				else if (msg.HasAction(ACT_OBJECT_HIT_LOST) || msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
 					if (placedAttractor != nullptr) {
-						auto playerModel = GETCOMPONENT(HydroqPlayerModel);
+						auto playerModel = GETCOMPONENT(PlayerModel);
 						playerModel->SetHydroqAction(HydroqAction::NONE);
 					}
 					placedAttractor = nullptr;

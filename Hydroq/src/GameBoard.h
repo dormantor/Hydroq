@@ -2,7 +2,7 @@
 
 #include "ofxCogMain.h"
 
-class HydroqBoard : public Behavior {
+class GameBoard : public Behavior {
 	
 private:
 	ResourceCache* cache;
@@ -10,7 +10,7 @@ private:
 
 public:
 
-	HydroqBoard() {
+	GameBoard() {
 
 	}
 

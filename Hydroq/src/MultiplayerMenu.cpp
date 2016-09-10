@@ -4,6 +4,33 @@
 #include "TransformMath.h"
 #include "Scene.h"
 
+void MultiplayerMenu::OnInit() {
+	SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED, ACT_SCENE_SWITCHED, ACT_NET_MESSAGE_RECEIVED);
+	communicator = GETCOMPONENT(NetworkCommunicator);
+
+	// load map config
+	auto xml = CogLoadXMLFile("mapconfig.xml");
+	xml->pushTag("settings");
+	mapConfig.LoadFromXml(xml);
+
+
+	LoadMaps();
+}
+
+void MultiplayerMenu::OnResume() {
+	if (!keepConnected) {
+		communicator->InitBroadcast(HYDROQ_APPID, HYDROQ_CLIENTPORT, HYDROQ_SERVERPORT);
+	}
+}
+
+void MultiplayerMenu::OnStop() {
+	if (!keepConnected) {
+		communicator->Close();
+	}
+	keepConnected = false;
+}
+
+
 void MultiplayerMenu::OnMessage(Msg& msg) {
 	if (!messagingLocked) {
 		messagingLocked = true;
@@ -108,7 +135,7 @@ void MultiplayerMenu::DeselectServer() {
 }
 
 void MultiplayerMenu::ConnectToServer(spt<HydroqServerInitMsg> serverMsg) {
-	auto model = GETCOMPONENT(HydroqPlayerModel);
+	auto model = GETCOMPONENT(PlayerModel);
 	// select the other faction than server did
 	Faction selectedFaction = (serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
 	model->StartGame(selectedFaction, serverMsg->GetMap(), HydroqNetworkState::CLIENT);

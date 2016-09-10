@@ -1,21 +1,21 @@
-#include "HydroqGameView.h"
+#include "GameView.h"
 #include "Component.h"
 #include "HydroqDef.h"
-#include "Events.h"
-#include "HydMap.h"
-#include "HydEntity.h"
-#include "HydroqGameModel.h"
+#include "MsgPayloads.h"
+#include "GameMap.h"
+#include "GameEntity.h"
+#include "GameModel.h"
 #include "MultiAnim.h"
 #include "SpriteSheet.h"
 
-void HydroqGameView::OnInit() {
+void GameView::OnInit() {
 	SubscribeForMessages(ACT_MAP_OBJECT_CHANGED);
 
-	gameModel = owner->GetBehavior<HydroqGameModel>();
+	gameModel = owner->GetBehavior<GameModel>();
 }
 
 
-void HydroqGameView::OnMessage(Msg& msg) {
+void GameView::OnMessage(Msg& msg) {
 	if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {		
 		auto evt = msg.GetData<MapObjectChangedEvent>();
 
@@ -136,7 +136,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 	}
 }
 
-void HydroqGameView::LoadSprites(Setting sprites) {
+void GameView::LoadSprites(Setting sprites) {
 	auto map = gameModel->GetMap();
 	auto cache = GETCOMPONENT(ResourceCache);
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
@@ -208,12 +208,12 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	dynamicSprites->Recalc();
 }
 
-Sprite& HydroqGameView::GetSprite(int frame) {
+Sprite& GameView::GetSprite(int frame) {
 	if (spriteBuffer.count(frame) == 0) spriteBuffer[frame] = Sprite(defaultSpriteSet, frame);
 	return spriteBuffer[frame];
 }
 
-void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
+void GameView::Update(const uint64 delta, const uint64 absolute) {
 
 	if (gameModel->GameEnded()) {
 		if (gameEndedTime == 0) gameEndedTime = absolute;
@@ -421,7 +421,7 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 	}
 }
 
-void HydroqGameView::SaveMapImageToFile(string file){
+void GameView::SaveMapImageToFile(string file){
 	// ============ uncomment this if you want to generate map image for detail window ===============
 	auto cache = GETCOMPONENT(ResourceCache);
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
@@ -439,7 +439,7 @@ void HydroqGameView::SaveMapImageToFile(string file){
 	// ===============================================================================================
 }
 
-void HydroqGameView::CreateAnimationText(string message) {
+void GameView::CreateAnimationText(string message) {
 
 	CogPlaySound(CogGetSound("music/Power_Up3.wav"));
 	if (animNode == nullptr) {

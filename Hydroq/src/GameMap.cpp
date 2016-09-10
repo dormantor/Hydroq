@@ -1,9 +1,9 @@
-#include "HydMap.h"
+#include "GameMap.h"
 
-// ===================================== HydMapNode ========================================
+// ===================================== GameMapNode ========================================
 
 
-HydMapNode* HydMapNode::FindWalkableNeighbor(Vec2i preferredPosition) {
+GameMapNode* GameMapNode::FindWalkableNeighbor(Vec2i preferredPosition) {
 
 	if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
 		if (top != nullptr && top->IsWalkable()) return top;
@@ -33,7 +33,7 @@ HydMapNode* HydMapNode::FindWalkableNeighbor(Vec2i preferredPosition) {
 	return nullptr;
 }
 
-void HydMapNode::FindWalkableNeighbor(int distance, vector<HydMapNode*>& output) {
+void GameMapNode::FindWalkableNeighbor(int distance, vector<GameMapNode*>& output) {
 
 	if (this->IsWalkable()) output.push_back(this);
 
@@ -49,7 +49,7 @@ void HydMapNode::FindWalkableNeighbor(int distance, vector<HydMapNode*>& output)
 	}
 }
 
-HydMapNode* HydMapNode::FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {
+GameMapNode* GameMapNode::FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {
 	if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
 		if (top != nullptr && top->mapNodeType == type) return top;
 		if (left != nullptr && left->mapNodeType == type) return left;
@@ -78,8 +78,8 @@ HydMapNode* HydMapNode::FindNeighborByType(MapNodeType type, Vec2i preferredPosi
 	return nullptr;
 }
 
-vector<HydMapNode*> HydMapNode::GetNeighbors() {
-	vector<HydMapNode*> output;
+vector<GameMapNode*> GameMapNode::GetNeighbors() {
+	vector<GameMapNode*> output;
 	if (top != nullptr) output.push_back(top);
 	if (topRight != nullptr) output.push_back(topRight);
 	if (right != nullptr) output.push_back(right);
@@ -92,8 +92,8 @@ vector<HydMapNode*> HydMapNode::GetNeighbors() {
 	return output;
 }
 
-vector<HydMapNode*> HydMapNode::GetNeighborsFourDirections() {
-	vector<HydMapNode*> output;
+vector<GameMapNode*> GameMapNode::GetNeighborsFourDirections() {
+	vector<GameMapNode*> output;
 	if (top != nullptr) output.push_back(top);
 	if (right != nullptr) output.push_back(right);
 	if (bottom != nullptr) output.push_back(bottom);
@@ -103,9 +103,9 @@ vector<HydMapNode*> HydMapNode::GetNeighborsFourDirections() {
 }
 
 
-// ===================================== HydMap ========================================
+// ===================================== GameMap ========================================
 
-void HydMap::LoadMap(Settings mapConfig, string selectedMap) {
+void GameMap::LoadMap(Settings mapConfig, string selectedMap) {
 
 	this->mapConfig = mapConfig;
 
@@ -119,7 +119,7 @@ void HydMap::LoadMap(Settings mapConfig, string selectedMap) {
 	this->LoadMap(tileMap);
 }
 
-void HydMap::LoadMap(TileMap& brickMap) {
+void GameMap::LoadMap(TileMap& brickMap) {
 	this->width = brickMap.width;
 	this->height = brickMap.height;
 	gridNoBlock = GridGraph(width, height);
@@ -129,7 +129,7 @@ void HydMap::LoadMap(TileMap& brickMap) {
 		for (int i = 0; i < width; i++) {
 			Tile br = brickMap.GetTile(i, j);
 
-			HydMapNode* node = new HydMapNode();
+			GameMapNode* node = new GameMapNode();
 
 			node->mapNodeName = br.name;
 			node->mapNodeTypeIndex = br.index;
@@ -155,7 +155,7 @@ void HydMap::LoadMap(TileMap& brickMap) {
 	}
 }
 
-void HydMap::RefreshNode(HydMapNode* node) {
+void GameMap::RefreshNode(GameMapNode* node) {
 	int i = node->pos.x;
 	int j = node->pos.y;
 
@@ -182,7 +182,7 @@ void HydMap::RefreshNode(HydMapNode* node) {
 	}
 }
 
-vector<Vec2i> HydMap::FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, int maxIteration ) {
+vector<Vec2i> GameMap::FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, int maxIteration ) {
 
 	COGMEASURE_BEGIN("HYDROQ_PATHFINDING");
 
@@ -208,7 +208,7 @@ vector<Vec2i> HydMap::FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, 
 	}
 }
 
-int HydMap::CalcNearestReachablePosition(Vec2i start, Vec2i end, Vec2i& nearestBlock, int maxIteration) {
+int GameMap::CalcNearestReachablePosition(Vec2i start, Vec2i end, Vec2i& nearestBlock, int maxIteration) {
 
 	AStarSearch srch;
 	AStarSearchContext context;

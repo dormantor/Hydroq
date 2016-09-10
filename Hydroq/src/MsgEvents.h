@@ -1,10 +1,11 @@
 #pragma once
 
 #include "ofxCogMain.h"
-#include "Events.h"
-#include "HydMap.h"
+#include "MsgPayloads.h"
+#include "GameMap.h"
 #include "GameTask.h"
-#include "HydEntity.h"
+#include "GameEntity.h"
+#include "HydroqDef.h"
 
 enum class ObjectChangeType {
 	STATIC_CHANGED = 0,
@@ -18,19 +19,19 @@ enum class ObjectChangeType {
 	RIG_TAKEN = 8
 };
 
-class MapObjectChangedEvent : public MsgEvent {
+class MapObjectChangedEvent : public MsgPayload {
 public:
 	ObjectChangeType changeType;
-	HydMapNode* changedMapNode;
+	GameMapNode* changedMapNode;
 	Node* changedNode = nullptr;
 
-	MapObjectChangedEvent(ObjectChangeType changeType, HydMapNode* changedMapNode) :
+	MapObjectChangedEvent(ObjectChangeType changeType, GameMapNode* changedMapNode) :
 		changedMapNode(changedMapNode), changeType(changeType)
 	{
 
 	}
 
-	MapObjectChangedEvent(ObjectChangeType changeType, HydMapNode* changedMapNode, Node* changedNode) :
+	MapObjectChangedEvent(ObjectChangeType changeType, GameMapNode* changedMapNode, Node* changedNode) :
 		changedMapNode(changedMapNode), changeType(changeType), changedNode(changedNode)
 	{
 
@@ -42,7 +43,7 @@ enum class GameChangeType {
 	ENEMY_RIG_CAPTURED
 };
 
-class GameStateChangedEvent : public MsgEvent {
+class GameStateChangedEvent : public MsgPayload {
 public:
 	GameChangeType changeType;
 	Faction ownerFaction;
@@ -52,7 +53,7 @@ public:
 	}
 };
 
-class TaskAbortEvent : public MsgEvent {
+class TaskAbortEvent : public MsgPayload {
 public:
 	spt<GameTask> taskToAbort;
 
@@ -69,10 +70,8 @@ enum class SyncEventType {
 	MAP_CHANGED
 };
 
-enum class Faction;
-
 // multiplayer synchronization event
-class SyncEvent : public MsgEvent {
+class SyncEvent : public MsgPayload {
 public:
 	SyncEventType eventType;
 	EntityType entityType;
@@ -89,5 +88,19 @@ public:
 	SyncEvent(SyncEventType eventType, EntityType entityType, Faction faction, ofVec2f position, int internalId, int externalId, Vec2i ownerPosition) :
 		eventType(eventType), entityType(entityType), faction(faction), 
 		positionf(position), internalId(internalId), externalId(externalId), ownerPosition(ownerPosition) {
+	}
+};
+
+class TileClickEvent : public MsgPayload {
+public:
+
+	int brickPosX;
+	int brickPosY;
+	spt<SpriteInst> brick;
+
+	TileClickEvent(int brickPosX, int brickPosY, spt<SpriteInst> brick) :
+		brickPosX(brickPosX), brickPosY(brickPosY), brick(brick)
+	{
+
 	}
 };

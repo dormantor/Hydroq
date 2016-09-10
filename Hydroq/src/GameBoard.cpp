@@ -1,14 +1,13 @@
-#include "HydroqBoard.h"
-#include "TileClickEvent.h"
+#include "GameBoard.h"
 #include "HydroqDef.h"
-#include "HydroqGameModel.h"
-#include "HydroqGameView.h"
+#include "GameModel.h"
+#include "GameView.h"
 #include "Mesh.h"
 
 
-void HydroqBoard::OnInit() {
+void GameBoard::OnInit() {
 	cache = GETCOMPONENT(ResourceCache);
-	auto gameModel = owner->GetBehavior<HydroqGameModel>();
+	auto gameModel = owner->GetBehavior<GameModel>();
 
 	auto xml = CogLoadXMLFile("mapconfig.xml");
 	xml->pushTag("settings");
@@ -16,7 +15,7 @@ void HydroqBoard::OnInit() {
 	xml->popTag();
 
 	// 3) load static sprites and assign it to the map_board node
-	auto gameView = owner->GetBehavior<HydroqGameView>();
+	auto gameView = owner->GetBehavior<GameView>();
 	gameView->LoadSprites(mapConfig.GetSetting("sprites"));
 
 	auto staticSprites = gameView->GetStaticSprites();
@@ -44,7 +43,7 @@ void HydroqBoard::OnInit() {
 }
 
 
-void HydroqBoard::ZoomIntoPositionCenter(ofVec2f positionRelative) {
+void GameBoard::ZoomIntoPositionCenter(ofVec2f positionRelative) {
 
 	auto& transform = owner->GetTransform();
 	// recalculate transform
@@ -60,7 +59,7 @@ void HydroqBoard::ZoomIntoPositionCenter(ofVec2f positionRelative) {
 	SetNewPosition(transform, newAbsPos);
 }
 
-void HydroqBoard::SetNewPosition(Trans& transform, ofVec3f& newAbsPos) {
+void GameBoard::SetNewPosition(Trans& transform, ofVec3f& newAbsPos) {
 
 	CheckNewPosition(transform, newAbsPos);
 	TransformMath math = TransformMath();
@@ -72,7 +71,7 @@ void HydroqBoard::SetNewPosition(Trans& transform, ofVec3f& newAbsPos) {
 	transform.localPos.y = newLocalPos.y;
 }
 
-void HydroqBoard::CheckNewPosition(Trans& transform, ofVec3f& newPos) {
+void GameBoard::CheckNewPosition(Trans& transform, ofVec3f& newPos) {
 	float shapeWidth = owner->GetMesh()->GetWidth();
 	float shapeHeight = owner->GetMesh()->GetHeight();
 

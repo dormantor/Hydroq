@@ -1,6 +1,6 @@
 
 #include "RigBehavior.h"
-#include "HydroqGameModel.h"
+#include "GameModel.h"
 
 
 

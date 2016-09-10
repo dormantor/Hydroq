@@ -1,49 +1,22 @@
 #pragma once
 
 #include "ofxCogMain.h"
-#include "HydroqPlayerModel.h"
+#include "PlayerModel.h"
 
 class GameEndDialog : public Behavior {	
 	
-	HydroqPlayerModel* model;
+	PlayerModel* model;
 
 public:
 	GameEndDialog() {
 
 	}
 
-	void OnInit() {
+	void OnInit();
 
-
-		SubscribeForMessages(ACT_BUTTON_CLICKED);
-		model = GETCOMPONENT(HydroqPlayerModel);
-	}
-
-	void OnMessage(Msg& msg) {
-		if (msg.HasAction(ACT_BUTTON_CLICKED)) {
-			auto sceneContext = GETCOMPONENT(Stage);
-			if (msg.GetContextNode()->GetTag().compare("ok_but") == 0) {
-				sceneContext->SwitchBackToScene(TweenDirection::NONE);
-				sceneContext->SwitchBackToScene(TweenDirection::NONE);
-			}
-		}
-	}
+	void OnMessage(Msg& msg);
 
 	bool firstInit = false;
 public:
-	virtual void Update(const uint64 delta, const uint64 absolute) {
-		if (!firstInit && model->GameEnded()) {
-			// stop all sounds
-			auto sounds = CogGetPlayedSounds();
-			for (auto sound : sounds) {
-				sound->Stop();
-			}
-
-			auto msgNode = owner->GetScene()->FindNodeByTag("gameend_msg");
-			auto player = GETCOMPONENT(HydroqPlayerModel);
-			
-			msgNode->GetMesh<Text>()->SetText(!player->PlayerWin() ? "You lost the game!" : "You win the game!");
-			firstInit = true;
-		}
-	}
+	virtual void Update(const uint64 delta, const uint64 absolute);
 };

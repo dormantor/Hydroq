@@ -61,7 +61,7 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 				float absCardinality = gameModel->CalcAttractorAbsCardinality(faction, task->taskNode->GetId());
 				int neededDistance = absCardinality * 4;
 
-				vector<HydMapNode*> nearestNodes;
+				vector<GameMapNode*> nearestNodes;
 				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);
 
 				if (!nearestNodes.empty()) {

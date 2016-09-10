@@ -1,8 +1,8 @@
 #pragma once
 
-#include "HydroqAI.h"
+#include "GameAI.h"
 
-void HydroqAI::OnMessage(Msg& msg) {
+void GameAI::OnMessage(Msg& msg) {
 	if (msg.HasAction(ACT_GAMESTATE_CHANGED)) {
 		auto evt = msg.GetData<GameStateChangedEvent>();
 		if (evt->changeType == GameChangeType::EMPTY_RIG_CAPTURED) {
@@ -16,7 +16,7 @@ void HydroqAI::OnMessage(Msg& msg) {
 	}
 }
 
-void HydroqAI::Update(const uint64 delta, const uint64 absolute) {
+void GameAI::Update(const uint64 delta, const uint64 absolute) {
 
 	if (CogGetFrameCounter() % 100 == 0) {
 
@@ -62,7 +62,7 @@ void HydroqAI::Update(const uint64 delta, const uint64 absolute) {
 }
 
 
-void HydroqAI::UpdateMonteCarlo(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute) {
+void GameAI::UpdateMonteCarlo(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute) {
 	auto aiAction = this->TrySimulator();
 	AITaskType selectedTaskType = (AITaskType)aiAction.type;
 
@@ -82,7 +82,7 @@ void HydroqAI::UpdateMonteCarlo(vector<RigInfo>& myOpponentDist, vector<RigInfo>
 	}
 }
 
-void HydroqAI::UpdateScripted(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute) {
+void GameAI::UpdateScripted(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute) {
 	// capture some empty
 	for (auto dist : myEmptyDist) {
 		if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
@@ -120,7 +120,7 @@ void HydroqAI::UpdateScripted(vector<RigInfo>& myOpponentDist, vector<RigInfo>& 
 	}
 }
 
-void HydroqAI::CalcRigsDistance() {
+void GameAI::CalcRigsDistance() {
 
 	auto blueRigs = gameModel->GetRigsByFaction(Faction::BLUE);
 	auto redRigs = gameModel->GetRigsByFaction(Faction::RED);
@@ -163,7 +163,7 @@ void HydroqAI::CalcRigsDistance() {
 	}
 }
 
-void HydroqAI::CalcRigDistance(vector<Node*>& refRigs, vector<Vec2i>& refRigsPos, vector<Vec2i>& targetRigsPos, int index, vector<RigInfo>& distances) {
+void GameAI::CalcRigDistance(vector<Node*>& refRigs, vector<Vec2i>& refRigsPos, vector<Vec2i>& targetRigsPos, int index, vector<RigInfo>& distances) {
 	auto map = gameModel->GetMap();
 	int closest = 100000;
 	int closestIndex = 0;
@@ -194,7 +194,7 @@ void HydroqAI::CalcRigDistance(vector<Node*>& refRigs, vector<Vec2i>& refRigsPos
 	distances.push_back(info);
 }
 
-HydAIAction HydroqAI::TrySimulator() {
+HydAIAction GameAI::TrySimulator() {
 
 	if (blueRedDist.empty() || redBlueDist.empty()) return HydAIAction();
 
@@ -226,7 +226,7 @@ HydAIAction HydroqAI::TrySimulator() {
 	return action;
 }
 
-void HydroqAI::Task_CaptureEmpty(RigInfo dist, uint64 absolute) {
+void GameAI::Task_CaptureEmpty(RigInfo dist, uint64 absolute) {
 	lastTaskTime = absolute;
 
 	cout << "jdu lajznout prazdnou" << endl;
@@ -236,7 +236,7 @@ void HydroqAI::Task_CaptureEmpty(RigInfo dist, uint64 absolute) {
 	gameModel->AddAttractor(pos, faction, 0.3f);
 }
 
-void HydroqAI::Task_CaptureEnemy(RigInfo dist, uint64 absolute) {
+void GameAI::Task_CaptureEnemy(RigInfo dist, uint64 absolute) {
 	lastTaskTime = absolute;
 
 	cout << "jdu lajznout nepritele" << endl;
@@ -247,7 +247,7 @@ void HydroqAI::Task_CaptureEnemy(RigInfo dist, uint64 absolute) {
 	gameModel->AddAttractor(pos, faction, 0.8f);
 }
 
-void HydroqAI::Task_Goto(RigInfo nearestRig, uint64 absolute) {
+void GameAI::Task_Goto(RigInfo nearestRig, uint64 absolute) {
 	lastTaskTime = absolute;
 
 	cout << "jdu k rigu [" << nearestRig.position.x << ", " << nearestRig.position.y << "]" << endl;
@@ -261,11 +261,11 @@ void HydroqAI::Task_Goto(RigInfo nearestRig, uint64 absolute) {
 	if (!newTask.positions.empty()) actualTask = newTask;
 }
 
-void HydroqAI::BuildAroundTile(RigInfo& nearestRig, HydMapNode* brick, AITask& task, int recursiveLevels) {
+void GameAI::BuildAroundTile(RigInfo& nearestRig, GameMapNode* brick, AITask& task, int recursiveLevels) {
 	auto neighbors = brick->GetNeighborsFourDirections();
 
 	int closerNeighborDist = 100000;
-	HydMapNode* closerNeighbor = nullptr;
+	GameMapNode* closerNeighbor = nullptr;
 	for (auto neighbor : neighbors) {
 		// build platform so that the rig will be close
 		if (neighbor->mapNodeType == MapNodeType::WATER) {

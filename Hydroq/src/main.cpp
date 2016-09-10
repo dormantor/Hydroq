@@ -1,16 +1,15 @@
 #include "ofxCogMain.h"
 #include "MenuBehavior.h"
 #include "MenuIconBehavior.h"
-#include "HydroqBoard.h"
+#include "GameBoard.h"
 #include "RightPanel.h"
 #include "RightPanelSections.h"
-#include "TileClickEvent.h"
 #include "TileEventBehavior.h"
 #include "SelectedFuncBehavior.h"
-#include "HydroqPlayerModel.h"
-#include "HydroqGameModel.h"
-#include "HydroqGameView.h"
-#include "HydroqPlayerController.h"
+#include "PlayerModel.h"
+#include "GameModel.h"
+#include "GameView.h"
+#include "PlayerController.h"
 #include "LeftPanel.h"
 #include "SingleGameMenu.h"
 #include "MultiplayerMenu.h"
@@ -141,10 +140,10 @@ public:
 };
 
 
-class HydroqApp : public CogApp {
+class HydroqApp : public ofxCogApp {
 public:
 
-	HydroqApp() : CogApp("config.xml") {
+	HydroqApp() : ofxCogApp("config.xml") {
 
 	}
 
@@ -153,24 +152,24 @@ public:
 		REGISTER_BEHAVIOR(SingleGameMenu);
 		REGISTER_BEHAVIOR(MultiplayerMenu);
 		REGISTER_BEHAVIOR(MenuIconBehavior);
-		REGISTER_BEHAVIOR(HydroqBoard);
+		REGISTER_BEHAVIOR(GameBoard);
 		REGISTER_BEHAVIOR(RightPanel);
 		REGISTER_BEHAVIOR(RightPanelSections);
 		REGISTER_BEHAVIOR(TileEventBehavior);
 		REGISTER_BEHAVIOR(SelectedFuncBehavior);
-		REGISTER_BEHAVIOR(HydroqPlayerController);
+		REGISTER_BEHAVIOR(PlayerController);
 		REGISTER_BEHAVIOR(LeftPanel);
 		REGISTER_BEHAVIOR(HostInit);
 		REGISTER_BEHAVIOR(AttractorPlacement);
 		REGISTER_BEHAVIOR(ConfirmDialog);
 		REGISTER_BEHAVIOR(TopPanel);
 		REGISTER_BEHAVIOR(GameEndDialog);
-		REGISTER_BEHAVIOR(HydroqGameModel);
-		REGISTER_BEHAVIOR(HydroqGameView);
+		REGISTER_BEHAVIOR(GameModel);
+		REGISTER_BEHAVIOR(GameView);
 		REGISTER_BEHAVIOR(HydNetworkSender);
 		REGISTER_BEHAVIOR(HydNetworkReceiver);
 
-		auto playerModel = new HydroqPlayerModel();
+		auto playerModel = new PlayerModel();
 		auto deltaUpdate = new DeltaUpdate();
 
 		REGISTER_COMPONENT(playerModel);
@@ -184,7 +183,7 @@ public:
 	}
 
 	void InitStage(Stage* stage) {
-		CogEngine::GetInstance().LoadStageFromXml(this->xmlConfig);
+		ofxCogEngine::GetInstance().LoadStageFromXml(this->xmlConfig);
 		stage->GetRootObject()->AddBehavior(new BackButtonKey());
 		stage->GetRootObject()->AddBehavior(new ReportKey());
 
@@ -206,10 +205,6 @@ public:
 #endif
 };
 
-// todo: specify later
-#define NOSCRIPTING
-#define NODATABASE
-
 #define TESTING
 
 #ifdef WIN32
@@ -228,12 +223,10 @@ public:
 #include "SettingsTest.h"
 #include "EngineTest.h"
 #include "StrIdTest.h"
-#include "JavaScriptTest.h"
 #include "LuaTest.h"
 #include "MonteCarloTest.h"	
 #include "CoroutineTest.h"
 #include "MathTest.h"
-#include "cpplinq.hpp"
 
 int main() {
 	ofSetupOpenGL(800, 450, OF_WINDOW);

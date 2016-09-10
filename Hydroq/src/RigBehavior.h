@@ -3,17 +3,17 @@
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
 
-class HydroqGameModel;
+class GameModel;
 
 class RigBehavior : public Behavior {
 
 	// attributes sh
 	StrId frequencySh;
 	StrId lastSpawnSh;
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 	int totalWorkers = 0;
 public:
-	RigBehavior(HydroqGameModel* gameModel) : gameModel(gameModel) {
+	RigBehavior(GameModel* gameModel) : gameModel(gameModel) {
 
 	}
 	

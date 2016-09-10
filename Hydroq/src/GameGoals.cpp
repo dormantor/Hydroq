@@ -1,8 +1,8 @@
 #pragma once
 
-#include "HydroqGoals.h"
-#include "HydroqGameModel.h"
-#include "HydMap.h"
+#include "GameGoals.h"
+#include "GameModel.h"
+#include "GameMap.h"
 #include "SteeringBehavior.h"
 
 using namespace Cog;

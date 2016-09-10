@@ -2,15 +2,15 @@
 
 #include "Behavior.h"
 #include "HydroqDef.h"
-#include "Events.h"
-#include "HydMap.h"
-#include "HydEntity.h"
+#include "MsgPayloads.h"
+#include "GameMap.h"
+#include "GameEntity.h"
 #include "MsgEvents.h"
 #include "StateMachine.h"
 #include "GameTask.h"
 #include "Scene.h"
 #include "NodeCellObject.h"
-#include "HydroqPlayerModel.h"
+#include "PlayerModel.h"
 
 class RigPlatform {
 public:
@@ -21,11 +21,11 @@ public:
 /**
 * Hydroq game model
 */
-class HydroqGameModel : public Behavior {
+class GameModel : public Behavior {
 
 private:
 	// static objects (map, water, platforms)
-	HydMap* hydroqMap;
+	GameMap* hydroqMap;
 	// cell partitioner for moving objects
 	GridSpace<NodeCellObject>* cellSpace;
 	
@@ -53,11 +53,11 @@ private:
 	// list of waiting tasks
 	vector<spt<GameTask>> gameTasks;
 	
-	HydroqPlayerModel* playerModel;
+	PlayerModel* playerModel;
 
 public:
 
-	~HydroqGameModel() {
+	~GameModel() {
 
 	}
 
@@ -67,7 +67,7 @@ public:
 		return rootNode;
 	}
 
-	HydMap* GetMap() {
+	GameMap* GetMap() {
 		return hydroqMap;
 	}
 
@@ -254,9 +254,9 @@ public:
 
 	Node* CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier);
 
-	void SendMessageOutside(StrId action, int subaction, spt<MsgEvent> data);
+	void SendMessageOutside(StrId action, int subaction, spt<MsgPayload> data);
 
-	void SendMessageToModel(StrId action, int subaction, spt<MsgEvent> data);
+	void SendMessageToModel(StrId action, int subaction, spt<MsgPayload> data);
 
 	Node* CreateNode(EntityType entityType, ofVec2f position, Faction faction, int identifier);
 

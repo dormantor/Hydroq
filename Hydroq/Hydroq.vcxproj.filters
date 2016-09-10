@@ -5,20 +5,11 @@
     <ClCompile Include="src\Worker.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\HydroqGoals.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="src\Helper.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
     <ClCompile Include="src\MultiplayerMenu.cpp">
-      <Filter>Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HydroqGameModel.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HydroqGameView.cpp">
-      <Filter>Game</Filter>
+      <Filter>MainMenu</Filter>
     </ClCompile>
     <ClCompile Include="src\HydroqNetMsg.cpp">
       <Filter>Misc</Filter>
@@ -35,45 +26,87 @@
     <ClCompile Include="src\GameTask.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\HydroqBoard.cpp">
+    <ClCompile Include="src\HydAISimulator.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydAIState.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConfirmDialog.cpp">
+      <Filter>MainMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HostInit.cpp">
+      <Filter>MainMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MenuBehavior.cpp">
+      <Filter>MainMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MenuIconBehavior.cpp">
+      <Filter>MainMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SingleGameMenu.cpp">
+      <Filter>MainMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydNetworkReceiver.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydNetworkSender.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameMap.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\HydMap.cpp">
+    <ClCompile Include="src\GameAI.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\HydroqAI.cpp">
+    <ClCompile Include="src\GameModel.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameView.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGoals.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlayerModel.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LeftPanel.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RightPanel.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RightPanelSections.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TopPanel.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameEndDialog.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameBoard.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlayerController.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SelectedFuncBehavior.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TileEventBehavior.cpp">
+      <Filter>GameGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Worker.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\HydroqPlayerModel.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqPlayerController.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqGoals.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqGameView.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqGameModel.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydMap.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="src\GameTask.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\Helper.h">
-      <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydEntity.h">
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="src\HydroqDef.h">
@@ -83,31 +116,19 @@
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="src\HostInit.h">
-      <Filter>Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LeftPanel.h">
-      <Filter>Menu</Filter>
+      <Filter>MainMenu</Filter>
     </ClInclude>
     <ClInclude Include="src\MenuBehavior.h">
-      <Filter>Menu</Filter>
+      <Filter>MainMenu</Filter>
     </ClInclude>
     <ClInclude Include="src\MenuIconBehavior.h">
-      <Filter>Menu</Filter>
+      <Filter>MainMenu</Filter>
     </ClInclude>
     <ClInclude Include="src\MultiplayerMenu.h">
-      <Filter>Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RightPanel.h">
-      <Filter>Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RightPanelSections.h">
-      <Filter>Menu</Filter>
+      <Filter>MainMenu</Filter>
     </ClInclude>
     <ClInclude Include="src\SingleGameMenu.h">
-      <Filter>Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SelectedFuncBehavior.h">
-      <Filter>Game</Filter>
+      <Filter>MainMenu</Filter>
     </ClInclude>
     <ClInclude Include="src\HydroqNetMsg.h">
       <Filter>Misc</Filter>
@@ -137,34 +158,61 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\ConfirmDialog.h">
-      <Filter>Menu</Filter>
+      <Filter>MainMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameMap.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameEntity.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameAI.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameModel.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameView.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGoals.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlayerModel.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LeftPanel.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RightPanel.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RightPanelSections.h">
+      <Filter>GameGUI</Filter>
     </ClInclude>
     <ClInclude Include="src\TopPanel.h">
-      <Filter>Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqAI.h">
-      <Filter>Game</Filter>
+      <Filter>GameGUI</Filter>
     </ClInclude>
     <ClInclude Include="src\GameEndDialog.h">
-      <Filter>Game</Filter>
+      <Filter>GameGUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\HydroqBoard.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="src\GameBoard.h">
+      <Filter>GameGUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\TileClickEvent.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="src\PlayerController.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SelectedFuncBehavior.h">
+      <Filter>GameGUI</Filter>
     </ClInclude>
     <ClInclude Include="src\TileEventBehavior.h">
-      <Filter>Game</Filter>
+      <Filter>GameGUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Menu">
-      <UniqueIdentifier>{c3b5c155-c7e9-4bd7-b20e-4aa597f38fe0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game">
       <UniqueIdentifier>{73eb7fcc-5a9b-40cd-a89a-23919cbb1cfb}</UniqueIdentifier>
     </Filter>
@@ -173,6 +221,12 @@
     </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{35942350-1272-4a36-b3f7-61f9abf08e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainMenu">
+      <UniqueIdentifier>{c3b5c155-c7e9-4bd7-b20e-4aa597f38fe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameGUI">
+      <UniqueIdentifier>{ec953ebc-a13d-4f50-8259-7b2341b7c51a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

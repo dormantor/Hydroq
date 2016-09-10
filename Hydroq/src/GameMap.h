@@ -1,33 +1,25 @@
 #pragma once
 
 #include "ofxCogMain.h"
-#include "TileClickEvent.h"
 #include "HydroqDef.h"
 #include "Helper.h"
 #include "AStarSearch.h"
-
-
-enum class Faction {
-	NONE = 1, 
-	RED = 2, 
-	BLUE = 3
-};
 
 
 enum class MapNodeType {
 	NONE, WATER, GROUND, RIG, RIG_PLATFORM
 };
 
-class HydMapNode {
+class GameMapNode {
 public:
-	HydMapNode* top = nullptr;
-	HydMapNode* topRight = nullptr;
-	HydMapNode* right = nullptr;
-	HydMapNode* bottomRight = nullptr;
-	HydMapNode* bottom = nullptr;
-	HydMapNode* bottomLeft = nullptr;
-	HydMapNode* left = nullptr;
-	HydMapNode* topLeft = nullptr;
+	GameMapNode* top = nullptr;
+	GameMapNode* topRight = nullptr;
+	GameMapNode* right = nullptr;
+	GameMapNode* bottomRight = nullptr;
+	GameMapNode* bottom = nullptr;
+	GameMapNode* bottomLeft = nullptr;
+	GameMapNode* left = nullptr;
+	GameMapNode* topLeft = nullptr;
 
 	MapNodeType mapNodeType;
 	int mapNodeTypeIndex; // for rigs and partial objects
@@ -46,27 +38,27 @@ public:
 	}
 
 
-	HydMapNode* FindWalkableNeighbor(Vec2i preferredPosition);
+	GameMapNode* FindWalkableNeighbor(Vec2i preferredPosition);
 
-	void FindWalkableNeighbor(int distance, vector<HydMapNode*>& output);
+	void FindWalkableNeighbor(int distance, vector<GameMapNode*>& output);
 
-	HydMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition);
+	GameMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition);
 
-	vector<HydMapNode*> GetNeighbors();
+	vector<GameMapNode*> GetNeighbors();
 
-	vector<HydMapNode*> GetNeighborsFourDirections();
+	vector<GameMapNode*> GetNeighborsFourDirections();
 };
 
 
-class HydMap {
+class GameMap {
 private:
 	int width;
 	int height;
-	vector<HydMapNode*> nodes;
+	vector<GameMapNode*> nodes;
 	// grid for searching algorithms
 	GridGraph gridNoBlock; // grid without forbidden areas
 	GridGraph gridWithBlocks; // grid with forbidden areas
-	vector<HydMapNode*> rigs;
+	vector<GameMapNode*> rigs;
 	Settings mapConfig;
 
 public:
@@ -79,17 +71,17 @@ public:
 		RefreshNode(GetNode(position.x, position.y));
 	}
 
-	void RefreshNode(HydMapNode* node);
+	void RefreshNode(GameMapNode* node);
 
 	vector<Vec2i> FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, int maxIteration = 0);
 
 	int CalcNearestReachablePosition(Vec2i start, Vec2i end, Vec2i& nearestBlock, int maxIteration);
 
-	HydMapNode* GetNode(int x, int y) {
+	GameMapNode* GetNode(int x, int y) {
 		return nodes[y*width + x];
 	}
 
-	HydMapNode* GetNode(Vec2i pos) {
+	GameMapNode* GetNode(Vec2i pos) {
 		return nodes[pos.y*width + pos.x];
 	}
 

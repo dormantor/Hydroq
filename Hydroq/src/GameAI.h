@@ -2,8 +2,8 @@
 
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
-#include "HydroqBoard.h"
-#include "HydroqGameModel.h"
+#include "GameBoard.h"
+#include "GameModel.h"
 #include "CoroutineContext.h"
 
 #include "HydAISimulator.h"
@@ -41,9 +41,9 @@ enum class AIType {
 	SCRIPTED, MONTE_CARLO
 };
 
-class HydroqAI : public Behavior {
+class GameAI : public Behavior {
 
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 	Faction faction = Faction::NONE;
 	AIType aiType;
 
@@ -59,7 +59,7 @@ class HydroqAI : public Behavior {
 	uint64 lastTaskTime = 0;
 
 public:
-	HydroqAI(HydroqGameModel* gameModel, Faction faction, AIType aiType) :gameModel(gameModel), faction(faction),
+	GameAI(GameModel* gameModel, Faction faction, AIType aiType) :gameModel(gameModel), faction(faction),
 	aiType(aiType){
 
 	}
@@ -93,5 +93,5 @@ protected:
 
 	void Task_Goto(RigInfo nearestRig, uint64 absolute);
 
-	void BuildAroundTile(RigInfo& nearestRig, HydMapNode* brick, AITask& task, int recursiveLevels);
+	void BuildAroundTile(RigInfo& nearestRig, GameMapNode* brick, AITask& task, int recursiveLevels);
 };

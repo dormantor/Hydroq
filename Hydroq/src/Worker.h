@@ -4,9 +4,9 @@
 #include "HydroqDef.h"
 #include "State.h"
 #include "StrId.h"
-#include "HydroqGoals.h"
+#include "GameGoals.h"
 #include "GameTask.h"
-#include "HydMap.h"
+#include "GameMap.h"
 
 namespace Cog {
 	class ArriveBehavior;
@@ -16,9 +16,9 @@ class WorkerIdleState : public State {
 	
 public:
 	ArriveBehavior* movingAround = nullptr;
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 
-	WorkerIdleState(HydroqGameModel* gameModel) : State(StrId(STATE_WORKER_IDLE)), gameModel(gameModel) {
+	WorkerIdleState(GameModel* gameModel) : State(StrId(STATE_WORKER_IDLE)), gameModel(gameModel) {
 
 	}
 
@@ -42,12 +42,12 @@ class WorkerBridgeBuildState : public State {
 
 public:
 	spt<GameTask> task;
-	HydMapNode* nodeToBuildfrom;
-	HydroqGameModel* gameModel;
+	GameMapNode* nodeToBuildfrom;
+	GameModel* gameModel;
 
 	// composite of goals to build the bridge
 	Goal* buildGoal;
-	WorkerBridgeBuildState(HydroqGameModel* gameModel) :State(StrId(STATE_WORKER_BUILD)), gameModel(gameModel) {
+	WorkerBridgeBuildState(GameModel* gameModel) :State(StrId(STATE_WORKER_BUILD)), gameModel(gameModel) {
 
 	}
 
@@ -64,7 +64,7 @@ public:
 		this->task = task;
 	}
 
-	void SetNodeToBuildFrom(HydMapNode* node) {
+	void SetNodeToBuildFrom(GameMapNode* node) {
 		this->nodeToBuildfrom = node;
 	}
 
@@ -82,11 +82,11 @@ class WorkerAttractorFollowState : public State {
 
 public:
 	spt<GameTask> task;
-	HydMapNode* nodeToFollow;
-	HydroqGameModel* gameModel;
+	GameMapNode* nodeToFollow;
+	GameModel* gameModel;
 	// composite of goals to build the bridge
 	Goal* followGoal;
-	WorkerAttractorFollowState(HydroqGameModel* gameModel) :State(StrId(STATE_WORKER_ATTRACTOR_FOLLOW)), gameModel(gameModel) {
+	WorkerAttractorFollowState(GameModel* gameModel) :State(StrId(STATE_WORKER_ATTRACTOR_FOLLOW)), gameModel(gameModel) {
 
 	}
 
@@ -103,7 +103,7 @@ public:
 		this->task = task;
 	}
 
-	void SetNodeToFollow(HydMapNode* node) {
+	void SetNodeToFollow(GameMapNode* node) {
 		this->nodeToFollow = node;
 	}
 

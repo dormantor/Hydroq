@@ -2,15 +2,15 @@
 
 #include "Behavior.h"
 #include "HydroqDef.h"
-#include "Events.h"
-#include "HydMap.h"
-#include "HydEntity.h"
-#include "HydroqGameModel.h"
+#include "MsgPayloads.h"
+#include "GameMap.h"
+#include "GameEntity.h"
+#include "GameModel.h"
 
 /**
 * Hydroq game view
 */
-class HydroqGameView : public Behavior {
+class GameView : public Behavior {
 
 private:
 	// link to default sprite set
@@ -34,13 +34,13 @@ private:
 
 	map<int, Sprite> spriteBuffer;
 
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 	bool firstUpdate = false;
 	// the time the game has ended
 	uint64 gameEndedTime = 0;
 public:
 
-	~HydroqGameView() {
+	~GameView() {
 
 	}
 

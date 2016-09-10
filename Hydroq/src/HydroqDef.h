@@ -1,5 +1,19 @@
 #pragma once
 
+enum class Faction {
+	NONE = 1,
+	RED = 2,
+	BLUE = 3
+};
+
+enum class HydroqNetworkState {
+	NONE, SERVER, CLIENT
+};
+
+enum class HydroqAction {
+	NONE, BUILD, DESTROY, FORBID, ATTRACT
+};
+
 // actions
 #define ACT_BRICK_CLICKED "BRICK_CLICKED"
 #define ACT_FUNC_SELECTED "FUNC_SELECTED"

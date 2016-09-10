@@ -2,27 +2,28 @@
 
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
+#include "SpriteInst.h"
+#include "PlayerModel.h"
+#include "GameModel.h"
 
-class SelectedFuncBehavior : public Behavior {
+
+class PlayerController : public Behavior {
 	
-	int selectedFuncSeedBed;
-	int selectedFunc;
-
-	unsigned actFuncSelected;
+	GameModel* gameModel;
+	PlayerModel* playerModel;
 
 public:
-	SelectedFuncBehavior() {
-
+	PlayerController() {
+			
 	}
 
 	void OnInit();
 
-	void OnStart();
-
 	void OnMessage(Msg& msg);
+
 
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
-	}
 
+	}
 };

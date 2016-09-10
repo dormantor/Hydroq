@@ -9,8 +9,6 @@ enum class GameTaskType {
 	BRIDGE_BUILD, BRIDGE_DESTROY, ATTRACT
 };
 
-enum class Faction;
-
 class GameTask {
 public:
 	// task type

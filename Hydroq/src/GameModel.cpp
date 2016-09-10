@@ -1,9 +1,9 @@
-#include "HydroqGameModel.h"
+#include "GameModel.h"
 #include "Component.h"
 #include "HydroqDef.h"
-#include "Events.h"
-#include "HydMap.h"
-#include "HydEntity.h"
+#include "MsgPayloads.h"
+#include "GameMap.h"
+#include "GameEntity.h"
 #include "MsgEvents.h"
 #include "RigBehavior.h"
 #include "StateMachine.h"
@@ -13,14 +13,14 @@
 #include "Scene.h"
 #include "DeltaUpdate.h"
 #include "TaskScheduler.h"
-#include "HydroqPlayerModel.h"
-#include "HydroqAI.h"
+#include "PlayerModel.h"
+#include "GameAI.h"
 #include "CompositeBehavior.h"
 
-void HydroqGameModel::OnInit() {	
+void GameModel::OnInit() {	
 	
-	hydroqMap = new HydMap();
-	playerModel = GETCOMPONENT(HydroqPlayerModel);
+	hydroqMap = new GameMap();
+	playerModel = GETCOMPONENT(PlayerModel);
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
 	rootNode->AddBehavior(new TaskScheduler(this));
@@ -33,8 +33,8 @@ void HydroqGameModel::OnInit() {
 
 
 	if (!multiplayer) {
-		//rootNode->AddBehavior(new CompositeBehavior(new HydroqAI(this, Faction::BLUE, AIType::SCRIPTED), new HydroqAI(this, Faction::RED, AIType::MONTE_CARLO)));
-		rootNode->AddBehavior(new HydroqAI(this, faction == Faction::RED ? Faction::BLUE : Faction::RED, AIType::MONTE_CARLO));
+		//rootNode->AddBehavior(new CompositeBehavior(new GameAI(this, Faction::BLUE, AIType::SCRIPTED), new GameAI(this, Faction::RED, AIType::MONTE_CARLO)));
+		rootNode->AddBehavior(new GameAI(this, faction == Faction::RED ? Faction::BLUE : Faction::RED, AIType::MONTE_CARLO));
 	}
 
 	Settings mapConfig = Settings();
@@ -50,12 +50,12 @@ void HydroqGameModel::OnInit() {
 }
 
 
-bool HydroqGameModel::IsPositionFreeForBuilding(Vec2i position) {
+bool GameModel::IsPositionFreeForBuilding(Vec2i position) {
 	auto node = hydroqMap->GetNode(position.x, position.y);
 	return node->mapNodeType == MapNodeType::GROUND && !node->occupied;
 }
 
-bool HydroqGameModel::IsPositionFreeForBridge(Vec2i position) {
+bool GameModel::IsPositionFreeForBridge(Vec2i position) {
 	auto node = hydroqMap->GetNode(position.x, position.y);
 	bool isFree = node->mapNodeType == MapNodeType::WATER && dynObjects.find(position) == dynObjects.end();
 
@@ -73,11 +73,11 @@ bool HydroqGameModel::IsPositionFreeForBridge(Vec2i position) {
 }
 
 
-bool HydroqGameModel::PositionContainsBridgeMark(Vec2i position) {
+bool GameModel::PositionContainsBridgeMark(Vec2i position) {
 	return IsPositionOfType(position, EntityType::BRIDGE_MARK);
 }
 
-void HydroqGameModel::MarkPositionForBridge(Vec2i position, Faction faction) {
+void GameModel::MarkPositionForBridge(Vec2i position, Faction faction) {
 	COGLOGDEBUG("Hydroq", "Placing bridge mark at [%d, %d]", position.x, position.y);
 	auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK, this->faction, 0);
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_BUILD, faction));
@@ -85,7 +85,7 @@ void HydroqGameModel::MarkPositionForBridge(Vec2i position, Faction faction) {
 	gameTasks.push_back(newTask);
 }
 
-void HydroqGameModel::DeleteBridgeMark(Vec2i position) {
+void GameModel::DeleteBridgeMark(Vec2i position) {
 	COGLOGDEBUG("Hydroq", "Deleting bridge mark at [%d, %d]", position.x, position.y);
 	auto obj = dynObjects[position];
 
@@ -105,40 +105,40 @@ void HydroqGameModel::DeleteBridgeMark(Vec2i position) {
 	DestroyDynamicObject(position);
 }
 
-bool HydroqGameModel::IsPositionFreeForForbid(Vec2i position) {
+bool GameModel::IsPositionFreeForForbid(Vec2i position) {
 	auto node = hydroqMap->GetNode(position.x, position.y);
 	bool isFree = node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end();
 	return isFree;
 }
 
-bool HydroqGameModel::PositionContainsForbidMark(Vec2i position) {
+bool GameModel::PositionContainsForbidMark(Vec2i position) {
 	return IsPositionOfType(position, EntityType::FORBID_MARK);
 }
 
 
-void HydroqGameModel::MarkPositionForForbid(Vec2i position) {
+void GameModel::MarkPositionForForbid(Vec2i position) {
 	COGLOGDEBUG("Hydroq", "Forbidden position at [%d, %d]", position.x, position.y);
 	CreateDynamicObject(position, EntityType::FORBID_MARK, this->faction, 0);
 	this->hydroqMap->GetNode(position)->forbidden = true;
 	this->hydroqMap->RefreshNode(position);
 }
 
-void HydroqGameModel::DeleteForbidMark(Vec2i position) {
+void GameModel::DeleteForbidMark(Vec2i position) {
 	COGLOGDEBUG("Hydroq", "Canceling forbidden position at [%d, %d]", position.x, position.y);
 	DestroyDynamicObject(position);
 }
 
-bool HydroqGameModel::IsPositionFreeForDestroy(Vec2i position) {
+bool GameModel::IsPositionFreeForDestroy(Vec2i position) {
 	auto node = hydroqMap->GetNode(position.x, position.y);
 	bool isFree = (node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end());
 	return isFree;
 }
 
-bool HydroqGameModel::PositionContainsDestroyMark(Vec2i position) {
+bool GameModel::PositionContainsDestroyMark(Vec2i position) {
 	return IsPositionOfType(position, EntityType::DESTROY_MARK);
 }
 
-void HydroqGameModel::MarkPositionForDestroy(Vec2i position, Faction faction) {
+void GameModel::MarkPositionForDestroy(Vec2i position, Faction faction) {
 	COGLOGDEBUG("Hydroq", "Marked for destroy: at [%d, %d]", position.x, position.y);
 	auto node = CreateDynamicObject(position, EntityType::DESTROY_MARK, this->faction, 0);
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_DESTROY, faction));
@@ -149,11 +149,11 @@ void HydroqGameModel::MarkPositionForDestroy(Vec2i position, Faction faction) {
 }
 
 
-void HydroqGameModel::SpawnWorker(ofVec2f position, Vec2i rigPosition) {
+void GameModel::SpawnWorker(ofVec2f position, Vec2i rigPosition) {
 	SpawnWorker(position, this->faction, 0, rigPosition);
 }
 
-void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, Vec2i rigPosition) {
+void GameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, Vec2i rigPosition) {
 	CogLogInfo("Hydroq", "Creating worker for %s faction at [%.2f, %.2f]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
 	
@@ -172,12 +172,12 @@ void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identif
 }
 
 
-void HydroqGameModel::BuildPlatform(Vec2i position) {
+void GameModel::BuildPlatform(Vec2i position) {
 	BuildPlatform(position, this->faction, 0);
 
 }
 
-void HydroqGameModel::BuildPlatform(Vec2i position, Faction faction, int identifier) {
+void GameModel::BuildPlatform(Vec2i position, Faction faction, int identifier) {
 	CogLogInfo("Hydroq", "Creating platform for %s faction at [%d, %d]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	// destroy bridge mark
 	DestroyDynamicObject(position);
@@ -201,11 +201,11 @@ void HydroqGameModel::BuildPlatform(Vec2i position, Faction faction, int identif
 	}
 }
 
-void HydroqGameModel::DestroyPlatform(Vec2i position) {
+void GameModel::DestroyPlatform(Vec2i position) {
 	DestroyPlatform(position, this->faction, 0);
 }
 
-void HydroqGameModel::DestroyPlatform(Vec2i position, Faction faction, int identifier) {
+void GameModel::DestroyPlatform(Vec2i position, Faction faction, int identifier) {
 	CogLogInfo("Hydroq", "Destroying platform for %s faction at [%d, %d]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	// destroy delete mark
 	DestroyDynamicObject(position);
@@ -230,7 +230,7 @@ void HydroqGameModel::DestroyPlatform(Vec2i position, Faction faction, int ident
 }
 
 
-void HydroqGameModel::AddAttractor(Vec2i position, Faction faction, float cardinality) {
+void GameModel::AddAttractor(Vec2i position, Faction faction, float cardinality) {
 	CogLogInfo("Hydroq", "Adding attractor at [%d, %d]", position.x, position.y);
 	
 	auto gameNode = CreateNode(EntityType::ATTRACTOR, position, faction, 0);
@@ -244,7 +244,7 @@ void HydroqGameModel::AddAttractor(Vec2i position, Faction faction, float cardin
 	gameTasks.push_back(newTask);
 }
 
-void HydroqGameModel::DestroyAttractor(Vec2i position, Faction faction) {
+void GameModel::DestroyAttractor(Vec2i position, Faction faction) {
 	if (attractors.find(faction) != attractors.end() && attractors[faction].find(position) != attractors[faction].end()) {
 
 		Node* gameNode = attractors[faction][position];
@@ -268,7 +268,7 @@ void HydroqGameModel::DestroyAttractor(Vec2i position, Faction faction) {
 	}
 }
 
-void HydroqGameModel::DestroyAllAttractors(Faction faction) {
+void GameModel::DestroyAllAttractors(Faction faction) {
 	vector<Vec2i> positions;
 	for (auto& attr : attractors[faction]) {
 		positions.push_back(attr.first);
@@ -279,12 +279,12 @@ void HydroqGameModel::DestroyAllAttractors(Faction faction) {
 	}
 }
 
-void HydroqGameModel::ChangeAttractorCardinality(Vec2i position, Faction faction, float cardinality) {
+void GameModel::ChangeAttractorCardinality(Vec2i position, Faction faction, float cardinality) {
 	auto gameNode = attractors[faction][position];
 	gameNode->ChangeAttr(ATTR_CARDINALITY, cardinality);
 }
 
-float HydroqGameModel::CalcAttractorAbsCardinality(Faction faction, int attractorId) {
+float GameModel::CalcAttractorAbsCardinality(Faction faction, int attractorId) {
 	
 	float attrCardinality = 0;
 	float cardinalitySum = 0;
@@ -299,7 +299,7 @@ float HydroqGameModel::CalcAttractorAbsCardinality(Faction faction, int attracto
 	return attrCardinality / cardinalitySum;
 }
 
-void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
+void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 	auto oldFaction = rig->GetAttr<Faction>(ATTR_FACTION);
 	if (oldFaction == Faction::NONE) {
 		if(faction == this->faction) playerModel->AddBuildings(1);
@@ -344,7 +344,7 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 }
 
 
-vector<spt<GameTask>> HydroqGameModel::GetGameTasksByFaction(Faction faction) {
+vector<spt<GameTask>> GameModel::GetGameTasksByFaction(Faction faction) {
 	vector<spt<GameTask>> output;
 	for (auto task : gameTasks) {
 		if (task->faction == faction) {
@@ -354,7 +354,7 @@ vector<spt<GameTask>> HydroqGameModel::GetGameTasksByFaction(Faction faction) {
 	return output;
 }
 
-vector<Node*> HydroqGameModel::GetMovingObjectsByType(EntityType type, Faction faction) {
+vector<Node*> GameModel::GetMovingObjectsByType(EntityType type, Faction faction) {
 	
 	vector<Node*> output;
 	
@@ -371,7 +371,7 @@ vector<Node*> HydroqGameModel::GetMovingObjectsByType(EntityType type, Faction f
 
 }
 
-bool HydroqGameModel::RemoveGameTask(spt<GameTask> task) {
+bool GameModel::RemoveGameTask(spt<GameTask> task) {
 	auto found = find(gameTasks.begin(), gameTasks.end(), task);
 	if (found != gameTasks.end()) {
 		gameTasks.erase(found);
@@ -382,7 +382,7 @@ bool HydroqGameModel::RemoveGameTask(spt<GameTask> task) {
 	}
 }
 
-Node* HydroqGameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
+Node* GameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 	Node* nearestSoFar = nullptr;
 	ofVec2f nearestPosSoFar = ofVec2f(0);
 
@@ -408,7 +408,7 @@ Node* HydroqGameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 	return nearestSoFar;
 }
 
-vector<Node*> HydroqGameModel::GetRigsByFaction(Faction fact) {
+vector<Node*> GameModel::GetRigsByFaction(Faction fact) {
 	vector<Node*> output;
 
 	for (auto rig : rigs) {
@@ -418,7 +418,7 @@ vector<Node*> HydroqGameModel::GetRigsByFaction(Faction fact) {
 	return output;
 }
 
-vector<Node*> HydroqGameModel::GetAttractorsByFaction(Faction fact) {
+vector<Node*> GameModel::GetAttractorsByFaction(Faction fact) {
 	vector<Node*> output;
 
 	for (auto attractor : attractors[fact]) {
@@ -428,7 +428,7 @@ vector<Node*> HydroqGameModel::GetAttractorsByFaction(Faction fact) {
 	return output;
 }
 
-void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
+void GameModel::Update(const uint64 delta, const uint64 absolute) {
 
 	if (gameEnded) return;
 
@@ -514,12 +514,12 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 	}
 }
 
-bool HydroqGameModel::IsPositionOfType(Vec2i position, EntityType type) {
+bool GameModel::IsPositionOfType(Vec2i position, EntityType type) {
 	return (dynObjects.find(position) != dynObjects.end() &&
 		dynObjects.find(position)->second->GetAttr<EntityType>(ATTR_ENTITYTYPE) == type);
 }
 
-Node* HydroqGameModel::CreateDynamicObject(Vec2i position, EntityType entityType, Faction faction, int identifier) {
+Node* GameModel::CreateDynamicObject(Vec2i position, EntityType entityType, Faction faction, int identifier) {
 	auto hydMapNode = hydroqMap->GetNode(position.x, position.y);
 	hydMapNode->occupied = true;
 	auto gameNode = CreateNode(entityType, position, faction, identifier);
@@ -530,7 +530,7 @@ Node* HydroqGameModel::CreateDynamicObject(Vec2i position, EntityType entityType
 	return gameNode;
 }
 
-void HydroqGameModel::DestroyDynamicObject(Vec2i position) {
+void GameModel::DestroyDynamicObject(Vec2i position) {
 	auto node = hydroqMap->GetNode(position.x, position.y);
 	// change state of static node
 	node->occupied = false;
@@ -553,26 +553,26 @@ void HydroqGameModel::DestroyDynamicObject(Vec2i position) {
 	}
 }
 
-Node* HydroqGameModel::CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier) {
+Node* GameModel::CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier) {
 	auto gameNode = CreateNode(EntityType::WORKER, position, faction, identifier);
 	movingObjects.push_back(gameNode);
 	SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0, spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::MOVING_CREATED, nullptr, gameNode)));
 	return gameNode;
 }
 
-void HydroqGameModel::SendMessageOutside(StrId action, int subaction, spt<MsgEvent> data) {
+void GameModel::SendMessageOutside(StrId action, int subaction, spt<MsgPayload> data) {
 	Msg msg(action, MsgObjectType::BEHAVIOR, this->id, MsgObjectType::SUBSCRIBERS, nullptr, data);
 	msg.SetParameter(subaction);
 	owner->GetScene()->SendMessage(msg);
 }
 
-void HydroqGameModel::SendMessageToModel(StrId action, int subaction, spt<MsgEvent> data) {
+void GameModel::SendMessageToModel(StrId action, int subaction, spt<MsgPayload> data) {
 	Msg msg(action, MsgObjectType::BEHAVIOR, this->id, MsgObjectType::SUBSCRIBERS, nullptr, data);
 	msg.SetParameter(subaction);
 	gameScene->SendMessage(msg);
 }
 
-Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Faction faction, int identifier) {
+Node* GameModel::CreateNode(EntityType entityType, ofVec2f position, Faction faction, int identifier) {
 
 	string name;
 	Node* nd = new Node("");
@@ -626,7 +626,7 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 	return nd;
 }
 
-void HydroqGameModel::DivideRigsIntoFactions() {
+void GameModel::DivideRigsIntoFactions() {
 
 	// find empty rigs
 	auto allRigs = this->hydroqMap->GetRigsPositions();

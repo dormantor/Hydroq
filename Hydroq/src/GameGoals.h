@@ -3,11 +3,11 @@
 #include "Goal.h"
 #include "HydroqDef.h"
 #include "GameTask.h"
-#include "ofxCogCommon.h"
+#include "ofxCogMain.h"
 
 using namespace Cog;
 
-class HydroqGameModel;
+class GameModel;
 /**
 * Goal that moves target unit to the selected position
 */
@@ -24,9 +24,9 @@ public:
 	// precise end position
 	ofVec2f targetPosition;
 
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 
-	GotoPositionGoal(HydroqGameModel* gameModel, spt<GameTask> task, Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) : Goal(StrId(GOAL_GOTO_POSITION)),
+	GotoPositionGoal(GameModel* gameModel, spt<GameTask> task, Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) : Goal(StrId(GOAL_GOTO_POSITION)),
 		task(task), startCell(startCell), endCell(endCell), startPosition(startPr), targetPosition(targetPr), gameModel(gameModel) {
 
 	}
@@ -49,9 +49,9 @@ public:
 	spt<GameTask> task;
 	// the time the goal started
 	uint64 goalStarted = 0;
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 
-	BuildBridgeGoal(HydroqGameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_BUILD_BRIDGE)), gameModel(gameModel), task(task) {
+	BuildBridgeGoal(GameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_BUILD_BRIDGE)), gameModel(gameModel), task(task) {
 
 	}
 
@@ -68,9 +68,9 @@ public:
 	spt<GameTask> task;
 	// the time the goal started
 	uint64 goalStarted = 0;
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 
-	DestroyBridgeGoal(HydroqGameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_DESTROY_BRIDGE)), task(task), gameModel(gameModel) {
+	DestroyBridgeGoal(GameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_DESTROY_BRIDGE)), task(task), gameModel(gameModel) {
 
 	}
 

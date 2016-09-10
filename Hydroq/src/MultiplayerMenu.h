@@ -4,7 +4,7 @@
 #include "NetworkCommunicator.h"
 #include "HydroqDef.h"
 #include "HydroqNetMsg.h"
-#include "HydroqGameModel.h"
+#include "GameModel.h"
 
 class MultiplayerMenu : public Behavior {
 private:
@@ -20,31 +20,11 @@ public:
 
 	}
 
-	void OnInit() {
-		SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED, ACT_SCENE_SWITCHED, ACT_NET_MESSAGE_RECEIVED);
-		communicator = GETCOMPONENT(NetworkCommunicator);
+	void OnInit();
 
-		// load map config
-		auto xml = CogLoadXMLFile("mapconfig.xml");
-		xml->pushTag("settings");
-		mapConfig.LoadFromXml(xml);
+	void OnResume();
 
-
-		LoadMaps();
-	}
-
-	void OnResume() {
-		if (!keepConnected) {
-			communicator->InitBroadcast(HYDROQ_APPID, HYDROQ_CLIENTPORT, HYDROQ_SERVERPORT);
-		}
-	}
-
-	void OnStop() {
-		if (!keepConnected) {
-			communicator->Close();
-		}
-		keepConnected = false;
-	}
+	void OnStop();
 
 	bool messagingLocked = false;
 

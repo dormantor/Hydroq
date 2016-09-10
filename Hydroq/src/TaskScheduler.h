@@ -4,19 +4,19 @@
 #include "HydroqDef.h"
 #include "State.h"
 #include "StrId.h"
-#include "HydroqGoals.h"
+#include "GameGoals.h"
 #include "GameTask.h"
-#include "HydMap.h"
-#include "HydroqGameModel.h"
+#include "GameMap.h"
+#include "GameModel.h"
 
 class TaskScheduler : public Behavior {
 
 private:
-	HydroqGameModel* gameModel;
+	GameModel* gameModel;
 
 public:
 
-	TaskScheduler(HydroqGameModel* gameModel) :gameModel(gameModel) {
+	TaskScheduler(GameModel* gameModel) :gameModel(gameModel) {
 
 	}
 

@@ -1,13 +1,12 @@
 #pragma once
 
-#include "ofxCogCommon.h"
+#include "ofxCogMain.h"
 #include "NetMessage.h"
 #include "DeltaMessage.h"
 #include "HydroqDef.h"
 
 using namespace Cog;
 
-enum class Faction;
 
 
 class HydroqServerInitMsg  : public NetData{
@@ -76,7 +75,6 @@ public:
 
 enum class SyncEventType;
 enum class EntityType;
-enum class Faction;
 
 class HydroqCommandMsg : public NetData {
 	SyncEventType eventType;

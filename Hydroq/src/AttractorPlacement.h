@@ -3,9 +3,9 @@
 #include "ofxCogMain.h"
 #include "FloatingScene.h"
 #include "HydroqDef.h"
-#include "HydroqPlayerModel.h"
-#include "HydroqGameView.h"
-#include "HydroqGameModel.h"
+#include "PlayerModel.h"
+#include "GameView.h"
+#include "GameModel.h"
 
 class AttractorPlacement : public Behavior {
 
@@ -16,8 +16,8 @@ public:
 	Node* placedAttractor = nullptr;
 
 	HydroqAction selectedAction;
-	HydroqGameView* gameView;
-	HydroqGameModel* gameModel;
+	GameView* gameView;
+	GameModel* gameModel;
 	int attrPlaced = 0;
 
 	vector<Node*> attractors;

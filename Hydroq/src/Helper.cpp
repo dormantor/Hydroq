@@ -1,6 +1,6 @@
 #include "Helper.h"
 #include "Node.h"
-#include "HydMap.h"
+#include "GameMap.h"
 #include "MultiSelection.h"
 #include "EnumConverter.h"
 
