@@ -23,6 +23,10 @@
 
 #include "LuaScripting.h"
 
+#include "HydAIAction.h"
+#include "HydAISimulator.h"
+#include "HydAIState.h"
+
 /**
 * Back button simulator that checks BACKSPACE key
 */
@@ -131,7 +135,7 @@ public:
 #define NOSCRIPTING
 #define NODATABASE
 
-//#define TESTING
+#define TESTING
 
 #ifdef WIN32
 #ifdef TESTING
@@ -151,6 +155,7 @@ public:
 #include "StringHashTest.h"
 #include "JavaScriptTest.h"
 #include "LuaTest.h"
+#include "MonteCarloTest.h"
 #include "cpplinq.hpp"
 
 int main() {

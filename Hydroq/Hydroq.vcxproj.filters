@@ -124,6 +124,15 @@
     <ClInclude Include="src\AttractorPlacement.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="src\HydAIAction.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydAISimulator.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydAIState.h">
+      <Filter>AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
@@ -137,6 +146,9 @@
     </Filter>
     <Filter Include="Misc">
       <UniqueIdentifier>{376e2a97-9f23-4303-bba0-4ba338e01561}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{35942350-1272-4a36-b3f7-61f9abf08e39}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

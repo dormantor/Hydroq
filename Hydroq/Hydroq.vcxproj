@@ -222,6 +222,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\HostInit.h" />
     <ClInclude Include="src\HydNetworkReceiver.h" />
     <ClInclude Include="src\HydNetworkSender.h" />
+    <ClInclude Include="src\HydAIAction.h" />
     <ClInclude Include="src\HydroqGoals.h" />
     <ClInclude Include="src\HydroqNetMsg.h" />
     <ClInclude Include="src\HydroqPlayerController.h" />
@@ -234,6 +235,8 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\HydroqGameModel.h" />
     <ClInclude Include="src\HydroqGameView.h" />
     <ClInclude Include="src\HydroqPlayerModel.h" />
+    <ClInclude Include="src\HydAISimulator.h" />
+    <ClInclude Include="src\HydAIState.h" />
     <ClInclude Include="src\MsgEvents.h" />
     <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />

@@ -8,7 +8,7 @@ void Seedbed::OnStart() {
 
 	// set spawn frequency
 	if (!owner->HasAttr(frequencySh)) {
-		owner->AddAttr(frequencySh, 0.3f);
+		owner->AddAttr(frequencySh, 0.1f);
 	}
 
 	if (!owner->HasAttr(lastSpawnSh)) {
