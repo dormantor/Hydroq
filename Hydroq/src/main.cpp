@@ -1,6 +1,5 @@
 #include "ofMain.h"
 #include "CogApp.h"
-#include "Factory.h"
 #include "Node.h"
 #include "RotateAnim.h"
 #include "TranslateAnim.h"
@@ -13,12 +12,36 @@ using namespace Cog;
 #include "CogEngine.h"
 
 
+class MenuBehavior : public Behavior {
+	OBJECT_PROTOTYPE(MenuBehavior)
+
+	void Init() {
+		RegisterListening(ACT_OBJECT_HIT_ENDED);
+	}
+
+	void OnMessage(Msg& msg) {
+		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
+			if (msg.GetSourceObject()->GetTag().compare("sgame_but") == 0) {
+				// click on single game button -> switch scene
+				auto sceneContext = GETCOMPONENT(SceneContext);
+				auto scene = sceneContext->FindSceneByName("game");
+				sceneContext->SwitchToScene(scene, TweenDirection::UP);
+			}
+		}
+	}
+
+public:
+	virtual void Update(const uint64 delta, const uint64 absolute) {
+
+	}
+};
+
 
 class XmlTestingApp : public CogApp {
 
 
 	void InitComponents() {
-
+		REGISTER_BEHAVIOR(MenuBehavior);
 	}
 
 	void InitEngine() {
@@ -31,10 +54,11 @@ class XmlTestingApp : public CogApp {
 		xmlPtr->popAll();
 		xmlPtr->pushTag("app_config");
 		xmlPtr->pushTag("scenes");
-		xmlPtr->pushTag("scene", 0);
 
-		auto mgr = GETCOMPONENT(NodeContext);
-		mgr->LoadSceneFromXml(xmlPtr);
+		auto context = GETCOMPONENT(SceneContext);
+		context->LoadScenesFromXml(xmlPtr);
+
+		xmlPtr->popTag();
 	}
 };
 

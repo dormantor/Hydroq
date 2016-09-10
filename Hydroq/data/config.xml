@@ -36,7 +36,7 @@
  
 
   <!-- collection of scenes -->
-  <scenes>
+  <scenes initial="main_menu">
 
     <scene name="main_menu">
 		  <!-- scene settings overrides default settings -->
@@ -47,13 +47,15 @@
           <item key="grid_height" value="53" />
         </setting>
       </scene_settings>
-	
 
       <node type="background" img="blue_background.png" />
       <!-- blue background-->
 
       <node name="desk_board" img="desk_board.png">
-        <!-- percentage positioning and sizing, anchor at center (default), 90% of screen width-->
+        
+		<behavior name="MenuBehavior" />	  
+		
+		<!-- percentage positioning and sizing, anchor at center (default), 90% of screen width-->
         <transform pos_x="10" pos_y="4" z_index="2" ptype="grid" anchor="0" width="80" stype="grid" />
 
         <!-- desk left and desk right will be behind the board, so posZ is set lower -->
@@ -73,7 +75,9 @@
         </node>
 
         <!-- buttons -->
-        <node name="continue_but" img="button_default.png" img_click="button_default_click.png">
+        <node name="continue_but" img="button_default.png" img_click="button_default_click.png" img_disabled="button_default_disabled.png">
+		  <state>DISABLED</state>
+		  
           <transform pos_x="50" pos_y="23" ptype="grid" anchor="0.5"  stype="loc"/>
 
           <node name="continue_but_text">
@@ -103,12 +107,15 @@
       </scene_settings>
 	
 	<!-- parent must have background with the same DPI as rest of images -->
-	<node name="parent" img="blue_background.png" >
+	<node name="parent" img="blue_background.png">
+
+   	  
 	  <transform pos="0" anchor="0" size="1" stype="per" />
 	  
       <node name="leftpanel" img="game/gm_leftpanel.png">
-        <transform pos="0" ptype="grid" stype="loc" />
+        <transform pos="0" ptype="grid" stype="loc" z_index="10" />
 
+		<behavior name="HitEvent" />
         <node name="playertext">
           <transform pos_x="1" pos_y="2" ptype="grid" stype="loc" />
         </node>
@@ -130,8 +137,8 @@
         </node>
       </node>
 
-      <node name="toppanel" img="game/gm_toppanel.png">
-        <transform pos_x="40" pos_y="0"  ptype="grid" stype="loc" />
+      <node name="toppanel" img="game/gm_toppanel.png" >
+        <transform pos_x="40" pos_y="0"  ptype="grid" stype="loc"  z_index="10" />
 
         <node name="redicon" img="game/gm_redicon.png">
           <transform pos_x="43" pos_y="1" anchor="0.5"  stype="loc" ptype="grid" />
@@ -145,16 +152,23 @@
       </node>
 
       <node name="rightpanel" img="game/gm_rightpanel.png">
-        <transform pos_x="75" pos_y="10" ptype="grid" stype="loc" />
+        <transform pos_x="75" pos_y="10" ptype="grid" stype="loc"  z_index="10" />
+		 <behavior name="HitEvent" />
       </node>
 
       <node name="menuicon" img="game/gm_menuicon.png">
         <transform pos_x="95" pos_y="0" ptype="grid" stype="loc" />
+		 <behavior name="HitEvent" />
       </node>
 
       <!-- floating scene -->
-      <node name="gameboard" type="float">
-
+      <node name="gameboard" img="maptest.jpg">
+	    <behavior name="FloatingScene">
+	      <touch_enabled>true</touch_enabled>
+	    </behavior>
+	    <behavior name="HitEvent" />
+		
+		<transform pos_x="0" pos_y="0" ptype="grid" width="500" stype="grid" z_index="4" />
       </node>
 	</node>
     </scene>
