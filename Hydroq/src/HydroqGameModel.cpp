@@ -23,13 +23,17 @@ void HydroqGameModel::OnInit() {
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
 	rootNode->AddBehavior(new TaskScheduler(this));
-	rootNode->AddBehavior(new HydroqAI(this));
 
 
 	this->faction = playerModel->GetFaction();
 	this->mapName = playerModel->GetMap();
 	this->multiplayer = playerModel->IsMultiplayer();
 	this->gameEnded = false;
+
+
+	if (!multiplayer) {
+		rootNode->AddBehavior(new HydroqAI(this));
+	}
 
 	Settings mapConfig = Settings();
 	auto xml = CogLoadXMLFile("mapconfig.xml");
@@ -324,7 +328,8 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 
 		if (GetRigsByFaction(oldFaction).size() == 0) {
 			// todo... refactor
-			
+			playerModel->SetGameEnded(true);
+			playerModel->SetPlayerWin(oldFaction != this->faction);
 			// game over
 			this->gameEnded = true;
 			auto stage = GETCOMPONENT(Stage);
