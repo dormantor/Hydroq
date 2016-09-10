@@ -5,6 +5,7 @@
 #include "HydroqDef.h"
 #include "HydroqNetMsg.h"
 #include "HydroqGameModel.h"
+#include "HydNetworkSender.h"
 
 class MultiplayerMenu : public Behavior {
 	OBJECT_PROTOTYPE(MultiplayerMenu)
@@ -15,6 +16,7 @@ private:
 	map<string, spt<HydroqServerInitMsg>> serverMessages;
 	string selectedIp = "";
 	Settings mapConfig;
+	bool keepConnected = false;
 public:
 
 	void OnInit() {
@@ -35,7 +37,10 @@ public:
 	}
 
 	void OnStop() {
-		communicator->CloseClient();
+		if (!keepConnected) {
+			communicator->CloseClient();
+		}
+		keepConnected = false;
 	}
 
 	bool messagingLocked = false;
@@ -61,13 +66,11 @@ public:
 					sceneContext->SwitchToScene(scene, TweenDirection::NONE);
 				}
 				else if (msg.GetSourceObject()->GetTag().compare("connect_but") == 0) {
+					// connect to server
 					if (!selectedIp.empty()) {
 						auto selectedServer = serverMessages[selectedIp];
 						if (selectedServer) {
-							auto model = GETCOMPONENT(HydroqGameModel);
-							// select the other faction than server did
-							model->SetFaction(selectedServer->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
-							communicator->GetClient()->ConnectToServer();
+							ConnectToServer(selectedServer);
 						}
 					}
 				}
@@ -117,6 +120,24 @@ public:
 	void SelectMap(string map);
 	void LoadMaps();
 	void DeselectServer();
+
+	void ConnectToServer(spt<HydroqServerInitMsg> serverMsg) {
+		auto model = GETCOMPONENT(HydroqGameModel);
+		// select the other faction than server did
+		model->SetFaction(serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
+		model->SetMapName(serverMsg->GetMap());
+		model->SetIsMultiplayer(true);
+		communicator->GetClient()->ConnectToServer();
+
+		// set other properties and switch the scene
+		auto sender = GETCOMPONENT(HydNetworkSender);
+		sender->SetNetworkState(HydroqNetworkState::CLIENT);
+		auto stage = GETCOMPONENT(Stage);
+		auto scene = stage->FindSceneByName("game");
+
+		keepConnected = true;
+		stage->SwitchToScene(scene, TweenDirection::LEFT);
+	}
 
 	void EnableConnectButton() {
 		owner->GetScene()->FindNodeByTag("connect_but")->ResetState(StringHash(STATES_DISABLED));

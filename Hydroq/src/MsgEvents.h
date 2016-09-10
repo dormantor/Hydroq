@@ -4,6 +4,7 @@
 #include "Events.h"
 #include "HydMap.h"
 #include "GameTask.h"
+#include "HydEntity.h"
 
 enum class ObjectChangeType {
 	STATIC_CHANGED = 0,
@@ -40,5 +41,33 @@ public:
 		taskToAbort(taskToAbort)
 	{
 
+	}
+};
+
+enum class SyncEventType {
+	OBJECT_CREATED,
+	OBJECT_REMOVED
+};
+
+enum class Faction;
+
+// multiplayer synchronization event
+class SyncEvent : public MsgEvent {
+public:
+	SyncEventType eventType;
+	EntityType entityType;
+	Vec2i positioni;
+	ofVec2f positionf;
+	Faction faction;
+	int internalId;
+	int externalId;
+
+	SyncEvent() {
+
+	}
+
+	SyncEvent(SyncEventType eventType, EntityType entityType, Faction faction, ofVec2f position, int internalId, int externalId) :
+		eventType(eventType), entityType(entityType), faction(faction), 
+		positionf(position), positioni(Vec2i(position)), internalId(internalId), externalId(externalId) {
 	}
 };

@@ -16,7 +16,6 @@ void HydroqGameModel::Init() {
 	hydroqMap = new HydMap();
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
-
 }
 
 
@@ -151,6 +150,11 @@ void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identif
 	COGLOGDEBUG("Hydroq", "Creating worker for %s faction with identifier %d at [%.2f, %.2f]", 
 		faction == Faction::BLUE ? "blue" : "red", identifier, position.x, position.y);
 	CreateMovingObject(position, EntityType::WORKER, faction, identifier);
+
+	if (multiplayer) {
+		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
+			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, identifier, 0));
+	}
 }
 
 void HydroqGameModel::CreateSeedBed(Vec2i position) {
@@ -161,6 +165,11 @@ void HydroqGameModel::CreateSeedBed(Vec2i position, Faction faction, int identif
 	COGLOGDEBUG("Hydroq", "Creating seedbed for %s faction with identifier %d at [%.2f, %.2f]",
 		faction == Faction::BLUE ? "blue" : "red", identifier, position.x, position.y);
 	CreateDynamicObject(position, EntityType::SEEDBED, faction, identifier);
+
+	if (multiplayer) {
+		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
+			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::SEEDBED, faction, position, identifier, 0));
+	}
 }
 
 void HydroqGameModel::BuildPlatform(Vec2i position) {

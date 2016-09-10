@@ -29,6 +29,7 @@ class SingleGameMenu : public Behavior {
 				auto model = GETCOMPONENT(HydroqGameModel);
 				model->SetFaction(GetSelectedFaction());
 				model->SetMapName(selectedMap);
+				model->SetIsMultiplayer(false);
 				auto sceneContext = GETCOMPONENT(Stage);
 				auto scene = sceneContext->FindSceneByName("game");
 				sceneContext->SwitchToScene(scene, TweenDirection::LEFT);

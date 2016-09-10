@@ -4,77 +4,70 @@
 #include "DeltaInfo.h"
 #include "MsgEvents.h"
 #include "DeltaMessage.h"
+#include "HydroqNetMsg.h"
 
-namespace Cog {
+enum class HydroqNetworkState {
+	NONE, SERVER, CLIENT
+};
 
-	enum class HydroqNetworkState {
-		NONE,SERVER, CLIENT
-	};
+class HydNetworkSender : public Component {
+	OBJECT(HydNetworkSender)
 
-	class HydNetworkSender : public Component {
-		OBJECT(HydNetworkSender)
-
-	private:
-		HydroqNetworkState networkState = HydroqNetworkState::NONE;
-	public:
+private:
+	HydroqNetworkState networkState = HydroqNetworkState::NONE;
+public:
 
 
-		void Init() {
-			RegisterGlobalListening(ACT_MAP_OBJECT_CHANGED);
-		}
+	void Init() {
+		RegisterGlobalListening(ACT_SYNC_OBJECT_CHANGED);
+	}
 
-		void OnMessage(Msg& msg) {
-			if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {
-				MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
+	void OnMessage(Msg& msg) {
+		if (msg.HasAction(ACT_SYNC_OBJECT_CHANGED)) {
+			auto syncEvent = msg.GetDataS<SyncEvent>();
 
-				if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {
-					// new dynamic or moving object
-					auto trans = evt->changedNode->GetTransform();
-					// create new sprite
-					string spriteTag = evt->changedNode->GetTag();
+			// send sync message
+			auto communicator = GETCOMPONENT(NetworkCommunicator);
+			auto msg = new HydroqCommandMsg();
+			msg->SetEntityType(syncEvent->entityType);
+			msg->SetEventType(syncEvent->eventType);
+			msg->SetFaction(syncEvent->faction);
+			msg->SetIdentifier(syncEvent->internalId);
+			msg->SetPosition(syncEvent->positionf);
+			auto netMsg = msg->CreateMessage();
 
-					// moving objects will have its origin set to the middle of the cell
-					if (evt->changeType == ObjectChangeType::MOVING_CREATED) {
-					
-					}
-					else {
-
-					}
-				}
-				else if (evt->changeType == ObjectChangeType::DYNAMIC_REMOVED || evt->changeType == ObjectChangeType::MOVING_REMOVED) {
-
-					// dynamic or moving object removed
-					int identifier = evt->changedNode->GetId();
-				}
-				else if (evt->changeType == ObjectChangeType::STATIC_CHANGED) {
-					
-					auto mapNode = evt->changedMapNode;
-					auto position = mapNode->pos;
-				}
+			if (networkState == HydroqNetworkState::CLIENT) {
+				communicator->GetClient()->PushMessageForSending(netMsg);
+			}
+			else {
+				communicator->GetServer()->PushMessageForSending(netMsg);
 			}
 		}
+	}
 
-		HydroqNetworkState GetNetworkState() {
-			return this->networkState;
-		}
+	HydroqNetworkState GetNetworkState() {
+		return this->networkState;
+	}
 
-		void SetNetworkState(HydroqNetworkState networkState) {
-			this->networkState = networkState;
-		}
+	void SetNetworkState(HydroqNetworkState networkState) {
+		this->networkState = networkState;
+	}
 
-		virtual void Update(const uint64 delta, const uint64 absolute) {
+	virtual void Update(const uint64 delta, const uint64 absolute) {
 
-			if (networkState == HydroqNetworkState::CLIENT || networkState == HydroqNetworkState::SERVER) {
-				auto communicator = GETCOMPONENT(NetworkCommunicator);
+		if (networkState == HydroqNetworkState::CLIENT || networkState == HydroqNetworkState::SERVER) {
+			/*auto communicator = GETCOMPONENT(NetworkCommunicator);
 
-				// send delta message regularly
-				spt<DeltaInfo> deltaInf = spt<DeltaInfo>(new DeltaInfo());
+			// send delta message regularly
+			spt<DeltaInfo> deltaInf = spt<DeltaInfo>(new DeltaInfo());
 
-				auto model = GETCOMPONENT(HydroqGameModel);
-				auto& dynObjects = model->GetMovingObjects();
+			auto model = GETCOMPONENT(HydroqGameModel);
+			auto& dynObjects = model->GetMovingObjects();
 
-				// update transformation of all objects
-				for (auto& dynObj : dynObjects) {
+			// update transformation of all objects
+			for (auto& dynObj : dynObjects) {
+				if (dynObj->GetSubType() == 0) {
+
 					int id = dynObj->GetId();
 					auto transform = dynObj->GetTransform();
 
@@ -82,18 +75,22 @@ namespace Cog {
 					deltaInf->deltas[StringHash(id * 3 + 1)] = transform.localPos.x;
 					deltaInf->deltas[StringHash(id * 3 + 2)] = transform.localPos.y;
 				}
+			}
 
-				auto msg = spt<DeltaMessage>(new DeltaMessage(deltaInf));
-				spt<NetOutputMessage> netMsg = spt<NetOutputMessage>(new NetOutputMessage(1));
-				netMsg->SetData(msg);
-				netMsg->SetAction(StringHash(NET_MSG_DELTA_UPDATE));
+			auto msg = spt<DeltaMessage>(new DeltaMessage(deltaInf));
+			spt<NetOutputMessage> netMsg = spt<NetOutputMessage>(new NetOutputMessage(1));
+			netMsg->SetData(msg);
+			netMsg->SetAction(StringHash(NET_MSG_DELTA_UPDATE));
 
+			if (networkState == HydroqNetworkState::CLIENT) {
 				communicator->GetClient()->SetMessageForSending(netMsg);
 			}
+			else {
+				communicator->GetServer()->SetMessageForSending(netMsg);
+			}*/
 		}
+	}
 
-	private:
+private:
 
-	};
-
-}// namespace
+};

@@ -14,6 +14,7 @@ private:
 	uint64 msgReceivedTime = 0;
 	TransformMath math;
 	NetworkCommunicator* communicator;
+	bool keepConnected = false;
 public:
 	
 	void OnInit() {
@@ -34,14 +35,17 @@ public:
 
 		communicator->InitServer(HYDROQ_APPID, HYDROQ_SERVERPORT);
 		// set message to be sent
-		auto msg = spt<HydroqServerInitMsg>(new HydroqServerInitMsg());
+		auto msg = new HydroqServerInitMsg();
 		msg->SetFaction(GetSelectedFaction());
 		msg->SetMap(GetSelectedMap());
-		communicator->GetServer()->SetMessageForSending(msg->CreateMessage());
+		communicator->GetServer()->PushMessageForSending(msg->CreateMessage());
 	}
 
 	void OnStop() {
-		communicator->CloseServer();
+		if (!keepConnected) {
+			communicator->CloseServer();
+		}
+		keepConnected = false;
 	}
 
 	void OnMessage(Msg& msg) {
@@ -103,8 +107,18 @@ public:
 
 		// wait 1500ms and finish
 		if (msgReceivedTime != 0 && msgReceivedTime != 1 && (absolute - msgReceivedTime) > 1500) {
+			auto model = GETCOMPONENT(HydroqGameModel);
+			// select the other faction than server did
+			model->SetFaction(GetSelectedFaction());
+			model->SetMapName(GetSelectedMap());
+			model->SetIsMultiplayer(true);
+			// set other properties and switch the scene
+			auto sender = GETCOMPONENT(HydNetworkSender);
+			sender->SetNetworkState(HydroqNetworkState::SERVER);
 			auto stage = GETCOMPONENT(Stage);
 			auto scene = stage->FindSceneByName("game");
+
+			keepConnected = true;
 			stage->SwitchToScene(scene, TweenDirection::LEFT);
 		}
 	}

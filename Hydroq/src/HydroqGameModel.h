@@ -36,7 +36,7 @@ private:
 
 	Faction faction;
 	string mapName;
-
+	bool multiplayer = false;
 	// list of waiting tasks
 	vector<spt<GameTask>> gameTasks;
 	
@@ -70,6 +70,14 @@ public:
 
 	void SetMapName(string name) {
 		this->mapName = name;
+	}
+
+	bool IsMultiplayer() {
+		return multiplayer;
+	}
+
+	void SetIsMultiplayer(bool isMultiplayer) {
+		this->multiplayer = isMultiplayer;
 	}
 
 	/**
