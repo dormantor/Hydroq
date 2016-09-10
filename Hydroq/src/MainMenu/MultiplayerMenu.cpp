@@ -12,7 +12,7 @@ void MultiplayerMenu::OnInit() {
 	communicator = GETCOMPONENT(NetworkCommunicator);
 
 	// load map config
-	auto xml = CogLoadXMLFile("mapconfig.xml");
+	auto xml = CogLoadXMLFile("config/mapconfig.xml");
 	xml->pushTag("settings");
 	mapConfig.LoadFromXml(xml);
 
@@ -24,6 +24,8 @@ void MultiplayerMenu::OnResume() {
 	if (!keepConnected) {
 		communicator->InitBroadcast(HYDROQ_APPID, HYDROQ_CLIENTPORT, HYDROQ_SERVERPORT);
 	}
+	foundIps.clear();
+	RefreshHosts();
 }
 
 void MultiplayerMenu::OnStop() {

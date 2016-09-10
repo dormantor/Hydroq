@@ -18,6 +18,7 @@ class WorkerIdleState : public State {
 private:
 	ArriveBehavior* movingAround = nullptr;
 	GameModel* gameModel;
+	spt<GameTask> lastFoundTask = spt<GameTask>();
 public:
 	
 	WorkerIdleState(GameModel* gameModel) 

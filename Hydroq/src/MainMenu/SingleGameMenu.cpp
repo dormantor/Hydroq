@@ -14,7 +14,7 @@ void SingleGameMenu::OnInit() {
 	SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED);
 
 	// load map config
-	auto xml = CogLoadXMLFile("mapconfig.xml");
+	auto xml = CogLoadXMLFile("config/mapconfig.xml");
 	xml->pushTag("settings");
 	mapConfig.LoadFromXml(xml);
 	LoadMaps();

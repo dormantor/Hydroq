@@ -32,7 +32,7 @@ void GameModel::OnInit() {
 	}
 
 	Settings mapConfig = Settings();
-	auto xml = CogLoadXMLFile("mapconfig.xml");
+	auto xml = CogLoadXMLFile("config/mapconfig.xml");
 	xml->pushTag("settings");
 	mapConfig.LoadFromXml(xml);
 	xml->popTag();
@@ -75,7 +75,7 @@ bool GameModel::PositionContainsBridgeMark(Vec2i position) {
 
 void GameModel::MarkPositionForBridge(Vec2i position, Faction faction) {
 	COGLOGDEBUG("Hydroq", "Placing bridge mark at [%d, %d]", position.x, position.y);
-	auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK, playerModel->GetFaction(), 0);
+	auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK, faction, 0);
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_BUILD, faction));
 	newTask->SetTaskNode(node);
 	gameTasks.push_back(newTask);
@@ -292,7 +292,7 @@ float GameModel::CalcAttractorAbsCardinality(Faction faction, int attractorId) {
 		}
 		cardinalitySum += card;
 	}
-	return attrCardinality / cardinalitySum;
+	return isEqual(cardinalitySum, attrCardinality) ? attrCardinality : attrCardinality / cardinalitySum;
 }
 
 void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
@@ -351,7 +351,6 @@ void GameModel::GetGameTasksByFaction(Faction faction, vector<spt<GameTask>>& ou
 }
 
 void GameModel::GetMovingObjectsByType(EntityType type, Faction faction, vector<Node*>& output) {
-	
 	for (auto& obj : movingObjects) {
 		if (obj->GetAttr<Faction>(StrId(ATTR_FACTION)) == faction) {
 			EntityType enttype = obj->GetAttr<EntityType>(ATTR_ENTITYTYPE);
@@ -360,7 +359,6 @@ void GameModel::GetMovingObjectsByType(EntityType type, Faction faction, vector<
 			}
 		}
 	}
-
 }
 
 bool GameModel::RemoveGameTask(spt<GameTask> task) {
@@ -396,19 +394,16 @@ Node* GameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 			}
 		}
 	}
-
 	return nearestSoFar;
 }
 
 void GameModel::GetRigsByFaction(Faction fact, vector<Node*>& output) {
-	
 	for (auto rig : rigs) {
 		if (rig.second->gameNode->GetAttr<Faction>(ATTR_FACTION) == fact) output.push_back(rig.second->gameNode);
 	}
 }
 
 void GameModel::GetAttractorsByFaction(Faction fact, vector<Node*>& output) {
-
 	for (auto attractor : attractors[fact]) {
 		output.push_back(attractor.second);
 	}
@@ -427,30 +422,7 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 	}
 
 	if (playerModel->IsMultiplayer()) {
-		// update from network interpolator
-		auto interpolator = GETCOMPONENT(Interpolator);
-		auto actual = interpolator->GetActualUpdate();
-
-		if (actual) {
-			for (auto& node : this->movingObjects) {
-				if (node->GetSecondaryId() != 0) {
-					int subType = node->GetSecondaryId();
-
-					auto& values = actual->GetContinuousValues();
-
-					if (values.find(subType*3) != values.end()) {
-
-						float rotation = values[subType * 3 + 0];
-						float posX = values[subType * 3 + 1];
-						float posY = values[subType * 3 + 2];
-
-						node->GetTransform().localPos.x = posX;
-						node->GetTransform().localPos.y = posY;
-						node->GetTransform().rotation = rotation;
-					}
-				}
-			}
-		}
+		UpdateFromInterpolator();
 	}
 
 	rootNode->SubmitChanges(true);
@@ -459,47 +431,7 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 	this->cellSpace->UpdateObjects();
 
 	if (CogGetFrameCounter() % 4 == 0) {
-		StrId factionAttr = StrId(ATTR_FACTION);
-		for (auto& rig : this->rigs) {
-			int totalForBlue = 0;
-			int totalForRed = 0;
-
-			auto& platforms = rig.second->platforms;
-			vector<NodeCellObject*> cellObjects;
-			rig.second->factionHoldings.clear();
-			
-			for (auto platform: platforms) {
-				FactionHolding holding;
-				rig.second->factionHoldings[platform] = holding;
-				
-				cellSpace->CalcNeighbors(ofVec2f(platform.x + 0.5f, platform.y + 0.5f), 0.5f, cellObjects);
-
-				for (auto obj : cellObjects) {
-					auto node = obj->node;
-					Faction fc = node->GetAttr<Faction>(factionAttr);
-					if (fc == Faction::BLUE) {
-						rig.second->factionHoldings[platform].blueNumber++;
-						totalForBlue++;
-					}
-					else {
-						rig.second->factionHoldings[platform].redNumber++;
-						totalForRed++;
-					}
-				}
-				cellObjects.clear();
-			}
-
-			if (totalForBlue != totalForRed) {
-				auto rigFaction = rig.second->gameNode->GetAttr<Faction>(ATTR_FACTION);
-
-				if (totalForBlue > totalForRed && rigFaction != Faction::BLUE) {
-					ChangeRigOwner(rig.second->gameNode, Faction::BLUE);
-				}
-				else if(totalForBlue < totalForRed && rigFaction != Faction::RED) {
-					ChangeRigOwner(rig.second->gameNode, Faction::RED);
-				}
-			}
-		}
+		CheckRigCapturing();
 	}
 
 	// restart recalc indicator
@@ -585,10 +517,8 @@ Node* GameModel::CreateNode(EntityType entityType, ofVec2f position, Faction fac
 	}
 	else if (entityType == EntityType::RIG) {
 		nd->SetTag("rig");
-		
-		if (faction == playerModel->GetFaction() || (!playerModel->IsMultiplayer() && faction != Faction::NONE)) {
-			nd->AddBehavior(new RigBehavior(this, 0.3f));
-		}
+		float frequency = CogGetProjectSettings().GetSettingValFloat("hydroq_set", "rig_spawn_frequency");
+		nd->AddBehavior(new RigBehavior(this, frequency));
 	}
 	else if (entityType == EntityType::WORKER) {
 		if (faction == Faction::BLUE) {
@@ -712,4 +642,75 @@ void GameModel::DivideRigsIntoFactions() {
 
 	// add rig into player model
 	playerModel->AddRigs(1);
+}
+
+void GameModel::UpdateFromInterpolator() {
+	// update from network interpolator
+	auto interpolator = GETCOMPONENT(Interpolator);
+	auto actual = interpolator->GetActualUpdate();
+
+	if (actual) {
+		for (auto& node : this->movingObjects) {
+			if (node->GetSecondaryId() != 0) {
+				int subType = node->GetSecondaryId();
+
+				auto& values = actual->GetContinuousValues();
+
+				if (values.find(subType * 3) != values.end()) {
+
+					float rotation = values[subType * 3 + 0];
+					float posX = values[subType * 3 + 1];
+					float posY = values[subType * 3 + 2];
+
+					node->GetTransform().localPos.x = posX;
+					node->GetTransform().localPos.y = posY;
+					node->GetTransform().rotation = rotation;
+				}
+			}
+		}
+	}
+}
+
+void GameModel::CheckRigCapturing() {
+	StrId factionAttr = StrId(ATTR_FACTION);
+	for (auto& rig : this->rigs) {
+		int totalForBlue = 0;
+		int totalForRed = 0;
+
+		auto& platforms = rig.second->platforms;
+		vector<NodeCellObject*> cellObjects;
+		rig.second->factionHoldings.clear();
+
+		for (auto platform : platforms) {
+			FactionHolding holding;
+			rig.second->factionHoldings[platform] = holding;
+
+			cellSpace->CalcNeighbors(ofVec2f(platform.x + 0.5f, platform.y + 0.5f), 0.5f, cellObjects);
+
+			for (auto obj : cellObjects) {
+				auto node = obj->node;
+				Faction fc = node->GetAttr<Faction>(factionAttr);
+				if (fc == Faction::BLUE) {
+					rig.second->factionHoldings[platform].blueNumber++;
+					totalForBlue++;
+				}
+				else {
+					rig.second->factionHoldings[platform].redNumber++;
+					totalForRed++;
+				}
+			}
+			cellObjects.clear();
+		}
+
+		if (totalForBlue != totalForRed) {
+			auto rigFaction = rig.second->gameNode->GetAttr<Faction>(ATTR_FACTION);
+
+			if (totalForBlue > totalForRed && rigFaction != Faction::BLUE) {
+				ChangeRigOwner(rig.second->gameNode, Faction::BLUE);
+			}
+			else if (totalForBlue < totalForRed && rigFaction != Faction::RED) {
+				ChangeRigOwner(rig.second->gameNode, Faction::RED);
+			}
+		}
+	}
 }

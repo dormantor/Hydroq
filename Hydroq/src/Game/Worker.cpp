@@ -65,7 +65,7 @@ bool WorkerIdleState::FindTaskToDo() {
 					buildState->SetGameTask(task);
 					buildState->SetTileToBuildFrom(tileToWorkFrom);
 					this->GetParent()->ChangeState(StrId(STATE_WORKER_BUILD));
-
+					lastFoundTask = task;
 					return true;
 				}
 			}
@@ -106,6 +106,7 @@ void WorkerIdleState::WanderAround() {
 	else {
 		if (movingAround->HasFinished() || movingAround->GetComponentState() == ComponentState::DISABLED) {
 			// find some point that can be used
+			
 			float x = 0;
 			float y = 0;
 
@@ -116,6 +117,26 @@ void WorkerIdleState::WanderAround() {
 			else {
 				// try to go left or right
 				x = ofRandom(-2.0f, 2.0f);
+			}
+
+			if (lastFoundTask) {
+				// keep heading if task has just been finished
+				int heading = ((int)owner->GetTransform().rotation)%360;
+				
+				if (heading < 0) heading = 360 + heading;
+				
+				if (heading > 250 || heading <= 0) {
+					x = -0.7f; y = 0;
+				}
+				else if (heading > 0 && heading <= 80) {
+					x = 0; y = -0.7f;
+				}else if(heading > 80 && heading < 170) {
+					x = 0.7f; y = 0;
+				}
+				else {
+					x = 0; y = 0.7f;
+				}
+				lastFoundTask = spt<GameTask>();
 			}
 
 			auto startPrec = owner->GetTransform().localPos;
@@ -251,14 +272,11 @@ void WorkerAttractState::OnStart() {
 
 	owner->SetState(StrId(STATE_WORKER_ATTRACTOR_FOLLOW));
 
-	//task->handlerNode = owner;
-	//task->isProcessing = true;
-
 	// worker position
 	auto workerPos = owner->GetTransform().localPos;
 	// position where the bridge will stay
 	auto position = this->tileToFollow->GetPosition();
-	auto precisePosition = ofVec2f(position.x + ofRandom(0,1), position.y+ofRandom(0,1));
+	auto precisePosition = ofVec2f(position.x + ofRandom(-1,1), position.y+ofRandom(-1,1));
 
 	COGLOGDEBUG("Hydroq", "Going from [%.2f, %.2f] to [%.2f, %.2f]", workerPos.x, workerPos.y, precisePosition.x, precisePosition.y);
 
@@ -278,10 +296,7 @@ void WorkerAttractState::Update(const uint64 delta, const uint64 absolute) {
 		auto stateToChange = GetParent()->FindLocalState(StrId(STATE_WORKER_IDLE));
 		GetParent()->ChangeState(stateToChange);
 
-		// this will be interesting
 		task->RemoveReserverNode(owner->GetId());
-
-		//gameModel->RemoveGameTask(task);
 	}
 }
 

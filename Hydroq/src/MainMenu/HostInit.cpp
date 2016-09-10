@@ -6,7 +6,7 @@
 #include "Stage.h"
 
 void HostInit::OnInit() {
-	SubscribeForMessages(ACT_NET_CLIENT_CONNECTED, ACT_SCENE_SWITCHED);
+	SubscribeForMessages(ACT_NET_CONNECTED, ACT_SCENE_SWITCHED);
 	communicator = GETCOMPONENT(NetworkCommunicator);
 }
 
@@ -48,7 +48,7 @@ void HostInit::OnMessage(Msg& msg) {
 			OnStop();
 		}
 	}
-	if (msg.HasAction(ACT_NET_CLIENT_CONNECTED)) {
+	if (msg.HasAction(ACT_NET_CONNECTED)) {
 
 		// get client's ip address
 		auto msgEvent = msg.GetData<NetworkMsgEvent>();

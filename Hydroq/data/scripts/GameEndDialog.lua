@@ -30,7 +30,7 @@
 	   else
 	     meshText:SetText("You have lost the game!")
 	   end
-	   
+	   firstInit = true
 	 end
    end 
 } 

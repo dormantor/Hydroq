@@ -6,29 +6,52 @@
 
 
 GameMapTile* GameMapTile::FindWalkableNeighbor(Vec2i preferredDirection) {
-
-	if (preferredDirection.x <= pos.x && preferredDirection.y <= pos.y) {
+	if (preferredDirection.x == pos.x && preferredDirection.y <= pos.y) {
 		if (top != nullptr && top->IsWalkable()) return top;
 		if (left != nullptr && left->IsWalkable()) return left;
 		if (right != nullptr && right->IsWalkable()) return right;
+		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+	}
+	else if (preferredDirection.x == pos.x && preferredDirection.y > pos.y) {
+		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+		if (left != nullptr && left->IsWalkable()) return left;
+		if (right != nullptr && right->IsWalkable()) return right;
+		if (top != nullptr && top->IsWalkable()) return top;
+	}
+	else if (preferredDirection.x > pos.x && preferredDirection.y == pos.y) {
+		if (right != nullptr && right->IsWalkable()) return right;
+		if (top != nullptr && top->IsWalkable()) return top;
+		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+		if (left != nullptr && left->IsWalkable()) return left;
+	}
+	else if (preferredDirection.x <= pos.x && preferredDirection.y == pos.y) {
+		if (left != nullptr && left->IsWalkable()) return left;
+		if (top != nullptr && top->IsWalkable()) return top;
+		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
+		if (right != nullptr && right->IsWalkable()) return right;
+	}
+	else if (preferredDirection.x <= pos.x && preferredDirection.y <= pos.y) {
+		if (left != nullptr && left->IsWalkable()) return left;
+		if (right != nullptr && right->IsWalkable()) return right;
+		if (top != nullptr && top->IsWalkable()) return top;
 		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 	}
 	else if (preferredDirection.x <= pos.x && preferredDirection.y > pos.y) {
-		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 		if (left != nullptr && left->IsWalkable()) return left;
 		if (right != nullptr && right->IsWalkable()) return right;
+		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 		if (top != nullptr && top->IsWalkable()) return top;
 	}
 	else if (preferredDirection.x > pos.x && preferredDirection.y <= pos.y) {
-		if (top != nullptr && top->IsWalkable()) return top;
 		if (right != nullptr && right->IsWalkable()) return right;
 		if (left != nullptr && left->IsWalkable()) return left;
+		if (top != nullptr && top->IsWalkable()) return top;
 		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 	}
 	else if (preferredDirection.x > pos.x && preferredDirection.y > pos.y) {
-		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 		if (right != nullptr && right->IsWalkable()) return right;
 		if (left != nullptr && left->IsWalkable()) return left;
+		if (bottom != nullptr && bottom->IsWalkable()) return bottom;
 		if (top != nullptr && top->IsWalkable()) return top;
 	}
 

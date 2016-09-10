@@ -25,6 +25,8 @@ private:
 	map<Vec2i, spt<SpriteInst>> staticSpriteMap;
 	// collection of dynamic sprites
 	spt<MultiSpriteMesh> dynamicSprites;
+	// hydroq settings
+	Settings hydroqSettings;
 
 	vector<spt<SpriteInst>> explosions;
 	// collection of dynamic sprites, mapping by identifier
@@ -65,8 +67,14 @@ public:
 		return dynamicSprites;
 	}
 
+	/**
+	* Saves map image into file (for debug purposes)
+	*/
 	void SaveMapImageToFile(string file);
 
+	/**
+	* Gets sprite by its frame
+	*/
 	Sprite& GetSprite(int frame);
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
@@ -74,4 +82,19 @@ public:
 	Node* animNode = nullptr;
 	Node* animTextNode = nullptr;
 	void CreateAnimationText(string message);
+
+	void OnMultiplayerConnectionLost();
+	void OnMultiplayerReconnect();
+protected:
+	// =================== OnMessage actions ======================
+	void OnDynamicObjectCreated(spt<MapObjectChangedEvent> evt);
+	void OnDynamicObjectRemoved(spt<MapObjectChangedEvent> evt);
+	void OnStaticObjectChanged(spt<MapObjectChangedEvent> evt);
+	void OnRigTaken(spt<MapObjectChangedEvent> evt);
+	// =================== Update actions =========================
+	void UpdateMovingObjects();
+	void UpdateRigAnimations();
+	void UpdateBridgeAnimations();
+	void UpdatePlatformAnimations();
+	void UpdateActionAnimations();
 };

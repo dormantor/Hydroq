@@ -1,8 +1,10 @@
 #include "HydroqNetMsg.h"
 
 void HydroqServerInitMsg::LoadFromStream(NetReader* reader) {
-	this->faction = (Faction)reader->ReadByte();
-	this->map = reader->ReadString();
+	if (reader != nullptr) {
+		this->faction = (Faction)reader->ReadByte();
+		this->map = reader->ReadString();
+	}
 }
 
 void HydroqServerInitMsg::SaveToStream(NetWriter* writer) {
@@ -16,10 +18,6 @@ spt<NetOutputMessage> HydroqServerInitMsg::CreateMessage() {
 	outputMsg->SetData(this);
 	return outputMsg;
 }
-
-
-
-
 
 void HydroqCommandMsg::LoadFromStream(NetReader* reader) {
 	this->eventType = (SyncEventType)reader->ReadByte();

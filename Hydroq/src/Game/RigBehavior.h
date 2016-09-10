@@ -18,13 +18,15 @@ class RigBehavior : public Behavior {
 	int totalWorkers = 0;
 	float spawnFrequency;
 	uint64 lastSpawn = 0;
-	int maxWorkers = 20;
+	int rigCapacity = 20;
 
 public:
 	RigBehavior(GameModel* gameModel, float spawnFrequency) : gameModel(gameModel), spawnFrequency(spawnFrequency){
 
 	}
 	
+	void OnInit();
+
 	void OnMessage(Msg& msg) {
 	}
 

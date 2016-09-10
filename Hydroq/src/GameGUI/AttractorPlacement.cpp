@@ -204,7 +204,7 @@ void AttractorPlacement::InsertAttractor(ofVec2f position, Vec2i tilePos) {
 	attrPlaced++;
 
 	placedAttractor->AddAttr(ATTR_BRICK_POS, tilePos);
-	gameModel->AddAttractor(tilePos, playerModel->GetFaction(), 1);
+	gameModel->AddAttractor(tilePos, playerModel->GetFaction(), 0.5f);
 
 	attractors.push_back(placedAttractor);
 	RefreshAttractorPosition(position, ofVec2f(1));

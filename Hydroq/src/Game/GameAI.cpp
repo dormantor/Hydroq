@@ -26,7 +26,6 @@ void GameAI::Update(const uint64 delta, const uint64 absolute) {
 
 		auto map = gameModel->GetMap();
 
-
 		// if the task has been completed (there is not water at selected location), restart the task
 		if (!actualTask.isCompleted && !actualTask.isRestarted) {
 			if ((actualTask.type == HydAIActionType::GOTO_EMPTY || actualTask.type == HydAIActionType::GOTO_ENEMY)) {
@@ -38,9 +37,14 @@ void GameAI::Update(const uint64 delta, const uint64 absolute) {
 				}
 			}
 			else {
-				// restart the task each 10 seconds
-				if ((absolute - lastTaskTime) > 10000) {
-					actualTask.isRestarted = true;
+				// restart the task each 20 seconds
+				if ((absolute - lastTaskTime) > 20000) {
+					if (actualTask.type == HydAIActionType::GOTO_EMPTY || actualTask.type == HydAIActionType::GOTO_ENEMY) {
+						actualTask = AITask(); // restart task if the path couldn't be built
+					}
+					else {
+						actualTask.isRestarted = true;
+					}
 				}
 			}
 		}
@@ -256,7 +260,7 @@ void GameAI::BuildAroundTile(RigInfo& nearestRig, GameMapTile* tile, AITask& tas
 	int closerNeighborDist = 100000;
 	GameMapTile* closerNeighbor = nullptr;
 	for (auto neighbor : neighbors) {
-		// build bridge so that the rig will be close
+		// build bridge so that the rig will be closer
 		if (neighbor->GetMapTileType() == MapTileType::WATER) {
 			int distance = Vec2i::Distance(nearestRig.position, neighbor->GetPosition());
 			if (distance < closerNeighborDist) {

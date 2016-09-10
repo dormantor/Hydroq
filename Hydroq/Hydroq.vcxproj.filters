@@ -2,203 +2,96 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Worker.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Helper.cpp">
-      <Filter>Misc</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MultiplayerMenu.cpp">
-      <Filter>MainMenu</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HydroqNetMsg.cpp">
-      <Filter>Misc</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TaskScheduler.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RigBehavior.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameTask.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HydAISimulator.cpp">
+    <ClCompile Include="src\AI\HydAISimulator.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="src\HydAIState.cpp">
+    <ClCompile Include="src\AI\HydAIState.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="src\HostInit.cpp">
+    <ClCompile Include="src\Game\GameModel.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\GameTask.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\GameView.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\PlayerModel.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\RigBehavior.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\TaskScheduler.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Worker.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\GameAI.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\GameGoals.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\GameMap.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\MenuIconBehavior.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\PlayerController.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\RightPanel.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\RightPanelSections.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\SelectedFuncBehavior.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\TileEventBehavior.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\TopPanel.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\AttractorPlacement.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\GameBoard.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameGUI\LeftPanel.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainMenu\SingleGameMenu.cpp">
       <Filter>MainMenu</Filter>
     </ClCompile>
-    <ClCompile Include="src\SingleGameMenu.cpp">
+    <ClCompile Include="src\MainMenu\HostInit.cpp">
       <Filter>MainMenu</Filter>
     </ClCompile>
-    <ClCompile Include="src\HydNetworkReceiver.cpp">
-      <Filter>Misc</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HydNetworkSender.cpp">
-      <Filter>Misc</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameMap.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameAI.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameModel.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameView.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameGoals.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlayerModel.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LeftPanel.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RightPanel.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RightPanelSections.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TopPanel.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameBoard.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlayerController.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SelectedFuncBehavior.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TileEventBehavior.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AttractorPlacement.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MenuIconBehavior.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HydroqLuaMapper.cpp">
-      <Filter>Misc</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\Worker.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameTask.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Helper.h">
-      <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqDef.h">
-      <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MsgEvents.h">
-      <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HostInit.h">
+    <ClCompile Include="src\MainMenu\MultiplayerMenu.cpp">
       <Filter>MainMenu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MultiplayerMenu.h">
-      <Filter>MainMenu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SingleGameMenu.h">
-      <Filter>MainMenu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqNetMsg.h">
+    </ClCompile>
+    <ClCompile Include="src\Misc\HydNetworkSender.cpp">
       <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydNetworkReceiver.h">
+    </ClCompile>
+    <ClCompile Include="src\Misc\HydroqLuaMapper.cpp">
       <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydNetworkSender.h">
+    </ClCompile>
+    <ClCompile Include="src\Misc\HydroqNetMsg.cpp">
       <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TaskScheduler.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydAIAction.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydAISimulator.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydAIState.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RigBehavior.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameMap.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameAI.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameModel.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameView.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameGoals.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\PlayerModel.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LeftPanel.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RightPanel.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RightPanelSections.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TopPanel.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameBoard.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\PlayerController.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SelectedFuncBehavior.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TileEventBehavior.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AttractorPlacement.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MenuIconBehavior.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rig.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HydroqLuaMapper.h">
+    </ClCompile>
+    <ClCompile Include="src\Misc\Helper.cpp">
       <Filter>Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="src\PlayerModelLua.h">
+    </ClCompile>
+    <ClCompile Include="src\Misc\HydNetworkReceiver.cpp">
       <Filter>Misc</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
@@ -219,5 +112,112 @@
     <Filter Include="GameGUI">
       <UniqueIdentifier>{ec953ebc-a13d-4f50-8259-7b2341b7c51a}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\AI\HydAISimulator.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AI\HydAIState.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AI\HydAIAction.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\GameMap.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\GameModel.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\GameTask.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\GameView.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\PlayerModel.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\Rig.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\RigBehavior.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\TaskScheduler.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\Worker.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\GameAI.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game\GameGoals.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\LeftPanel.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\MenuIconBehavior.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\PlayerController.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\RightPanel.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\RightPanelSections.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\SelectedFuncBehavior.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\TileEventBehavior.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\TopPanel.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\AttractorPlacement.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameGUI\GameBoard.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainMenu\MultiplayerMenu.h">
+      <Filter>MainMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainMenu\SingleGameMenu.h">
+      <Filter>MainMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainMenu\HostInit.h">
+      <Filter>MainMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\HydNetworkSender.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\HydroqDef.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\HydroqLuaMapper.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\HydroqNetMsg.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\MsgEvents.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\PlayerModelLua.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\Helper.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\HydNetworkReceiver.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

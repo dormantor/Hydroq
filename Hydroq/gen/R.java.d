@@ -16,5 +16,4 @@ F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\values\styles.xml \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\values-v11\styles.xml \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\values-v14\styles.xml \
-F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\bin\res\drawable\ic_launcher.png \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\bin\AndroidManifest.xml \

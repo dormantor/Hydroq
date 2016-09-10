@@ -30,7 +30,6 @@ private:
 	map<Faction, map<Vec2i, Node*>> attractors;
 	// rig entities
 	map<Vec2i, spt<Rig>> rigs;
-	
 	// game scene that runs separately from the stage
 	Scene* gameScene;
 	// root node of the game scene
@@ -316,4 +315,14 @@ private:
 	* Divides rigs into factions
 	*/
 	void DivideRigsIntoFactions();
+
+	/**
+	* Updates continuous values using the interpolator
+	*/
+	void UpdateFromInterpolator();
+
+	/**
+	* Checks rigs whether there are some with accumulate units
+	*/
+	void CheckRigCapturing();
 };

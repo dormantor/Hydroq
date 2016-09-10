@@ -21,7 +21,7 @@ void HydAISimulator::SetRewards(int blueReward, int redReward) {
 	}
 }
 
-void HydAISimulator::MakeAction(HydAIAction act) {
+void HydAISimulator::MakeActionImpl(HydAIAction act) {
 	if (find(this->possibleActions.begin(), this->possibleActions.end(), act) == this->possibleActions.end()) {
 		throw IllegalOperationException("Wrong action to take!");
 	}
@@ -74,13 +74,9 @@ void HydAISimulator::MakeAction(HydAIAction act) {
 	}
 
 	this->actualState.Recalc();
-	this->actualState.SwapAgentOnTurn(this->agentsNumber);
-	RecalcPossibleActions();
 }
 
-void HydAISimulator::RecalcPossibleActions() {
-	this->possibleActions.clear();
-
+void HydAISimulator::RecalcPossibleActionsImpl() {
 	if (actualState.distancesBlue.empty() || actualState.distancesRed.empty()) return;
 
 	auto& distancesToEnemy = (IsBlueEnemy()) ? actualState.distancesBlue : actualState.distancesRed;

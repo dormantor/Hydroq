@@ -30,12 +30,8 @@ public:
 		throw IllegalOperationException("This simulator can't be reinitialized");
 	}
 
-	spt<Simulator> DeepCopy() {
+	spt<Simulator> DeepCopyImpl() {
 		auto copy = spt<HydAISimulator>(new HydAISimulator());
-		copy->actualState = this->actualState;
-		copy->agentsNumber = this->agentsNumber;
-		copy->possibleActions = this->possibleActions;
-		copy->rewards = this->rewards;
 		copy->aiFaction = this->aiFaction;
 		return copy;
 	}
@@ -47,10 +43,8 @@ public:
 
 	void SetRewards(int blueReward, int redReward);
 
-	void MakeAction(HydAIAction act);
-
 protected:
+	virtual void MakeActionImpl(HydAIAction act);
 
-
-	virtual void RecalcPossibleActions();
+	virtual void RecalcPossibleActionsImpl();
 };

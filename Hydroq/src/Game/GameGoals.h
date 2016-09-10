@@ -55,11 +55,14 @@ public:
 	// the time the goal started
 	uint64 goalStarted = 0;
 	GameModel* gameModel;
-
+	int buildingDelay = 0;
+	
+	
 	BuildBridgeGoal(GameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_BUILD_BRIDGE)), gameModel(gameModel), task(task) {
 
 	}
 
+	virtual void OnStart();
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
@@ -74,6 +77,9 @@ public:
 	// the time the goal started
 	uint64 goalStarted = 0;
 	GameModel* gameModel;
+	int destroyDelay = 0;
+
+	virtual void OnStart();
 
 	DestroyBridgeGoal(GameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_DESTROY_BRIDGE)), task(task), gameModel(gameModel) {
 

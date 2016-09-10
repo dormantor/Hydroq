@@ -39,7 +39,7 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 	CalcAssignedTasks(allTasks, assignedTasks);
 
 	COGMEASURE_BEGIN("HYDROQ_SCHEDULER");
-
+	
 	for (auto& task : allTasks) {
 
 		if (!task->IsDelayed() && !task->IsEnded() && !task->IsProcessing() &&
@@ -92,17 +92,19 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 					}
 
 					int workersToAssign = allWorkers.size()*absCardinality - task->GetReservedNodes().size();
-					workersToAssign = max((int)(workersToAssign / 1.8f), 1); // assign continuously :
+					
+					if (workersToAssign != 0) {
+						workersToAssign = max((int)(workersToAssign / 1.8f), 1); // assign continuously :
 
-					int workersAvailableToAsign = min(workersToAssign, (int)freeWorkers.size());
+						int workersAvailableToAsign = min(workersToAssign, (int)freeWorkers.size());
 
-					for (int i = 0; i < workersAvailableToAsign; i++) {
-						// prevent from other task to assign
-						assignedTasks[freeWorkers[i]->GetId()]++;
+						for (int i = 0; i < workersAvailableToAsign; i++) {
+							// prevent from other task to assign
+							assignedTasks[freeWorkers[i]->GetId()]++;
 
-						task->GetReservedNodes().push_back(freeWorkers[i]);
-						task->SetIsReserved(true);
-						//task->reserverTime = absolute; NOT SET !
+							task->GetReservedNodes().push_back(freeWorkers[i]);
+							task->SetIsReserved(true);
+						}
 					}
 				}
 			}
@@ -110,35 +112,47 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 				bool workerFound = false;
 				for (auto& worker : allWorkers) {
 
-					// each player's worker can have only up to 2 tasks reserved; 
-					if (assignedTasks.find(worker->GetId()) == assignedTasks.end() || (assignedTasks[worker->GetId()] <= 4)) {
+					// each player's worker can have only up to 4 tasks reserved; 
+					if (assignedTasks.find(worker->GetId()) == assignedTasks.end()) {
 
-						// try to find a path
-						float manhattanDistance = abs(worker->GetTransform().localPos.x - taskLocation.x) + abs(worker->GetTransform().localPos.y - taskLocation.y);
+						int alreadyAssigned = assignedTasks[worker->GetId()];
+						
+						if (alreadyAssigned <= 4 || (!playerModel->IsMultiplayer() && playerModel->GetFaction() != faction))
+						{
+							// try to find a path
+							float manhattanDistance = abs(worker->GetTransform().localPos.x - taskLocation.x) + abs(worker->GetTransform().localPos.y - taskLocation.y);
 
-						// position the worker stays
-						auto nodeLocation = worker->GetTransform().localPos;
+							// position the worker stays
+							auto nodeLocation = worker->GetTransform().localPos;
 
-						if (task->GetType() == GameTaskType::BRIDGE_BUILD || task->GetType() == GameTaskType::BRIDGE_DESTROY) {
-							// find nearest node the worker will stay during the building (worker cannot go to the water)
-							auto nodeToBuildfrom = mapNode->FindWalkableNeighbor(Vec2i(nodeLocation.x, nodeLocation.y));
-
-							if (nodeToBuildfrom != nullptr) {
-								vector<Vec2i> path;
-								map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), nodeToBuildfrom->GetPosition(), true, path, 2 * manhattanDistance);
-
-								if (!path.empty()) {
-									// assign
-									task->SetIsReserved(true);
-									task->GetReservedNodes().push_back(worker);
-									task->SetReservedTime(absolute);
-									workerFound = true;
+							if (task->GetType() == GameTaskType::BRIDGE_BUILD || task->GetType() == GameTaskType::BRIDGE_DESTROY) {
+								if ((task->GetType() == GameTaskType::BRIDGE_BUILD && mapNode->GetMapTileType() == MapTileType::GROUND) ||
+									task->GetType() == GameTaskType::BRIDGE_DESTROY && mapNode->GetMapTileType() == MapTileType::WATER) {
+									gameModel->RemoveGameTask(task);
 									break;
+								}
+
+								// find nearest node the worker will stay during the building (worker cannot go to the water)
+								auto nodeToBuildfrom = mapNode->FindWalkableNeighbor(Vec2i(taskLocation.x, taskLocation.y));
+
+								if (nodeToBuildfrom != nullptr) {
+									vector<Vec2i> path;
+									map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), nodeToBuildfrom->GetPosition(), true, path, 2 * manhattanDistance);
+
+									if (!path.empty()) {
+										// assign
+										task->SetIsReserved(true);
+										task->GetReservedNodes().push_back(worker);
+										task->SetReservedTime(absolute);
+										workerFound = true;
+										break;
+									}
 								}
 							}
 						}
 					}
 				}
+
 
 				if (!workerFound) {
 					// no worker assigned -> try to find the complete path
@@ -152,7 +166,10 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 
 							if (nodeToBuildfrom != nullptr) {
 								vector<Vec2i> path;
-								map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), Vec2i(taskLocation.x, taskLocation.y), true, path, 0);
+								float manhattanDistance = abs(worker->GetTransform().localPos.x - taskLocation.x) 
+									+ abs(worker->GetTransform().localPos.y - taskLocation.y);
+
+								map->FindPath(Vec2i(nodeLocation.x, nodeLocation.y), nodeToBuildfrom->GetPosition(), true, path, 8*manhattanDistance);
 
 								if (!path.empty()) {
 									// assign
@@ -163,7 +180,7 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 									break;
 								}
 								else {
-									// no path could be found as well -> set delay property
+									// no path could be found -> set delay property
 									task->SetIsDelayed(true);
 									break;
 								}

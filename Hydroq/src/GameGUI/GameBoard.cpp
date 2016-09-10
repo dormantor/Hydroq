@@ -11,7 +11,7 @@ void GameBoard::OnInit() {
 	auto playerModel = GETCOMPONENT(PlayerModel);
 	auto gameModel = owner->GetBehavior<GameModel>();
 
-	auto xml = CogLoadXMLFile("mapconfig.xml");
+	auto xml = CogLoadXMLFile("config/mapconfig.xml");
 	xml->pushTag("settings");
 	mapConfig.LoadFromXml(xml);
 	xml->popTag();

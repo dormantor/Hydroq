@@ -2,14 +2,17 @@
 #include "RigBehavior.h"
 #include "GameModel.h"
 #include "Node.h"
+#include "ComponentStorage.h"
 
-
+void RigBehavior::OnInit() {
+	auto& settings = CogGetProjectSettings();
+	this->rigCapacity = settings.GetSettingValInt("hydroq_set", "rig_capacity");
+}
 
 void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 	
 	if (lastSpawn == 0) {
-		// first spawn after 1s
-		lastSpawn = absolute+1000*spawnFrequency;
+		lastSpawn = absolute+3000;
 	}
 	else {
 		
@@ -45,9 +48,13 @@ void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 
 			// spawn worker
 			Faction faction = owner->GetAttr<Faction>(ATTR_FACTION);
-			gameModel->SpawnWorker(ofVec2f(posX, posY),faction,0, Vec2i(owner->GetTransform().localPos.x, owner->GetTransform().localPos.y));
+			auto playerModel = GETCOMPONENT(PlayerModel);
+			if (faction == playerModel->GetFaction() || (!playerModel->IsMultiplayer() && faction != Faction::NONE)) {
+				gameModel->SpawnWorker(ofVec2f(posX, posY), faction, 0, Vec2i(owner->GetTransform().localPos.x, owner->GetTransform().localPos.y));
 
-			if (totalWorkers++ > maxWorkers) Finish();
+				if (totalWorkers++ > rigCapacity) Finish();
+			}
+			
 		}
 	}
 }

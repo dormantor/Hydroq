@@ -1,5 +1,7 @@
 #include "HydNetworkReceiver.h"
 #include "ComponentStorage.h"
+#include "GameView.h"
+#include "Stage.h"
 
 void HydNetworkReceiver::OnInit() {
 	auto playerModel = GETCOMPONENT(PlayerModel);
@@ -7,8 +9,9 @@ void HydNetworkReceiver::OnInit() {
 		owner->RemoveBehavior(this, true);
 	}
 
-	SubscribeForMessages(ACT_NET_MESSAGE_RECEIVED);
+	SubscribeForMessages(ACT_NET_MESSAGE_RECEIVED, ACT_NET_CONNECTION_LOST, ACT_NET_CONNECTED, ACT_NET_DISCONNECTED);
 	model = owner->GetBehavior<GameModel>();
+	view = owner->GetBehavior<GameView>();
 }
 
 void HydNetworkReceiver::OnMessage(Msg& msg) {
@@ -36,6 +39,9 @@ void HydNetworkReceiver::OnMessage(Msg& msg) {
 				ProcessCommandMessage(netMsg);
 			}
 		}
+	}
+	else if (msg.HasAction(ACT_NET_CONNECTION_LOST) || msg.HasAction(ACT_NET_DISCONNECTED)) {
+			this->view->OnMultiplayerConnectionLost();
 	}
 }
 

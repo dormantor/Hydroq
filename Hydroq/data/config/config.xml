@@ -4,7 +4,7 @@
   <settings>
     <!-- default values -->
     <default_settings>
-      <setting name="transform">
+	  <setting name="transform">
 		<item key="ref_width" value="1775" />
 		<item key="ref_height" value="993" />
       </setting>
@@ -16,8 +16,7 @@
       <setting name="logger" level="DEBUG">
         <item key="channel" value="console" />
 		<item key="module_include">
-		  <value>Measure</value>
-		  <value>GameAI</value>
+		  <value>xx</value>
 		</item>
       </setting>
 	  
@@ -26,13 +25,21 @@
 	  </setting>
 	  
 	  <setting name="sounds">
-	    <item key="mute" value="true" />
+	    <item key="mute" value="false" />
 	  </setting>
     </global_settings>
 
     <!-- project settings (game logic etc) -->
     <project_settings>
-
+	  <setting name="hydroq_set">
+	    <item key="place_enemy_bridge" value="false"/>
+		<item key="unit_max_acc" value="60" />
+		<item key="unit_max_radial_acc" value="10" />
+		<item key="building_delay" value="350" />
+		<item key="destroy_delay" value="1500" />
+		<item key="rig_capacity" value="20" />
+		<item key="rig_spawn_frequency" value="0.3" />
+	  </setting>
     </project_settings>
   </settings>
  
@@ -49,6 +56,7 @@
     <script name="MenuBehavior" path="Scripts/MenuBehavior.lua" />
 	<script name="ConfirmDialog" path="Scripts/ConfirmDialog.lua" />
 	<script name="GameEndDialog" path="Scripts/GameEndDialog.lua" />
+	<script name="ReconnectDialog" path="Scripts/ReconnectDialog.lua" />
   </scripts>
   
   <spritesheets>
@@ -82,12 +90,12 @@
 
         <!-- desk left and desk right will be behind the board, so posZ is set lower -->
         <node name="desk_left" img="desk.png">
-          <!-- slightly left of the left corner of the board -->
+          <!-- slightly left to the left corner of the board -->
           <transform pos_x="8gr" pos_y="2gr" z_index="1" anchor="0" />
         </node>
 
         <node name="desk_right" img="desk.png">
-          <!-- slightly right of the right corner of the board, image will be inverted horizontally -->
+          <!-- slightly right to the right corner of the board, image will be inverted horizontally -->
           <transform pos_x="92gr" pos_y="2gr" z_index="1" anchor="0" width="-1"  />
         </node>
 
@@ -156,6 +164,7 @@
 		  </node>
 		</node>
 		
+		<!-- panel with maps -->
 		<node name="board_2" img="menu_selectboard.png" >
 		  <transform pos_x="0.5r" pos_y="0.3r" anchor_x="0.5" />
 		  
@@ -168,6 +177,7 @@
           </node>
 		</node>
 		
+		<!-- panel with faction selection -->
 		<node name="board_3" img="menu_selectboard.png" >
 		  <transform pos_x="0.75r" pos_y="0.3r" anchor_x="0.5" />
 		
@@ -189,6 +199,7 @@
 		  </node>
 		</node>
 		
+		<!-- play button -->
         <node name="play_but" img="button_default.png" img_click="button_default_click.png">
           <transform pos_x="50gr" pos_y="42gr" anchor="0.5"  />
 
@@ -231,7 +242,7 @@
 		<node name="board_1" img="menu_selectboard.png" >
 		  <transform pos_x="0.25r" pos_y="0.3r" anchor_x="0.5" />
 		  <node>
-            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Games:</text>
+            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Hosts:</text>
             <transform pos="0.1r" size="1"   />
           </node>
 		  
@@ -253,6 +264,7 @@
           </node>
 		</node>
 		
+		<!-- faction selection panel-->
 		<node name="board_3" img="menu_selectboard.png" >
 		  <transform pos_x="0.75r" pos_y="0.3r" anchor_x="0.5" />
 		
@@ -293,6 +305,7 @@
       </node>
     </scene>
 	
+	<!-- dialog waiting for connected clients -->
 	<scene name="host_init" type="dialog">
 	  <scene_settings>
         <setting name="transform">
@@ -313,6 +326,7 @@
       </node>
 	</scene>
 	
+	<!-- loading panel -->
 	<scene name="loading">
 	  <scene_settings>
         <setting name="transform">
@@ -333,6 +347,7 @@
 	  </node>
 	</scene>
 	
+	<!-- game panel -->
     <scene name="game" lazy="true" >
 	   <scene_settings>
         <setting name="transform">
@@ -348,9 +363,10 @@
 		<layer name="object_board" spritesheet="game_board" buffer_size="10000" z_index="2" />
 	  </scene_layers>
 	  
+	<!-- parent of all nodes -->
 	<node name="parent">
-
-   	  
+	
+	  <!-- left panel with map and counters -->
       <node name="leftpanel" img="game/gm_leftpanel.png">
 	  	<behavior type="HitEvent" />
 		<behavior type="LeftPanel" />
@@ -358,7 +374,7 @@
 
         <node name="playertext">
           <transform pos_x="1.3gr" pos_y="2.4gr" />
-		  <text font="MotionControl-Bold.otf" size="54" color="0xFFFFFF">Player Mojo</text>
+		  <text font="MotionControl-Bold.otf" size="54" color="0xFFFFFF"></text>
         </node>
 
         <node name="mapboard" img="game/gm_mapboard.png">
@@ -368,7 +384,7 @@
 
 		<node name="mapborder">
           <transform pos_x="1gr" pos_y="4gr"  z_index="50" />
-		  <shape type="plane" size="100" color="0xFFFFFF" no_fill="true" />
+		  <mesh type="plane" size="100" color="0xFFFFFF" no_fill="true" />
         </node>
 		
 		<node name="counters">
@@ -390,11 +406,10 @@
 		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">38</text>
             </node>
 		  </node>
-		</node>
-		
-	    
+		</node>	    
       </node>
 
+	  <!-- top panel with force balance -->
       <node name="toppanel" img="game/gm_toppanel.png" >
         <behavior type="TopPanel" />
 		<transform pos_x="50gr" pos_y="0gr"  anchor_x="0.5"   z_index="10" />
@@ -407,14 +422,15 @@
         </node>
         <node name="scorebar_blue">
           <transform pos_x="43gr" pos_y="0.6gr" anchor_x="0" anchor_y="0" width="1gr" height="1.3gr" />
-		  <shape type="plane" color="0x23B9FF" width="10" height="10" />
+		  <mesh type="plane" color="0x23B9FF" width="10" height="10" />
         </node>
 		<node name="scorebar_red">
           <transform pos_x="57gr" pos_y="0.6gr" anchor_x="1" anchor_y="0" width="1gr" height="1.3gr" />
-		  <shape type="plane" color="0xFF2323" width="10" height="10" />
+		  <mesh type="plane" color="0xFF2323" width="10" height="10" />
         </node>
       </node>
 
+	  <!-- rightpanel with functions -->
       <node name="rightpanel" img="game/gm_rightpanel.png">
         <transform pos_x="94.3gr" pos_y="0gr" anchor_x="0" z_index="10" />
 		<behavior type="HitEvent" />
@@ -436,13 +452,13 @@
 		  <transform pos_x="0.65r" pos_y="0.23r" anchor_y="1"  />
 		</node>
 		
-				
+		<!-- building functions -->
 		<node name="section_build">
 		  <transform pos_x="0.12r" pos_y="0.40r" anchor="0" width="0.99r" height="0.7r" />
 		  
 		  
 		  <node name="command_build">
-		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
+		    <mesh type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1r" />
 		    <behavior type="HitEvent"/>
 		  
@@ -456,7 +472,7 @@
 		  </node>
 		  
 		  <node name="command_destroy">
-	   	    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
+	   	    <mesh type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1r" />
 		    <behavior type="HitEvent"/>
 		  
@@ -470,7 +486,7 @@
 		  </node>
 		  
 		  <node name="command_forbid">
-		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
+		    <mesh type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1r" />
 		    <behavior type="HitEvent" />
 		  
@@ -487,9 +503,8 @@
 		<node name="section_flag">
 		  <transform pos_x="0.12r" pos_y="0.40r" anchor="0" width="0.99r" height="0.7r" />
 		  
-		  
 		  <node name="command_attract">
-		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
+		    <mesh type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
 		    <transform size="1r" />
 		    <behavior type="HitEvent"/>
 		  
@@ -502,7 +517,6 @@
             </node>
 		  </node>
 		</node>
-
       </node>
 
 	  <node name="selected_func" img="game/functions_build_seedbed.png">
@@ -518,9 +532,10 @@
 		    <item key="drag_enabled" value="true" />
 		  </setting>
 	    </behavior>
+		<!-- root node behaviors -->
 		<behavior type="GameModel" />
 		<behavior type="GameView" />
-		<behavior type="AttractorPlacement" /> <!-- must be declared after FloatingScene -->
+		<behavior type="AttractorPlacement" /> 
 		<behavior type="TileEventBehavior" />
 		<behavior type="PlayerController" />
         <behavior type="HitEvent" />
@@ -541,10 +556,10 @@
 	</node>
     </scene>
 	
+	<!-- confirmation dialog -->
 	<scene name="confirm_dialog" type="dialog">
 	  <scene_settings>
         <setting name="transform">
-          <!-- grid sizing -->
           <item key="grid_width" value="100" />
           <item key="grid_height" value="53" />
 		  
@@ -577,6 +592,7 @@
       </node>
 	</scene>
 	
+	<!-- game end dialog -->
 	<scene name="gameend_dialog" type="dialog">
 	  <scene_settings>
         <setting name="transform">
@@ -597,6 +613,32 @@
 		  <transform pos_x="0.5r" pos_y="0.8r" anchor="0.5"  />
           <node>
             <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Exit</text>
+            <transform pos="0.5r" anchor="0.5r" size="1"   />
+          </node>
+        </node>
+      </node>
+	</scene>
+	
+	<!-- dialog for lost connection -->
+	<scene name="connection_lost_dialog" type="dialog">
+	  <scene_settings>
+        <setting name="transform">
+          <item key="grid_width" value="100" />
+          <item key="grid_height" value="53" />
+        </setting>
+      </scene_settings>
+	  
+	  <node name="desk_board" img="desk_board_dark.png">
+	    <behavior type="ReconnectDialog" />
+        <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
+		<node>
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Connection lost! Reconnecting...</text>
+           <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />
+		</node>
+		<node name="disconnect_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
+		  <transform pos_x="0.5r" pos_y="0.8r" anchor="0.5"  />
+          <node>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Disconnect</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>

@@ -28,65 +28,9 @@
 #include "TopPanel.h"
 #include "HydroqLuaMapper.h"
 
-void RegenerateSpriteSheets() {
-	SpriteSheetGenerator generator = SpriteSheetGenerator();
-	generator.AddImage("F:\\rig.png");
-	
-	generator.AddImage("F:\\rb1.png");
-	generator.AddImage("F:\\rb2.png");
-	generator.AddImage("F:\\rb3.png");
-	generator.AddImage("F:\\rb4.png");
-	generator.AddImage("F:\\rb5.png");
-	generator.AddImage("F:\\rb6.png");
-	generator.AddImage("F:\\rb7.png");
-	generator.AddImage("F:\\rb8.png");
-
-	generator.AddImage("F:\\rr1.png");
-	generator.AddImage("F:\\rr2.png");
-	generator.AddImage("F:\\rr3.png");
-	generator.AddImage("F:\\rr4.png");
-	generator.AddImage("F:\\rr5.png");
-	generator.AddImage("F:\\rr6.png");
-	generator.AddImage("F:\\rr7.png");
-	generator.AddImage("F:\\rr8.png");
-
-	generator.AddImage("F:\\water.png");
-	generator.AddImage("F:\\platform.png");
-	generator.AddImage("F:\\rigplace.png");
-	generator.AddImage("F:\\tobuild.png");
-	generator.AddImage("F:\\forbidden.png");
-	generator.AddImage("F:\\destroy.png");
-
-	generator.AddImage("F:\\worker_blue_1.png");
-	generator.AddImage("F:\\worker_blue_2.png");
-	generator.AddImage("F:\\worker_blue_3.png");
-	generator.AddImage("F:\\worker_blue_4.png");
-	generator.AddImage("F:\\worker_red_1.png");
-	generator.AddImage("F:\\worker_red_2.png");
-	generator.AddImage("F:\\worker_red_3.png");
-	generator.AddImage("F:\\worker_red_4.png");
-
-
-	generator.AddImage("F:\\explo_01.png");
-	generator.AddImage("F:\\explo_02.png");
-	generator.AddImage("F:\\explo_03.png");
-	generator.AddImage("F:\\explo_04.png");
-	generator.AddImage("F:\\explo_05.png");
-	generator.AddImage("F:\\explo_06.png");
-	generator.AddImage("F:\\explo_07.png");
-	generator.AddImage("F:\\explo_08.png");
-	generator.AddImage("F:\\explo_09.png");
-	generator.AddImage("F:\\explo_10.png");
-	generator.AddImage("F:\\explo_11.png");
-
-
-	generator.GenerateSheet(256, 256, 4096, 4096, "F:\\result.png");
-}
-
-
-
 /**
 * Back button simulator that checks BACKSPACE key
+* Only for Windows
 */
 class BackButtonKey : public Behavior {
 	
@@ -115,33 +59,11 @@ public:
 	}
 };
 
-class ReportKey : public Behavior {
-
-		void Init() {
-	}
-
-public:
-	virtual void Update(const uint64 delta, const uint64 absolute) {
-		for (auto key : CogGetPressedKeys()) {
-
-			if (!key->IsHandled()) {
-
-				if (key->key == (int)('t')) {
-					key->handlerNodeId = owner->GetId();
-					
-					// write report
-					TimeMeasure::GetInstance().Report(true);
-				}
-			}
-		}
-	}
-};
-
 
 class HydroqApp : public ofxCogApp {
 public:
 
-	HydroqApp() : ofxCogApp("config.xml") {
+	HydroqApp() : ofxCogApp("config/config.xml") {
 
 	}
 
@@ -180,9 +102,6 @@ public:
 	void InitStage(Stage* stage) {
 		ofxCogEngine::GetInstance().LoadStageFromXml(this->xmlConfig);
 		stage->GetRootObject()->AddBehavior(new BackButtonKey());
-		stage->GetRootObject()->AddBehavior(new ReportKey());
-
-		//RegenerateSpriteSheets();
 	}
 
 #ifdef ANDROID
@@ -192,48 +111,15 @@ public:
 		if (stage->GetActualScene() != nullptr && stage->GetActualScene()->GetName().compare("game") == 0) {
 			auto scene = stage->FindSceneByName("confirm_dialog");
 			stage->SwitchToScene(scene, TweenDirection::NONE);
-			return false;
+			return true;
 		}
-		else return true;
+		else return false;
 	}
 
 #endif
 };
 
-//#define TESTING
-
-
-
 #ifdef WIN32
-#ifdef TESTING
-
-
-#define CATCH_CONFIG_RUNNER
-/*
-#include "FlagsTest.h"
-#include "TransformTest.h"
-#include "SQLTest.h"
-#include "MeasureTest.h"
-#include "NetworkTest.h"
-#include "StateMachineTest.h"
-#include "GoalTest.h"
-#include "SettingsTest.h"
-#include "EngineTest.h"
-#include "StrIdTest.h"*/
-#include "LuaTest.h"
-/*#include "MonteCarloTest.h"	
-#include "CoroutineTest.h"
-#include "MathTest.h"*/
-
-int main() {
-	ofSetupOpenGL(800, 450, OF_WINDOW);
-	int result = Catch::Session().run();
-	ofRunApp(new HydroqApp());
-
-	return 0;
-}
-
-#else
 
 int main() {
 	ofSetupOpenGL(800, 450, OF_WINDOW);
@@ -241,9 +127,6 @@ int main() {
 
 	return 0;
 }
-
-
-#endif
 
 #else
 #include <jni.h>

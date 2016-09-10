@@ -31,9 +31,13 @@ void GotoPositionGoal::RecalcPath() {
 			// add the last segment
 			pth->AddSegment(targetPosition);
 		}
+		
+		auto& settings = CogGetProjectSettings();
+		float maxAcceleration = settings.GetSettingValFloat("hydroq_set","unit_max_acc");
+		float maxRadialAcceleration = settings.GetSettingValFloat("hydroq_set", "unit_max_radial_acc");
 
 		// run follow behavior
-		innerBehavior = new FollowBehavior(pth, 60, 10, 0.25f, 0.1f);
+		innerBehavior = new FollowBehavior(pth, maxAcceleration, maxRadialAcceleration, 0.25f, 0.1f);
 		owner->AddBehavior(innerBehavior);
 	}
 	else {
@@ -69,13 +73,18 @@ void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {
 	}
 }
 
+void BuildBridgeGoal::OnStart() {
+	auto& settings = CogGetProjectSettings();
+	this->buildingDelay = settings.GetSettingValInt("hydroq_set","building_delay");
+}
+
 void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 	if (goalStarted == 0) {
 		goalStarted = absolute;
 	}
 	else {
-		// building lasts 350ms
-		if ((absolute - goalStarted) > 350) {
+		// building lasts xxx ms
+		if ((absolute - goalStarted) > buildingDelay) {
 
 			CogLogDebug("Hydroq", "Building bridge");
 			
@@ -88,14 +97,17 @@ void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 	}
 }
 
+void DestroyBridgeGoal::OnStart() {
+	auto& settings = CogGetProjectSettings();
+	this->destroyDelay = settings.GetSettingValInt("hydroq_set", "destroy_delay");
+}
 
 void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 	if (goalStarted == 0) {
 		goalStarted = absolute;
 	}
 	else {
-		// destroying lasts 2 sec
-		if ((absolute - goalStarted) > 2000) {
+		if ((absolute - goalStarted) > destroyDelay) {
 			
 			if (CogGetFrameCounter() % 10 == 0) {
 				

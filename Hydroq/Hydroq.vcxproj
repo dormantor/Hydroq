@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)/src/AI;$(ProjectDir)/src/Game;$(ProjectDir)/src/GameGUI;$(ProjectDir)/src/MainMenu;$(ProjectDir)/src/Misc;</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -147,7 +147,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)/src/AI;$(ProjectDir)/src/Game;$(ProjectDir)/src/GameGUI;$(ProjectDir)/src/MainMenu;$(ProjectDir)/src/Misc;</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -189,37 +189,37 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\AttractorPlacement.cpp" />
-    <ClCompile Include="src\GameTask.cpp" />
-    <ClCompile Include="src\Helper.cpp" />
-    <ClCompile Include="src\HostInit.cpp" />
-    <ClCompile Include="src\HydAISimulator.cpp" />
-    <ClCompile Include="src\HydAIState.cpp" />
-    <ClCompile Include="src\GameMap.cpp" />
-    <ClCompile Include="src\HydNetworkReceiver.cpp" />
-    <ClCompile Include="src\HydNetworkSender.cpp" />
-    <ClCompile Include="src\GameAI.cpp" />
-    <ClCompile Include="src\GameBoard.cpp" />
-    <ClCompile Include="src\GameModel.cpp" />
-    <ClCompile Include="src\GameView.cpp" />
-    <ClCompile Include="src\GameGoals.cpp" />
-    <ClCompile Include="src\HydroqLuaMapper.cpp" />
-    <ClCompile Include="src\HydroqNetMsg.cpp" />
-    <ClCompile Include="src\PlayerController.cpp" />
-    <ClCompile Include="src\PlayerModel.cpp" />
-    <ClCompile Include="src\LeftPanel.cpp" />
+    <ClCompile Include="src\AI\HydAISimulator.cpp" />
+    <ClCompile Include="src\AI\HydAIState.cpp" />
+    <ClCompile Include="src\GameGUI\AttractorPlacement.cpp" />
+    <ClCompile Include="src\GameGUI\GameBoard.cpp" />
+    <ClCompile Include="src\GameGUI\LeftPanel.cpp" />
+    <ClCompile Include="src\GameGUI\MenuIconBehavior.cpp" />
+    <ClCompile Include="src\GameGUI\PlayerController.cpp" />
+    <ClCompile Include="src\GameGUI\RightPanel.cpp" />
+    <ClCompile Include="src\GameGUI\RightPanelSections.cpp" />
+    <ClCompile Include="src\GameGUI\SelectedFuncBehavior.cpp" />
+    <ClCompile Include="src\GameGUI\TileEventBehavior.cpp" />
+    <ClCompile Include="src\GameGUI\TopPanel.cpp" />
+    <ClCompile Include="src\Game\GameAI.cpp" />
+    <ClCompile Include="src\Game\GameGoals.cpp" />
+    <ClCompile Include="src\Game\GameMap.cpp" />
+    <ClCompile Include="src\Game\GameModel.cpp" />
+    <ClCompile Include="src\Game\GameTask.cpp" />
+    <ClCompile Include="src\Game\GameView.cpp" />
+    <ClCompile Include="src\Game\PlayerModel.cpp" />
+    <ClCompile Include="src\Game\RigBehavior.cpp" />
+    <ClCompile Include="src\Game\TaskScheduler.cpp" />
+    <ClCompile Include="src\Game\Worker.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\MenuIconBehavior.cpp" />
-    <ClCompile Include="src\MultiplayerMenu.cpp" />
-    <ClCompile Include="src\RigBehavior.cpp" />
-    <ClCompile Include="src\RightPanel.cpp" />
-    <ClCompile Include="src\RightPanelSections.cpp" />
-    <ClCompile Include="src\SelectedFuncBehavior.cpp" />
-    <ClCompile Include="src\SingleGameMenu.cpp" />
-    <ClCompile Include="src\TaskScheduler.cpp" />
-    <ClCompile Include="src\TileEventBehavior.cpp" />
-    <ClCompile Include="src\TopPanel.cpp" />
-    <ClCompile Include="src\Worker.cpp" />
+    <ClCompile Include="src\MainMenu\HostInit.cpp" />
+    <ClCompile Include="src\MainMenu\MultiplayerMenu.cpp" />
+    <ClCompile Include="src\MainMenu\SingleGameMenu.cpp" />
+    <ClCompile Include="src\Misc\Helper.cpp" />
+    <ClCompile Include="src\Misc\HydNetworkReceiver.cpp" />
+    <ClCompile Include="src\Misc\HydNetworkSender.cpp" />
+    <ClCompile Include="src\Misc\HydroqLuaMapper.cpp" />
+    <ClCompile Include="src\Misc\HydroqNetMsg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
@@ -237,41 +237,41 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\AttractorPlacement.h" />
-    <ClInclude Include="src\GameBoard.h" />
-    <ClInclude Include="src\PlayerModelLua.h" />
-    <ClInclude Include="src\GameTask.h" />
-    <ClInclude Include="src\HostInit.h" />
-    <ClInclude Include="src\HydNetworkReceiver.h" />
-    <ClInclude Include="src\HydNetworkSender.h" />
-    <ClInclude Include="src\HydAIAction.h" />
-    <ClInclude Include="src\GameGoals.h" />
-    <ClInclude Include="src\HydroqLuaMapper.h" />
-    <ClInclude Include="src\HydroqNetMsg.h" />
-    <ClInclude Include="src\PlayerController.h" />
-    <ClInclude Include="src\Rig.h" />
-    <ClInclude Include="src\TileEventBehavior.h" />
-    <ClInclude Include="src\Helper.h" />
-    <ClInclude Include="src\GameMap.h" />
-    <ClInclude Include="src\HydroqDef.h" />
-    <ClInclude Include="src\GameModel.h" />
-    <ClInclude Include="src\GameView.h" />
-    <ClInclude Include="src\PlayerModel.h" />
-    <ClInclude Include="src\HydAISimulator.h" />
-    <ClInclude Include="src\HydAIState.h" />
-    <ClInclude Include="src\MsgEvents.h" />
-    <ClInclude Include="src\MenuIconBehavior.h" />
-    <ClInclude Include="src\MultiplayerMenu.h" />
-    <ClInclude Include="src\GameAI.h" />
-    <ClInclude Include="src\RightPanel.h" />
-    <ClInclude Include="src\RightPanelSections.h" />
-    <ClInclude Include="src\RigBehavior.h" />
-    <ClInclude Include="src\SelectedFuncBehavior.h" />
-    <ClInclude Include="src\LeftPanel.h" />
-    <ClInclude Include="src\SingleGameMenu.h" />
-    <ClInclude Include="src\TaskScheduler.h" />
-    <ClInclude Include="src\TopPanel.h" />
-    <ClInclude Include="src\Worker.h" />
+    <ClInclude Include="src\AI\HydAIAction.h" />
+    <ClInclude Include="src\AI\HydAISimulator.h" />
+    <ClInclude Include="src\AI\HydAIState.h" />
+    <ClInclude Include="src\GameGUI\AttractorPlacement.h" />
+    <ClInclude Include="src\GameGUI\GameBoard.h" />
+    <ClInclude Include="src\GameGUI\LeftPanel.h" />
+    <ClInclude Include="src\GameGUI\MenuIconBehavior.h" />
+    <ClInclude Include="src\GameGUI\PlayerController.h" />
+    <ClInclude Include="src\GameGUI\RightPanel.h" />
+    <ClInclude Include="src\GameGUI\RightPanelSections.h" />
+    <ClInclude Include="src\GameGUI\SelectedFuncBehavior.h" />
+    <ClInclude Include="src\GameGUI\TileEventBehavior.h" />
+    <ClInclude Include="src\GameGUI\TopPanel.h" />
+    <ClInclude Include="src\Game\GameAI.h" />
+    <ClInclude Include="src\Game\GameGoals.h" />
+    <ClInclude Include="src\Game\GameMap.h" />
+    <ClInclude Include="src\Game\GameModel.h" />
+    <ClInclude Include="src\Game\GameTask.h" />
+    <ClInclude Include="src\Game\GameView.h" />
+    <ClInclude Include="src\Game\PlayerModel.h" />
+    <ClInclude Include="src\Game\Rig.h" />
+    <ClInclude Include="src\Game\RigBehavior.h" />
+    <ClInclude Include="src\Game\TaskScheduler.h" />
+    <ClInclude Include="src\Game\Worker.h" />
+    <ClInclude Include="src\MainMenu\HostInit.h" />
+    <ClInclude Include="src\MainMenu\MultiplayerMenu.h" />
+    <ClInclude Include="src\MainMenu\SingleGameMenu.h" />
+    <ClInclude Include="src\Misc\Helper.h" />
+    <ClInclude Include="src\Misc\HydNetworkReceiver.h" />
+    <ClInclude Include="src\Misc\HydNetworkSender.h" />
+    <ClInclude Include="src\Misc\HydroqDef.h" />
+    <ClInclude Include="src\Misc\HydroqLuaMapper.h" />
+    <ClInclude Include="src\Misc\HydroqNetMsg.h" />
+    <ClInclude Include="src\Misc\MsgEvents.h" />
+    <ClInclude Include="src\Misc\PlayerModelLua.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ProjectExtensions>
