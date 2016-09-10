@@ -25,3 +25,16 @@
 
 	return MapNodeType::NONE;
 }
+
+ string Helper::GetMapNameByNodeType(MapNodeType type) {
+	 switch (type) {
+	 case MapNodeType::GROUND:
+		 return "ground";
+	 case MapNodeType::RIG:
+		 return "rig_topleft";
+	 case MapNodeType::WATER:
+		 return "water";
+	 }
+
+	 throw IllegalArgumentException("Unknown map node type");
+ }

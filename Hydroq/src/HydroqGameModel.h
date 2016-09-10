@@ -67,7 +67,7 @@ public:
 	}
 
 	void CreateMovingObject(ofVec2f position, EntityType entityType) {
-		auto gameNode = CreateNode(EntityType::WORKER, Vec2i(position.x, position.y));
+		auto gameNode = CreateNode(EntityType::WORKER, position);
 		movingObjects.push_back(gameNode);
 		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 			new MapObjectChangedEvent(ObjectChangeType::MOVING_CREATED, nullptr, gameNode), nullptr);
@@ -150,6 +150,18 @@ public:
 		CreateMovingObject(position, EntityType::WORKER);
 	}
 
+	void BuildPlatform(Vec2i position) {
+		// destroy bridge mark
+		DestroyDynamicObject(position);
+		// change tile to ground
+		auto node = this->hydroqMap->GetNode(position.x, position.y);
+		node->mapNodeType = MapNodeType::GROUND;
+		node->mapNodeName = Helper::GetMapNameByNodeType(MapNodeType::GROUND);
+		hydroqMap->RefreshNode(node);
+		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+			new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr), nullptr);
+	}
+
 	void DestroyDynamicObject(Vec2i position) {
 		auto node = hydroqMap->GetNode(position.x, position.y);
 		node->occupied = false;
@@ -186,6 +198,7 @@ public:
 		}
 		else if (entityType == EntityType::WORKER) {
 			nd->SetTag("worker");
+			nd->GetTransform().localPos.z = 20;
 			auto nodeBeh = new StateMachine();
 			
 			((StateMachine*)nodeBeh)->ChangeState(new WorkerIdleState());

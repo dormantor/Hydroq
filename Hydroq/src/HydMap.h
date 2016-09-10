@@ -28,15 +28,29 @@ public:
 	bool forbidden = false; // true, if it is forbidden
 	Vec2i pos;
 
-	HydMapNode* FindNeighborByType(MapNodeType type) {
-		if (top->mapNodeType == type) return top;
-		if (right->mapNodeType == type) return right;
-		if (bottom->mapNodeType == type) return bottom;
-		if (left->mapNodeType == type) return left;
-		if (topRight->mapNodeType == type) return topRight;
-		if (bottomRight->mapNodeType == type) return bottomRight;
-		if (bottomLeft->mapNodeType == type) return bottomLeft;
-		if (topLeft->mapNodeType == type) return topLeft;
+	HydMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {
+		
+		if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
+			if (left->mapNodeType == type) return left;
+			if (bottom->mapNodeType == type) return bottom;
+			if (top->mapNodeType == type) return top;
+			if (right->mapNodeType == type) return right;
+		}else if (preferredPosition.x <= pos.x && preferredPosition.y > pos.y) {
+			if (left->mapNodeType == type) return left;
+			if (top->mapNodeType == type) return top;
+			if (right->mapNodeType == type) return right;
+			if (bottom->mapNodeType == type) return bottom;
+		}else if (preferredPosition.x > pos.x && preferredPosition.y <= pos.y) {
+			if (right->mapNodeType == type) return right;
+			if (bottom->mapNodeType == type) return bottom;
+			if (top->mapNodeType == type) return top;
+			if (left->mapNodeType == type) return left;
+		}else if (preferredPosition.x > pos.x && preferredPosition.y > pos.y) {
+			if (right->mapNodeType == type) return right;
+			if (top->mapNodeType == type) return top;
+			if (bottom->mapNodeType == type) return bottom;
+			if (left->mapNodeType == type) return left;
+		}
 
 		return nullptr;
 	}

@@ -19,7 +19,7 @@ void Seedbed::Update(const uint64 delta, const uint64 absolute) {
 			// spawn a worker
 			owner->ChangeAttr(lastSpawnSh, absolute);
 			auto gameModel = GETCOMPONENT(HydroqGameModel);
-			auto position = owner->GetTransform().localPos;
+			auto position = owner->GetTransform().localPos + 0.5f;
 			gameModel->SpawnWorker(position);
 			Finish();
 		}

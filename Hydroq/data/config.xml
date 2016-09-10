@@ -15,9 +15,8 @@
       <!-- debug logger, output into the console -->
       <setting name="logger" level="DEBUG">
         <item key="channel" value="console" />
-		<item key="module_exclude">
-		  <value>Messaging</value>
-		  <value>Scene</value>
+		<item key="module_include">
+		  <value>Hydroq</value>
 		</item>
       </setting>
 	  

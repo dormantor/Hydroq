@@ -17,6 +17,7 @@ class HydroqGameView : public Component {
 
 private:
 	spt<SpritesShape> staticSprites;
+	map<Vec2i, spt<SpriteEntity>> staticSpriteMap;
 
 	spt<SpriteSet> defaultSpriteSet;
 	// dynamic sprites are not positioned
@@ -43,16 +44,25 @@ public:
 	void OnMessage(Msg& msg) {
 		if (msg.GetAction() == StringHash(ACT_MAP_OBJECT_CHANGED)) {
 			MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
-			auto trans = evt->changedNode->GetTransform();
-
+			
 			if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {
+				auto trans = evt->changedNode->GetTransform();
 				// create new sprite
 				auto sprite = spriteManager->GetSprite(evt->changedNode->GetTag());
 				Trans transform = Trans();
-				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * trans.localPos.x;
-				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * trans.localPos.y;
+				if (evt->changeType == ObjectChangeType::MOVING_CREATED) {
+					transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * trans.localPos.x - defaultSpriteSet->GetSpriteWidth() / 2;
+					transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * trans.localPos.y - defaultSpriteSet->GetSpriteHeight() / 2;
+				}
+				else {
+					transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * trans.localPos.x;
+					transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * trans.localPos.y;
+				}
+				
+				transform.localPos.z = trans.localPos.z; // set z-index
 				auto newEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
 				dynamicSprites->GetSprites().push_back(newEntity);
+				dynamicSprites->RefreshZIndex();
 				dynamicSpriteEntities[evt->changedNode->GetId()] = newEntity;
 			}
 			else if (evt->changeType == ObjectChangeType::DYNAMIC_REMOVED || evt->changeType == ObjectChangeType::MOVING_REMOVED) {
@@ -67,6 +77,13 @@ public:
 						break;
 					}
 				}
+			}
+			else if (evt->changeType == ObjectChangeType::STATIC_CHANGED) {
+				auto mapNode = evt->changedMapNode;
+				// get sprite entity and change its frame
+				spt<SpriteEntity> sprEntity = staticSpriteMap[mapNode->pos];
+				auto sprite = spriteManager->GetSprite(mapNode->mapNodeName);
+				sprEntity->sprite = sprite;
 			}
 		}
 	}
@@ -88,8 +105,9 @@ public:
 				Trans transform = Trans();
 				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
 				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * j;
-
-				mapSprites.push_back(spt<SpriteEntity>(new SpriteEntity(sprite, transform)));
+				auto sprEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
+				mapSprites.push_back(sprEntity);
+				staticSpriteMap[Vec2i(i, j)] = sprEntity;
 			}
 		}
 
@@ -115,9 +133,9 @@ public:
 		for (auto& dynObj : dynObjects) {
 			int id = dynObj->GetId();
 			auto sprite = dynamicSpriteEntities[id];
-			
-			sprite->transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * dynObj->GetTransform().localPos.x;
-			sprite->transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * dynObj->GetTransform().localPos.y;
+
+			sprite->transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * dynObj->GetTransform().localPos.x - defaultSpriteSet->GetSpriteWidth() / 2;
+			sprite->transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * dynObj->GetTransform().localPos.y - defaultSpriteSet->GetSpriteHeight() / 2;
 			sprite->transform.rotation = dynObj->GetTransform().rotation;
 		}
 	}

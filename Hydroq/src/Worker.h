@@ -53,7 +53,5 @@ public:
 
 	}
 
-	virtual void Update(const uint64 delta, const uint64 absolute) {
-
-	}
+	virtual void Update(const uint64 delta, const uint64 absolute);
 };
