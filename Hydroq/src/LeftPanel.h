@@ -69,15 +69,15 @@ private:
 	Node* counterBuildings;
 
 	void RefreshCounters() {
-		counterUnits->GetShape<spt<Text>>()->SetText(ofToString(playerModel->GetUnits()));
-		counterBuildings->GetShape<spt<Text>>()->SetText(ofToString(playerModel->GetBuildings()));
+		counterUnits->GetShape<Text>()->SetText(ofToString(playerModel->GetUnits()));
+		counterBuildings->GetShape<Text>()->SetText(ofToString(playerModel->GetBuildings()));
 	}
 
 	Node* mapIcon = nullptr;
 
 	void ReloadMapIcon(string pathToFile) {
 		auto image = CogGet2DImage(pathToFile);
-		auto shape = this->mapIcon->GetShape<spt<Image>>();
+		auto shape = this->mapIcon->GetShape<Image>();
 		shape->SetImage(image);
 
 		ofVec2f size = shape->GetWidth() > shape->GetHeight() ? ofVec2f(0.55f, 0) : ofVec2f(0, 0.55f);
@@ -110,7 +110,7 @@ private:
 		float zoomY = gameBoardHeight / CogGetVirtualScreenSize().y;
 
 		// map border position and size
-		auto borderShape = mapBorder->GetShape<spt<Plane>>();
+		auto borderShape = mapBorder->GetShape<Plane>();
 		auto mapBorderPos = mapBorder->GetTransform().absPos;
 		float mapBorderWidth = borderShape->GetWidth()*mapBorder->GetTransform().absScale.x;
 		float mapBorderHeight = borderShape->GetHeight()*mapBorder->GetTransform().absScale.y;

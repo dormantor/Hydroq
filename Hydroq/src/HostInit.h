@@ -29,7 +29,7 @@ public:
 		msgReceivedTime = 0;
 
 		auto textNode = owner->GetScene()->FindNodeByTag("host_status");
-		textNode->GetShape<spt<Text>>()->SetText("Listening...");
+		textNode->GetShape<Text>()->SetText("Listening...");
 		TransformEnt ent = TransformEnt();
 		ent.pos = ofVec2f(0.5f);
 		ent.pType = CalcType::PER;
@@ -65,7 +65,7 @@ public:
 			auto netMsg = msgEvent->msg;
 			string ipAddress = netMsg->GetSourceIp();
 			auto textNode = owner->GetScene()->FindNodeByTag("host_status");
-			textNode->GetShape<spt<Text>>()->SetText(string_format("Connected client %s", ipAddress.c_str()));
+			textNode->GetShape<Text>()->SetText(string_format("Connected client %s", ipAddress.c_str()));
 
 			TransformEnt ent = TransformEnt();
 			ent.pos = ofVec2f(0.5f);

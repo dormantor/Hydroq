@@ -19,12 +19,12 @@ private:
 	map<string, vector<Sprite>> spriteTypes;
 
 	// collection of static sprites
-	spt<SpritesShape> staticSprites;
+	spt<MultiSpriteShape> staticSprites;
 
 	// collection of static sprites, mapping by position
 	map<Vec2i, spt<SpriteEntity>> staticSpriteMap;
 	// collection of dynamic sprites
-	spt<SpritesShape> dynamicSprites;
+	spt<MultiSpriteShape> dynamicSprites;
 
 	vector<spt<SpriteEntity>> explosions;
 	// collection of dynamic sprites, mapping by identifier
@@ -53,14 +53,14 @@ public:
 	/**
 	Gets collection of static sprites
 	*/
-	spt<SpritesShape> GetStaticSprites() {
+	spt<MultiSpriteShape> GetStaticSprites() {
 		return staticSprites;
 	}
 
 	/**
 	* Gets collection of dynamic sprites (including both moving and dynamic objects)
 	*/
-	spt<SpritesShape> GetDynamicSprites() {
+	spt<MultiSpriteShape> GetDynamicSprites() {
 		return dynamicSprites;
 	}
 

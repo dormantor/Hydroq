@@ -72,7 +72,7 @@ void AttractorPlacement::OnMessage(Msg& msg) {
 						InputEvent* touch = msg.GetData<InputEvent>();
 						ofVec2f endPos = touch->input->position;
 						auto& trans = placedAttractor->GetTransform();
-						auto shape = placedAttractor->GetShape<spt<Image>>();
+						auto shape = placedAttractor->GetShape<Image>();
 
 						auto absRadius = 0.5f * owner->GetTransform().absScale.x*trans.scale.x*shape->GetWidth();
 						auto absPos = trans.absPos + absRadius;
@@ -138,7 +138,7 @@ void AttractorPlacement::RefreshAttractorPosition(ofVec2f absPosition, ofVec2f s
 Node* AttractorPlacement::GetClickedAttractor(ofVec2f position) {
 	for (auto it = attractors.begin(); it != attractors.end(); ++it) {
 		auto node = (*it);
-		auto shape = node->GetShape<spt<Image>>();
+		auto shape = node->GetShape<Image>();
 		float x = node->GetTransform().absPos.x;
 		float y = node->GetTransform().absPos.y;
 
@@ -156,7 +156,7 @@ Node* AttractorPlacement::GetClickedAttractor(ofVec2f position) {
 bool AttractorPlacement::RemoveAttractor(ofVec2f position) {
 	for (auto it = attractors.begin(); it != attractors.end(); ++it) {
 		auto node = (*it);
-		auto shape = node->GetShape<spt<Image>>();
+		auto shape = node->GetShape<Image>();
 		float x = node->GetTransform().absPos.x;
 		float y = node->GetTransform().absPos.y;
 

@@ -79,7 +79,7 @@ public:
 	}
 
 	void UnselectNode(int nodeId) {
-		owner->GetScene()->FindNodeById(nodeId)->GetShape<spt<BoundingBox>>()->SetIsRenderable(false);
+		owner->GetScene()->FindNodeById(nodeId)->GetShape<BoundingBox>()->SetIsRenderable(false);
 	}
 
 	void SelectNode(int nodeId) {
@@ -87,7 +87,7 @@ public:
 			UnselectNode(selectedNodeId);
 		}
 		selectedNodeId = nodeId;
-		owner->GetScene()->FindNodeById(nodeId)->GetShape<spt<BoundingBox>>()->SetIsRenderable(true);
+		owner->GetScene()->FindNodeById(nodeId)->GetShape<BoundingBox>()->SetIsRenderable(true);
 	}
 
 	void SelectCommandBuild() {

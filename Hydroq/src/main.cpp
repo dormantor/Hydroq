@@ -210,7 +210,7 @@ public:
 #define NOSCRIPTING
 #define NODATABASE
 
-//#define TESTING
+#define TESTING
 
 #ifdef WIN32
 #ifdef TESTING

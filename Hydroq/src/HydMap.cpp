@@ -120,8 +120,8 @@ void HydMap::LoadMap(Settings mapConfig, string selectedMap) {
 void HydMap::LoadMap(BrickMap* brickMap) {
 	this->width = brickMap->width;
 	this->height = brickMap->height;
-	gridNoBlock = Grid(width, height);
-	gridWithBlocks = Grid(width, height);
+	gridNoBlock = GridGraph(width, height);
+	gridWithBlocks = GridGraph(width, height);
 
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
@@ -197,7 +197,8 @@ vector<Vec2i> HydMap::FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, 
 	}
 
 	if (found) {
-		vector<Vec2i> path = srch.CalcPathFromJumps(start, end, context.jumps);
+		vector<Vec2i> path; 
+		srch.CalcPathFromSteps(start, end, context.steps, path);
 		COGMEASURE_END("HYDROQ_PATHFINDING");
 		return path;
 	}

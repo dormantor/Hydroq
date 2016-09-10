@@ -29,7 +29,7 @@ void HydroqBoard::OnInit() {
 	// ZOOM THE BOARD LITTLE BIT OUT
 	owner->GetTransform().scale /= 2.5f;
 
-	auto boardShape = owner->GetShape<spt<Cog::Rectangle>>();
+	auto boardShape = owner->GetShape<Cog::Rectangle>();
 	boardShape->SetWidth(staticSprites->GetWidth());
 	boardShape->SetHeight(staticSprites->GetHeight());
 

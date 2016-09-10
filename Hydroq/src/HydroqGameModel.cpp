@@ -44,7 +44,7 @@ void HydroqGameModel::OnInit() {
 	xml->popTag();
 
 	this->hydroqMap->LoadMap(mapConfig, mapName);
-	this->cellSpace = new CellSpace(ofVec2f(hydroqMap->GetWidth(), hydroqMap->GetHeight()), 1);
+	this->cellSpace = new GridSpace<NodeCellObject>(ofVec2f(hydroqMap->GetWidth(), hydroqMap->GetHeight()), 1);
 
 	DivideRigsIntoFactions();
 }
@@ -157,7 +157,7 @@ void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identif
 	CogLogInfo("Hydroq", "Creating worker for %s faction at [%.2f, %.2f]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
 	
-	cellSpace->AddNode(node);
+	cellSpace->AddObject(new NodeCellObject(node));
 
 	this->workers[rigPosition].push_back(node);
 
@@ -467,10 +467,7 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 	rootNode->SubmitChanges(true);
 	rootNode->Update(delta, absolute);
 
-	for (auto& node : this->movingObjects) {
-		// update cellspace
-		this->cellSpace->UpdateNode(node);
-	}
+	this->cellSpace->UpdateObjects();
 
 	if (CogGetFrameCounter() % 4 == 0) {
 		StrId factionAttr = StrId(ATTR_FACTION);
@@ -479,20 +476,21 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 			int totalForRed = 0;
 
 			auto rigHoldings = rig.second->GetAttr<spt<vector<RigPlatform>>>(ATTR_PLATFORMS);
-			vector<Node*> nodes;
+			vector<NodeCellObject*> cellObjects;
 			for (auto& rigHolding : *rigHoldings) {
 				rigHolding.factionHoldings.clear();
 				rigHolding.factionHoldings[Faction::BLUE] = 0;
 				rigHolding.factionHoldings[Faction::RED] = 0;
-				cellSpace->CalcNeighbors(ofVec2f(rigHolding.position.x + 0.5f, rigHolding.position.y + 0.5f), 0.5f, nodes);
+				cellSpace->CalcNeighbors(ofVec2f(rigHolding.position.x + 0.5f, rigHolding.position.y + 0.5f), 0.5f, cellObjects);
 
-				for (auto node : nodes) {
+				for (auto obj : cellObjects) {
+					auto node = obj->node;
 					Faction fc = node->GetAttr<Faction>(factionAttr);
 					rigHolding.factionHoldings[fc]++;
 					if (fc == Faction::BLUE) totalForBlue++;
 					else totalForRed++;
 				}
-				nodes.clear();
+				cellObjects.clear();
 			}
 
 			if (totalForBlue != totalForRed) {

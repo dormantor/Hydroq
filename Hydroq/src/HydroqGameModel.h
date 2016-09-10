@@ -9,7 +9,7 @@
 #include "StateMachine.h"
 #include "GameTask.h"
 #include "Scene.h"
-#include "CellPartitioner.h"
+#include "NodeCellObject.h"
 #include "HydroqPlayerModel.h"
 
 class RigPlatform {
@@ -27,7 +27,7 @@ private:
 	// static objects (map, water, platforms)
 	HydMap* hydroqMap;
 	// cell partitioner for moving objects
-	CellSpace* cellSpace;
+	GridSpace<NodeCellObject>* cellSpace;
 	
 	// dynamic objects (buildings)
 	map<Vec2i, Node*> dynObjects;
@@ -71,7 +71,7 @@ public:
 		return hydroqMap;
 	}
 
-	CellSpace* GetCellSpace() {
+	GridSpace<NodeCellObject>* GetCellSpace() {
 		return cellSpace;
 	}
 

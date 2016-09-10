@@ -64,8 +64,8 @@ private:
 	int height;
 	vector<HydMapNode*> nodes;
 	// grid for searching algorithms
-	Grid gridNoBlock; // grid without forbidden areas
-	Grid gridWithBlocks; // grid with forbidden areas
+	GridGraph gridNoBlock; // grid without forbidden areas
+	GridGraph gridWithBlocks; // grid with forbidden areas
 	vector<HydMapNode*> rigs;
 	Settings mapConfig;
 

@@ -32,16 +32,16 @@ public:
 			owner->SetRunningMode(RunningMode::RUNNING);
 
 			if (which->after == HydroqAction::BUILD) {
-				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_build.png"));
+				owner->GetShape<Image>()->SetImage(CogGet2DImage("game/functions_cmd_build.png"));
 			}
 			else if (which->after == HydroqAction::DESTROY) {
-				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_destroy.png"));
+				owner->GetShape<Image>()->SetImage(CogGet2DImage("game/functions_cmd_destroy.png"));
 			}
 			else if (which->after == HydroqAction::FORBID) {
-				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_forbid.png"));
+				owner->GetShape<Image>()->SetImage(CogGet2DImage("game/functions_cmd_forbid.png"));
 			}
 			else if (which->after == HydroqAction::ATTRACT) {
-				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_attract_icon.png"));
+				owner->GetShape<Image>()->SetImage(CogGet2DImage("game/functions_cmd_attract_icon.png"));
 			}
 			else if (which->after == HydroqAction::NONE) {
 				owner->SetRunningMode(RunningMode::INVISIBLE);

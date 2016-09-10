@@ -39,7 +39,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 
 			// push into collection of dynamic sprites
 			auto newEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
-			dynamicSprites->GetSprites().push_back(newEntity);
+			dynamicSprites->AddSprite(newEntity);
 			dynamicSprites->RefreshZIndex();
 			dynamicSpriteEntities[evt->changedNode->GetId()] = newEntity;
 		}
@@ -61,7 +61,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 					auto sprite = spriteTypes["explosion"][0];
 					auto explos = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
 					this->explosions.push_back(explos);
-					dynamicSprites->GetSprites().push_back(explos);
+					dynamicSprites->AddSprite(explos);
 					dynamicSprites->RefreshZIndex();
 				
 			}
@@ -140,7 +140,10 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	auto cache = GETCOMPONENT(ResourceCache);
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
 	defaultSpriteSet = spriteSheet->GetDefaultSpriteSet();
-	auto mapSprites = vector<spt<SpriteEntity>>();
+	
+	staticSprites = spt<MultiSpriteShape>(new MultiSpriteShape("map_board"));
+	dynamicSprites = spt<MultiSpriteShape>(new MultiSpriteShape("object_board"));
+
 
 	// load all sprite types
 	for (auto& it : sprites.items) {
@@ -169,7 +172,7 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 			transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
 			transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * j;
 			auto sprEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
-			mapSprites.push_back(sprEntity);
+			staticSprites->AddSprite(sprEntity);
 			staticSpriteMap[Vec2i(i, j)] = sprEntity;
 		}
 	}
@@ -199,11 +202,9 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 		}
 	}
 
-	staticSprites = spt<SpritesShape>(new SpritesShape("map_board", mapSprites));
-
-	// no dynamic sprite at beginning
-	auto crates = vector<spt<SpriteEntity>>();
-	dynamicSprites = spt<SpritesShape>(new SpritesShape("object_board", crates));
+	// recalculate sprite entities
+	staticSprites->Recalc();
+	dynamicSprites->Recalc();
 }
 
 Sprite& HydroqGameView::GetSprite(int frame) {
@@ -436,9 +437,9 @@ void HydroqGameView::SaveMapImageToFile(string file){
 	// ===============================================================================================
 }
 
-void HydroqGameView::CreateAnimationText(string message) 
-	CogPlaySound(CogGetSound("music/Power_Up3.wav"));
+void HydroqGameView::CreateAnimationText(string message) {
 
+	CogPlaySound(CogGetSound("music/Power_Up3.wav"));
 	if (animNode == nullptr) {
 		animNode = new Node("animnode");
 		animNode->SetShape(spt<Image>(new Image(CogPreload2DImage("button_default_click.png"))));
@@ -452,7 +453,7 @@ void HydroqGameView::CreateAnimationText(string message)
 		animNode->AddChild(animTextNode);
 	}
 
-	animTextNode->GetShape<spt<Text>>()->SetText(message);
+	animTextNode->GetShape<Text>()->SetText(message);
 	TransformEnt ent;
 	ent.pos = ofVec2f(0.5f);
 	ent.anchor = ofVec2f(0.5f);
@@ -492,10 +493,10 @@ void HydroqGameView::CreateAnimationText(string message)
 	to5->anchor = ofVec2f(0, 0);
 
 	MultiAnim* ma = new MultiAnim();
-	ma->AddAnimation(new TransformAnim(from1, to1, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
-	ma->AddAnimation(new TransformAnim(to1, to2, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
-	ma->AddAnimation(new TransformAnim(to2, to3, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
-	ma->AddAnimation(new TransformAnim(to3, to4, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
-	ma->AddAnimation(new TransformAnim(to4, to5, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
+	ma->AddAnimation(new TransformAnim(from1, to1, 800, 0, false, AnimBlend::OVERLAY, EasingFunc::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to1, to2, 800, 0, false, AnimBlend::OVERLAY, EasingFunc::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to2, to3, 800, 0, false, AnimBlend::OVERLAY, EasingFunc::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to3, to4, 800, 0, false, AnimBlend::OVERLAY, EasingFunc::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to4, to5, 800, 0, false, AnimBlend::OVERLAY, EasingFunc::cosineInOut));
 	animNode->AddBehavior(ma);
 }

@@ -97,10 +97,10 @@ void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 				
 				// check if nobody is inside the square
 				auto position = ofVec2f(task->taskNode->GetTransform().localPos + 0.5f);
-				vector<Node*> neighbours;
+				vector<NodeCellObject*> neighbours;
 				gameModel->GetCellSpace()->CalcNeighbors(position, 0.5f, neighbours);
 
-				if (neighbours.empty() || (neighbours.size() == 1 && neighbours[0]->GetId() == owner->GetId())) {
+				if (neighbours.empty() || (neighbours.size() == 1 && neighbours[0]->node->GetId() == owner->GetId())) {
 
 					CogLogDebug("Hydroq", "Destroying bridge");
 

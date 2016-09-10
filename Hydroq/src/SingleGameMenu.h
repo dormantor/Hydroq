@@ -66,7 +66,7 @@ public:
 		auto path = mapConfig.GetSettingVal("maps_icons", map);
 		auto image = CogGet2DImage(path);
 		auto mapIconNode = owner->GetScene()->FindNodeByTag("map_icon");
-		mapIconNode->GetShape<spt<Image>>()->SetImage(image);
+		mapIconNode->GetShape<Image>()->SetImage(image);
 
 		TransformEnt ent = TransformEnt(ofVec2f(0.5f), 10, CalcType::PER, ofVec2f(0.5f), ofVec2f(1), CalcType::LOC);
 		TransformMath math = TransformMath();
