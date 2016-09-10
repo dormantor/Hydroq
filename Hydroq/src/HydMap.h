@@ -6,8 +6,16 @@
 #include "Helper.h"
 #include "AStarSearch.h"
 
+
+enum class Faction {
+	NONE = 1, 
+	RED = 2, 
+	BLUE = 3
+};
+
+
 enum class MapNodeType {
-	NONE, WATER, GROUND, RIG, 
+	NONE, WATER, GROUND, RIG, RIG_PLATFORM
 };
 
 class HydMapNode {
@@ -27,6 +35,7 @@ public:
 	bool occupied = false; // true, if is occupied by a building
 	bool forbidden = false; // true, if it is forbidden
 	Vec2i pos;
+	Faction owner = Faction::NONE;
 
 	void ChangeMapNodeType(MapNodeType newType) {
 		this->mapNodeType = newType;
@@ -84,11 +93,15 @@ private:
 	// grid for searching algorithms
 	Grid gridNoBlock; // grid without forbidden areas
 	Grid gridWithBlocks; // grid with forbidden areas
+	vector<HydMapNode*> rigs;
+	Settings mapConfig;
 
 public:
 
 	void LoadMap(Settings mapConfig, string selectedMap) {
 		
+		this->mapConfig = mapConfig;
+
 		string mapPath = mapConfig.GetSettingVal("maps_files", selectedMap);
 
 		if (mapPath.empty()) throw ConfigErrorException(string_format("Path to map %s not found", selectedMap.c_str()));
@@ -111,10 +124,14 @@ public:
 				int index = 0;
 				
 				node->mapNodeName = br.name;
-				node->mapNodeTypeIndex = index;
 				node->mapNodeType = Helper::GetMapNodeTypeByName(index, br.name);
+				node->mapNodeTypeIndex = index;
 				node->pos = Vec2i(i, j);
 				nodes.push_back(node);
+
+				if (node->mapNodeType == MapNodeType::RIG && node->mapNodeTypeIndex == 0) {
+					rigs.push_back(node);
+				}
 
 				if (node->mapNodeType != MapNodeType::GROUND) {
 					gridNoBlock.AddBlock(i, j);
@@ -196,11 +213,27 @@ public:
 		return nodes[pos.y*width + pos.x];
 	}
 
+	vector<HydMapNode*> GetRigsByOwner(Faction faction) {
+		
+		vector<HydMapNode*> output = vector<HydMapNode*>();
+		
+		for (auto node : this->rigs) {
+			if (node->owner == faction) {
+				output.push_back(node);
+			}
+		}
+		return output;
+	}
+
 	int GetWidth() {
 		return width;
 	}
 
 	int GetHeight() {
 		return height;
+	}
+
+	Settings& GetMapConfig() {
+		return this->mapConfig;
 	}
 };

@@ -127,7 +127,7 @@ public:
 		auto model = GETCOMPONENT(HydroqGameModel);
 		// select the other faction than server did
 		Faction selectedFaction = (serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
-		model->InitModel(selectedFaction, serverMsg->GetMap(), true);
+		model->StartGame(selectedFaction, serverMsg->GetMap(), true);
 		communicator->ConnectToPeer(serverMsg->GetIpAddress());
 
 		// set other properties and switch the scene

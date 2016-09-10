@@ -12,10 +12,6 @@
 #include "CellPartitioner.h"
 #include "HydroqPlayerModel.h"
 
-enum class Faction {
-	RED, BLUE
-};
-
 /**
 * Hydroq game model
 */
@@ -59,7 +55,7 @@ public:
 		Init();
 	}
 
-	void InitModel(Faction faction, string map, bool isMultiplayer);
+	void StartGame(Faction faction, string map, bool isMultiplayer);
 
 	Node* GetRootNode() {
 		return rootNode;
@@ -252,4 +248,6 @@ public:
 	void SendMessageToModel(StringHash action, int subaction, MsgEvent* data);
 
 	Node* CreateNode(EntityType entityType, ofVec2f position, Faction faction, int identifier);
+
+	void DivideRigsIntoFactions();
 };

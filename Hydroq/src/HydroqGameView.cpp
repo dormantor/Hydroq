@@ -13,9 +13,7 @@ void HydroqGameView::Init() {
 
 
 void HydroqGameView::OnMessage(Msg& msg) {
-	if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {
-		this->SaveMapImageToFile("F:\\mojo.png");
-		
+	if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {		
 		MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
 
 		if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {

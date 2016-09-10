@@ -26,6 +26,9 @@ using namespace Cog;
 		index = 3;
 		return MapNodeType::RIG;
 	}
+	else if (name.compare("rig_platform") == 0) {
+		return MapNodeType::RIG_PLATFORM;
+	}
 
 	return MapNodeType::NONE;
 }
@@ -38,6 +41,8 @@ using namespace Cog;
 		 return "rig_topleft";
 	 case MapNodeType::WATER:
 		 return "water";
+	 case MapNodeType::RIG_PLATFORM:
+		 return "rig_platform";
 	 }
 
 	 throw IllegalArgumentException("Unknown map node type");

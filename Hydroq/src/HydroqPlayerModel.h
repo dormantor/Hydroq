@@ -20,7 +20,6 @@ private:
 	HydroqAction hydroqAction;
 	int units = 0;
 	int buildings = 0;
-	int material = 0;
 
 public:
 
@@ -62,15 +61,6 @@ public:
 	void AddBuildings(int num) {
 		this->buildings += num;
 		SendMessageToListeners(StringHash(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(buildings - num, num), nullptr);
-	}
-
-	int GetMaterial() {
-		return material;
-	}
-
-	void AddMaterial(int num) {
-		this->material += num;
-		SendMessageToListeners(StringHash(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(material - num, num), nullptr);
 	}
 
 	virtual void Update(const uint64 delta, const uint64 absolute) {

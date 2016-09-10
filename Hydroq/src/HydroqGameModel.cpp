@@ -23,7 +23,7 @@ void HydroqGameModel::Init() {
 	rootNode->AddBehavior(new TaskScheduler());
 }
 
-void HydroqGameModel::InitModel(Faction faction, string map, bool isMultiplayer) {
+void HydroqGameModel::StartGame(Faction faction, string map, bool isMultiplayer) {
 	this->faction = faction;
 	this->mapName = map;
 	this->multiplayer = isMultiplayer;
@@ -35,8 +35,9 @@ void HydroqGameModel::InitModel(Faction faction, string map, bool isMultiplayer)
 	xml->popTag();
 
 	this->hydroqMap->LoadMap(mapConfig, map);
-	
 	this->cellSpace = new CellSpace(ofVec2f(hydroqMap->GetWidth(),hydroqMap->GetHeight()),1);
+
+	DivideRigsIntoFactions();
 }
 
 
@@ -465,4 +466,60 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 
 	rootNode->AddChild(nd);
 	return nd;
+}
+
+void HydroqGameModel::DivideRigsIntoFactions() {
+
+	// find empty rigs
+	auto allRigs = this->hydroqMap->GetRigsByOwner(Faction::NONE);
+
+	int size = allRigs.size();
+	int width = this->hydroqMap->GetWidth();
+	int height = this->hydroqMap->GetHeight();
+
+	// sort them according to their distance to nearest border
+	sort(allRigs.begin(), allRigs.end(),
+		[width, height](HydMapNode* a, HydMapNode* b) -> bool
+	{
+		Vec2i positionA = a->pos;
+		int dist1x = positionA.x;
+		int dist1y = positionA.y;
+		int dist2x = width - positionA.x;
+		int dist2y = height - positionA.y;
+
+		int shortestDistA = min(min(min(dist1x, dist1y),dist2x),dist2y);
+		
+		Vec2i positionB = b->pos;
+
+		dist1x = positionB.x;
+		dist1y = positionB.y;
+		dist2x = width - positionB.x;
+		dist2y = height - positionB.y;
+
+		int shortestDistB = min(min(min(dist1x, dist1y), dist2x), dist2y);
+
+		return shortestDistA < shortestDistB;
+	});
+
+	int randomIndex = allRigs.size() >= 4 ? ((int)(ofRandom(0, 1)*allRigs.size() / 2)) : ((int)(ofRandom(0, 1)*allRigs.size()));
+
+	HydMapNode* blueRig = allRigs[randomIndex];
+	Vec2i blueDist = blueRig->pos;
+
+	// now find the rig that is furthest from the blue one
+	// sort them according to their distance to nearest border
+	sort(allRigs.begin(), allRigs.end(),
+		[blueDist](HydMapNode* a, HydMapNode* b) -> bool
+	{
+		auto dist1 = Vec2i::Distancef(blueDist, a->pos);
+		auto dist2 = Vec2i::Distancef(blueDist, b->pos);
+		return dist1 >= dist2;
+	});
+
+
+	// pick the first one for red
+	HydMapNode* redRig = allRigs[0];
+
+	blueRig->owner = Faction::BLUE;
+	redRig->owner = Faction::RED;
 }

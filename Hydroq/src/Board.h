@@ -5,6 +5,8 @@
 #include "HydroqDef.h"
 #include "HydroqGameModel.h"
 #include "HydroqGameView.h"
+#include "Shape.h"
+
 
 class HydroqBoard : public Behavior {
 	OBJECT_PROTOTYPE(HydroqBoard)
@@ -41,6 +43,60 @@ public:
 		auto boardShape = owner->GetShape<spt<Cog::Rectangle>>();
 		boardShape->SetWidth(staticSprites->GetWidth());
 		boardShape->SetHeight(staticSprites->GetHeight());
+
+		Faction fact = gameModel->GetFaction();
+		auto ownerRig = gameModel->GetMap()->GetRigsByOwner(fact)[0];
+		auto ownerRigPos = ownerRig->pos;
+		auto mapWidth = gameModel->GetMap()->GetWidth();
+		auto mapHeight = gameModel->GetMap()->GetHeight();
+
+		// zoom to rig position
+		//ZoomIntoPositionCenter(ofVec2f((ownerRigPos.x+1.0f)/mapWidth, (ownerRigPos.y+1.0f)/mapHeight));
+		ZoomIntoPositionCenter(ofVec2f((ownerRigPos.x+1.0f) / mapWidth, (ownerRigPos.y+1.0f) / mapHeight));
+	}
+
+
+	void ZoomIntoPositionCenter(ofVec2f positionRelative) {
+		
+		auto& transform = owner->GetTransform();
+		// recalculate transform
+		transform.CalcAbsTransform(owner->GetParent()->GetTransform());
+
+		float shapeWidth = owner->GetShape()->GetWidth();
+		float shapeHeight = owner->GetShape()->GetHeight();
+		float width = shapeWidth*owner->GetTransform().absScale.x;
+		float height = shapeHeight*owner->GetTransform().absScale.y;
+		auto screenSize = CogGetScreenSize();
+
+		ofVec3f newAbsPos = ofVec3f(-width*positionRelative.x + screenSize.x/2, -height*positionRelative.y + screenSize.y/2,transform.absPos.z);
+		SetNewPosition(transform, newAbsPos);
+	}
+
+	void SetNewPosition(Trans& transform, ofVec3f& newAbsPos) {
+
+		CheckNewPosition(transform, newAbsPos);
+		TransformMath math = TransformMath();
+		// calc new local position from absolute position
+		auto newLocalPos = math.CalcPosition(owner, owner->GetParent(), newAbsPos, CalcType::ABS, 0, 0);
+
+		// set new local position
+		transform.localPos.x = newLocalPos.x;
+		transform.localPos.y = newLocalPos.y;
+	}
+
+	void CheckNewPosition(Trans& transform, ofVec3f& newPos) {
+		float shapeWidth = owner->GetShape()->GetWidth();
+		float shapeHeight = owner->GetShape()->GetHeight();
+
+		// calculate absolute width and height
+		float width = shapeWidth*transform.absScale.x;
+		float height = shapeHeight*transform.absScale.y;
+
+		// check bounds
+		if (newPos.x > 0) newPos.x = 0;
+		if (newPos.y > 0) newPos.y = 0;
+		if (-newPos.x + CogGetScreenWidth() > (width)) newPos.x = CogGetScreenWidth() - width;
+		if (-newPos.y + CogGetScreenHeight() > (height)) newPos.y = CogGetScreenHeight() - height;
 	}
 
 
