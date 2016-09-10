@@ -29,8 +29,8 @@ public:
 		if (msg.HasAction(ACT_BUTTON_CLICKED)) {
 			 if (msg.GetSourceObject()->GetTag().compare("play_but") == 0) {
 				// click on play button -> switch scene
-				 auto model = GETCOMPONENT(HydroqPlayerModel);
-				model->StartGame(GetSelectedFaction(), selectedMap, false);
+				auto model = GETCOMPONENT(HydroqPlayerModel);
+				model->StartGame(GetSelectedFaction(), selectedMap);
 				auto sceneContext = GETCOMPONENT(Stage);
 				auto scene = sceneContext->FindSceneByName("game");
 				sceneContext->SwitchToScene(scene, TweenDirection::LEFT);

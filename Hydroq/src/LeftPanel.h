@@ -3,7 +3,7 @@
 #include "ofxCogMain.h"
 #include "HydroqPlayerModel.h"
 #include "HydroqDef.h"
-#include "Board.h"
+#include "HydroqBoard.h"
 
 class LeftPanel : public Behavior {
 

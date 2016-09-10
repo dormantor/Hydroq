@@ -36,6 +36,8 @@ private:
 
 	HydroqGameModel* gameModel;
 	bool firstUpdate = false;
+	// the time the game has ended
+	uint64 gameEndedTime = 0;
 public:
 
 	~HydroqGameView() {
@@ -67,4 +69,8 @@ public:
 	Sprite& GetSprite(int frame);
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
+
+	Node* animNode = nullptr;
+	Node* animTextNode = nullptr;
+	void CreateAnimationText(string message);
 };

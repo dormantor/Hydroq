@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofxCogMain.h"
-
+#include "MultiAnim.h"
 
 class MenuBehavior : public Behavior {
 public:

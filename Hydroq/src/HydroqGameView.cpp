@@ -5,7 +5,7 @@
 #include "HydMap.h"
 #include "HydEntity.h"
 #include "HydroqGameModel.h"
-
+#include "MultiAnim.h"
 
 void HydroqGameView::OnInit() {
 	SubscribeForMessages(ACT_MAP_OBJECT_CHANGED);
@@ -77,6 +77,12 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			auto node = evt->changedNode;
 			Vec2i pos = Vec2i(node->GetTransform().localPos.x, node->GetTransform().localPos.y);
 			auto fact = node->GetAttr<Faction>(ATTR_FACTION);
+
+			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact == gameModel->GetFaction()) this->CreateAnimationText("You captured empty rig!");
+			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact != gameModel->GetFaction()) this->CreateAnimationText("Enemy captured empty rig!");
+			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact == gameModel->GetFaction()) this->CreateAnimationText("You captured enemy rig!");
+			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact != gameModel->GetFaction()) this->CreateAnimationText("Enemy captured your riiiiiig !!!!");
+
 			if (evt->changeType == ObjectChangeType::RIG_TAKEN) {
 				rigsToAnimate.push_back(evt->changedNode);
 
@@ -206,6 +212,19 @@ Sprite& HydroqGameView::GetSprite(int frame) {
 }
 
 void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
+
+	if (gameModel->GameEnded()) {
+		if (gameEndedTime == 0) gameEndedTime = absolute;
+		else if ((absolute - gameEndedTime) > 3000) {
+			// after 3s, finish game
+			auto stage = GETCOMPONENT(Stage);
+			auto scene = stage->FindSceneByName("gameend_dialog");
+			stage->SwitchToScene(scene, TweenDirection::NONE);
+		}
+
+		return;
+	}
+
 
 	if (!firstUpdate) {
 		auto sound = CogGetSound("music/GameMusic1.mp3");
@@ -415,4 +434,68 @@ void HydroqGameView::SaveMapImageToFile(string file){
 	mapLoader.GenerateMapImage(bricks, spriteTypes, spriteSheet, file, 0.1f);
 
 	// ===============================================================================================
+}
+
+void HydroqGameView::CreateAnimationText(string message) 
+	CogPlaySound(CogGetSound("music/Power_Up3.wav"));
+
+	if (animNode == nullptr) {
+		animNode = new Node("animnode");
+		animNode->SetShape(spt<Image>(new Image(CogPreload2DImage("button_default_click.png"))));
+		animNode->GetTransform().localPos.z = 200;
+		animNode->GetTransform().localPos.z = 200;
+		animNode->GetTransform().localPos.x = -1000;
+		animNode->GetTransform().localPos.y = -1000;
+		owner->GetParent()->AddChild(animNode);
+		animTextNode = new Node("inner");
+		animTextNode->SetShape(spt<Text>(new Text(CogGetFont("MotionControl-Bold.otf", 50), "")));
+		animNode->AddChild(animTextNode);
+	}
+
+	animTextNode->GetShape<spt<Text>>()->SetText(message);
+	TransformEnt ent;
+	ent.pos = ofVec2f(0.5f);
+	ent.anchor = ofVec2f(0.5f);
+	ent.pType = CalcType::PER;
+	TransformMath math;
+	animNode->GetTransform().CalcAbsTransform(owner->GetParent()->GetTransform());
+	animTextNode->GetTransform().CalcAbsTransform(animNode->GetTransform());
+	animNode->GetTransform().scale = math.CalcScale(animNode, owner->GetParent(), 0.8f, 0, CalcType::PER, 0, 0);
+	math.SetTransform(animTextNode, animNode, ent, 0, 0);
+
+	spt<TransformEnt> from1 = spt<TransformEnt>(new TransformEnt());
+	spt<TransformEnt> to1 = spt<TransformEnt>(new TransformEnt());
+	from1->pos = ofVec2f(-0.5f);
+	from1->anchor = ofVec2f(1.0f);
+	from1->rotation = -60;
+	from1->rotationCentroid = ofVec2f(0.5f);
+	from1->size = animNode->GetTransform().scale;
+	to1->pos = ofVec2f(0.5f);
+	to1->pType = CalcType::PER;
+	to1->anchor = ofVec2f(0.5f);
+	to1->rotation = 30;
+	to1->rotationCentroid = ofVec2f(0.5f);
+	to1->size = animNode->GetTransform().scale;
+
+	auto to2 = spt<TransformEnt>(new TransformEnt(*to1));
+	to2->rotation = -30;
+
+	auto to3 = spt<TransformEnt>(new TransformEnt(*to2));
+	to3->rotation = 30;
+
+	auto to4 = spt<TransformEnt>(new TransformEnt(*to3));
+	to4->rotation = -30;
+
+	auto to5 = spt<TransformEnt>(new TransformEnt(*to4));
+	to5->rotation = 30;
+	to5->pos = ofVec2f(1.5f, 1.5f);
+	to5->anchor = ofVec2f(0, 0);
+
+	MultiAnim* ma = new MultiAnim();
+	ma->AddAnimation(new TransformAnim(from1, to1, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to1, to2, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to2, to3, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to3, to4, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
+	ma->AddAnimation(new TransformAnim(to4, to5, 800, 0, false, AnimBlend::OVERLAY, EasingManager::cosineInOut));
+	animNode->AddBehavior(ma);
 }

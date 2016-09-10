@@ -35,6 +35,15 @@
     <ClCompile Include="src\GameTask.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="src\HydroqBoard.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydMap.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydroqAI.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Worker.h">
@@ -65,9 +74,6 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\BrickClickEvent.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Board.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\Helper.h">
@@ -146,6 +152,9 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\GameEndDialog.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqBoard.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

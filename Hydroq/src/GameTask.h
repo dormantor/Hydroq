@@ -24,6 +24,8 @@ public:
 	// node that serves the task
 	Node* handlerNode = nullptr;
 
+	bool needRecalculation = false;
+
 	bool isDelayed = false;
 	// indicator, if the task is reserved
 	bool isReserved = false;
@@ -32,7 +34,7 @@ public:
 	uint64 reserverTime = 0;
 	Faction faction;
 	bool IsNodeReserved(int nodeId);
-
+	
 	void RemoveReserverNode(int nodeId);
 	GameTask(GameTaskType taskType, Faction faction) :type(taskType), faction(faction) {
 

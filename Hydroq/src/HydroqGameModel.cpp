@@ -24,7 +24,6 @@ void HydroqGameModel::OnInit() {
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
 	rootNode->AddBehavior(new TaskScheduler(this));
-	rootNode->AddBehavior(new HydroqAI(this));
 
 
 	this->faction = playerModel->GetFaction();
@@ -32,15 +31,12 @@ void HydroqGameModel::OnInit() {
 	this->multiplayer = playerModel->IsMultiplayer();
 	this->gameEnded = false;
 
-<<<<<<< HEAD
 
 	if (!multiplayer) {
 		//rootNode->AddBehavior(new CompositeBehavior(new HydroqAI(this, Faction::BLUE, AIType::SCRIPTED), new HydroqAI(this, Faction::RED, AIType::MONTE_CARLO)));
 		rootNode->AddBehavior(new HydroqAI(this, faction == Faction::RED ? Faction::BLUE : Faction::RED, AIType::MONTE_CARLO));
 	}
 
-=======
->>>>>>> parent of e6d3bb9... Hydroq: multiplayer is now playable !!!!!!!!
 	Settings mapConfig = Settings();
 	auto xml = CogLoadXMLFile("mapconfig.xml");
 	xml->pushTag("settings");
@@ -218,6 +214,12 @@ void HydroqGameModel::DestroyPlatform(Vec2i position, Faction faction, int ident
 	node->ChangeMapNodeType(MapNodeType::WATER);
 	// refresh other models the node figures
 	hydroqMap->RefreshNode(node);
+
+	// when a platform is destroyed, all path-finding tasks must be recalculated
+	for (auto task : gameTasks) {
+		task->needRecalculation = true;
+	}
+
 	// send a message that the static object has been changed
 	SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0, new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr));
 
@@ -333,13 +335,10 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 			new GameStateChangedEvent(GameChangeType::ENEMY_RIG_CAPTURED, faction));
 
 		if (GetRigsByFaction(oldFaction).size() == 0) {
-			// todo... refactor
-			
+			playerModel->SetGameEnded(true);
+			playerModel->SetPlayerWin(oldFaction != this->faction);
 			// game over
 			this->gameEnded = true;
-			auto stage = GETCOMPONENT(Stage);
-			auto scene = stage->FindSceneByName("gameend_dialog");
-			stage->SwitchToScene(scene, TweenDirection::NONE);
 		}
 	}
 }
@@ -433,6 +432,13 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 
 	if (gameEnded) return;
 
+	vector<spt<GameTask>> tasksForRecalc;
+
+	// push tasks for recalculation so that when update is finished, the indicator will be restarted
+	for (auto task : gameTasks) {
+		if (task->needRecalculation) tasksForRecalc.push_back(task);
+	}
+
 	if (multiplayer) {
 		// update deltas
 		auto deltaUpdate = GETCOMPONENT(DeltaUpdate);
@@ -500,6 +506,11 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 				}
 			}
 		}
+	}
+
+	// restart recalc indicator
+	for (auto task : tasksForRecalc) {
+		task->needRecalculation = false;
 	}
 }
 
@@ -643,8 +654,10 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 	});
 
 	int randomIndex = allRigs.size() >= 4 ? ((int)(ofRandom(0, 1)*allRigs.size() / 2)) : ((int)(ofRandom(0, 1)*allRigs.size()));
+	// for multiplayer, the selected rig should be deterministic
+	int rigIndex = this->multiplayer ? 0 : randomIndex;
 
-	Vec2i blueRig = allRigs[randomIndex];
+	Vec2i blueRig = allRigs[rigIndex];
 	
 	// now find the rig that is furthest from the blue one
 	// sort them according to their distance to nearest border

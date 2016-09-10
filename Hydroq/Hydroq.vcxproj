@@ -87,6 +87,7 @@
     <OutDir>bin\</OutDir>
     <IntDir>obj\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>bin\</OutDir>
@@ -191,6 +192,9 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClCompile Include="src\AttractorPlacement.cpp" />
     <ClCompile Include="src\GameTask.cpp" />
     <ClCompile Include="src\Helper.cpp" />
+    <ClCompile Include="src\HydMap.cpp" />
+    <ClCompile Include="src\HydroqAI.cpp" />
+    <ClCompile Include="src\HydroqBoard.cpp" />
     <ClCompile Include="src\HydroqGameModel.cpp" />
     <ClCompile Include="src\HydroqGameView.cpp" />
     <ClCompile Include="src\HydroqGoals.cpp" />
@@ -218,7 +222,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AttractorPlacement.h" />
-    <ClInclude Include="src\Board.h" />
+    <ClInclude Include="src\HydroqBoard.h" />
     <ClInclude Include="src\ConfirmDialog.h" />
     <ClInclude Include="src\GameEndDialog.h" />
     <ClInclude Include="src\GameTask.h" />

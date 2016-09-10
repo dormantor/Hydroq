@@ -8,7 +8,11 @@
 using namespace Cog;
 
 void GotoPositionGoal::OnStart() {
-	
+	RecalcPath();
+}
+
+void GotoPositionGoal::RecalcPath() {
+
 	// find path
 	vector<Vec2i> map = gameModel->GetMap()->FindPath(startCell, endCell, true, 0);
 
@@ -34,6 +38,7 @@ void GotoPositionGoal::OnStart() {
 		COGLOGDEBUG("Hydroq", "Couldn't find path! Exiting GotoPositionGoal");
 		this->Abort();
 	}
+
 }
 
 void GotoPositionGoal::OnGoalAbort() {
@@ -50,9 +55,15 @@ void GotoPositionGoal::OnGoalAbort() {
 }
 
 void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {
-	if (innerBehavior != nullptr && innerBehavior->IsFinished()) {
-		this->SetGoalState(GoalState::COMPLETED);
-		Finish();
+	if (this->task->needRecalculation) {
+		innerBehavior->Finish();
+		RecalcPath();
+	}
+	else {
+		if (innerBehavior != nullptr && innerBehavior->IsFinished()) {
+			this->SetGoalState(GoalState::COMPLETED);
+			Finish();
+		}
 	}
 }
 

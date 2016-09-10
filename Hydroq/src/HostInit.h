@@ -112,10 +112,7 @@ public:
 		if (msgReceivedTime != 0 && msgReceivedTime != 1 && (absolute - msgReceivedTime) > 500) {
 			auto model = GETCOMPONENT(HydroqPlayerModel);
 			// select the other faction than server did
-			model->StartGame(GetSelectedFaction(), GetSelectedMap(), true);
-			// set other properties and switch the scene
-			auto sender = GETCOMPONENT(HydNetworkSender);
-			sender->SetNetworkState(HydroqNetworkState::SERVER);
+			model->StartGame(GetSelectedFaction(), GetSelectedMap(), HydroqNetworkState::SERVER);
 			auto stage = GETCOMPONENT(Stage);
 			auto scene = stage->FindSceneByName("game");
 

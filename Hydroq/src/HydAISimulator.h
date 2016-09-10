@@ -51,7 +51,7 @@ public:
 		}
 	}
 
-	void MakeAction(HydAIAction act, bool isSimulation) {
+	void MakeAction(HydAIAction act) {
 		if (find(this->possibleActions.begin(), this->possibleActions.end(), act) == this->possibleActions.end()) {
 			throw IllegalOperationException("Wrong action to take!");
 		}
