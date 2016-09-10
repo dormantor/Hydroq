@@ -23,12 +23,13 @@ bool WorkerIdleState::FindTaskToDo() {
 		return a->taskNode->GetTransform().localPos.distance(start) < b->taskNode->GetTransform().localPos.distance(start);
 	});
 
+	auto map = model->GetMap();
+
 	// get the nearest task
 	for (auto& task : allTasks) {
-		if (!task->isProcessing && !task->isEnded && task->taskSh == StringHash(TASK_BRIDGE_BUILD)) {
+		if (task->isReserved && task->reserverNode->GetId() == owner->GetId()) {
 			// position of the place the bridge will stay
 			auto position = task->taskNode->GetTransform().localPos;
-			auto map = model->GetMap();
 			// node at position the bridge will stay
 			auto mapNode = map->GetNode((int)position.x, (int)position.y);
 			// position the worker stays
@@ -84,7 +85,7 @@ void WorkerIdleState::MoveAround() {
 			auto model = GETCOMPONENT(HydroqGameModel);
 
 			// check if we can go at selected location
-			vector<Vec2i> map = model->GetMap()->FindPath(start, end, false, 0);
+			vector<Vec2i> map = model->GetMap()->FindPath(start, end, false, 5);
 
 			if (map.size() > 0 && map.size() <= 2) {
 				// go there 
@@ -153,7 +154,7 @@ void WorkerBridgeBuildState::OnStart() {
 	COGLOGDEBUG("Hydroq", "Going from [%.2f, %.2f] to [%.2f, %.2f]", workerPos.x, workerPos.y, precisePosition.x, precisePosition.y);
 
 	auto composite = new GoalComposite(StringHash(), false);
-	composite->AddSubgoal(new GotoPositionGoal(Vec2i(workerPos.x, workerPos.y), targetSafePos,workerPos, precisePosition));
+	composite->AddSubgoal(new GotoPositionGoal(task, Vec2i(workerPos.x, workerPos.y), targetSafePos,workerPos, precisePosition));
 	composite->AddSubgoal(new BuildBridgeGoal(task));
 	this->buildGoal = composite;
 	owner->AddBehavior(composite);

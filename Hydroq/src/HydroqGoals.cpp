@@ -33,7 +33,7 @@ void GotoPositionGoal::OnStart() {
 	}
 	else {
 		COGLOGDEBUG("Hydroq", "Couldn't find path! Exiting GotoPositionGoal");
-		this->Complete();
+		this->Abort();
 	}
 }
 
@@ -44,6 +44,10 @@ void GotoPositionGoal::OnGoalAbort() {
 		Movement& movement = owner->GetAttr<Movement>(ATTR_MOVEMENT);
 		movement.Stop();
 	}
+
+	task->isProcessing = false;
+	task->isReserved = false;
+	task->reserverNode = nullptr;
 }
 
 void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {

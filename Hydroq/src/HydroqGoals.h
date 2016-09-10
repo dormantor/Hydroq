@@ -11,6 +11,7 @@ using namespace Cog;
 */
 class GotoPositionGoal : public Goal {
 	Behavior* innerBehavior = nullptr;
+	spt<GameTask> task;
 public:
 	// first cell (in integer)
 	Vec2i startCell;
@@ -21,8 +22,8 @@ public:
 	// precise end position
 	ofVec2f targetPosition;
 
-	GotoPositionGoal(Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) : Goal(StringHash(GOAL_GOTO_POSITION)), 
-		startCell(startCell), endCell(endCell), startPosition(startPr), targetPosition(targetPr) {
+	GotoPositionGoal(spt<GameTask> task, Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) : Goal(StringHash(GOAL_GOTO_POSITION)),
+		task(task), startCell(startCell), endCell(endCell), startPosition(startPr), targetPosition(targetPr) {
 
 	}
 

@@ -210,6 +210,8 @@ public:
 	*/
 	vector<spt<GameTask>> GetGameTaskCopy();
 
+	vector<Node*> GetMovingObjectsByType(EntityType type, bool internalOnly);
+
 	bool RemoveGameTask(spt<GameTask> task);
 
 	virtual void Update(const uint64 delta, const uint64 absolute);

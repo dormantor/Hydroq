@@ -150,10 +150,12 @@ public:
 	}
 
 	vector<Vec2i> FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, int maxIteration = 0) {
+
+		COGMEASURE_BEGIN("HYDROQ_PATHFINDING");
+
 		AStarSearch srch;
 		unordered_map<Vec2i, Vec2i> came_from;
 		unordered_map<Vec2i, int> cost_so_far;
-
 		// prefer grid with forbidden areas
 		bool found = srch.Search(gridWithBlocks, start, end, came_from, cost_so_far, maxIteration);
 		if (!found && crossForbiddenArea) {
@@ -161,11 +163,14 @@ public:
 			cost_so_far.clear();
 			found = srch.Search(gridNoBlock, start, end, came_from, cost_so_far, maxIteration);
 		}
+
 		if (found) {
 			vector<Vec2i> path = srch.CalcPathFromJumps(start, end, came_from);
+			COGMEASURE_END("HYDROQ_PATHFINDING");
 			return path;
 		}
 		else {
+			COGMEASURE_END("HYDROQ_PATHFINDING");
 			return vector<Vec2i>();
 		}
 	}

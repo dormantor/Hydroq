@@ -5,10 +5,14 @@
 
 using namespace Cog;
 
+enum class GameTaskType {
+	BRIDGE_BUILD, BRIDGE_DESTROY
+};
+
 class GameTask {
 public:
-	// StringHash of the task
-	StringHash taskSh;
+	// task type
+	GameTaskType type;
 	// indicator, if the task is still processing
 	bool isProcessing = false;
 	// inficator, if the task ended
@@ -18,7 +22,12 @@ public:
 	// node that serves the task
 	Node* handlerNode = nullptr;
 
-	GameTask(StringHash taskSh) :taskSh(taskSh) {
+	// indicator, if the task is reserved
+	bool isReserved = false;
+	// node that reserved the task
+	Node* reserverNode = nullptr;
+
+	GameTask(GameTaskType taskType) :type(taskType) {
 
 	}
 };

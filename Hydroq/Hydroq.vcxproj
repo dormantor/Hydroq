@@ -196,6 +196,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MultiplayerMenu.cpp" />
     <ClCompile Include="src\Seedbed.cpp" />
+    <ClCompile Include="src\TaskScheduler.cpp" />
     <ClCompile Include="src\Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -241,6 +242,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\SelectedFuncBehavior.h" />
     <ClInclude Include="src\LeftPanel.h" />
     <ClInclude Include="src\SingleGameMenu.h" />
+    <ClInclude Include="src\TaskScheduler.h" />
     <ClInclude Include="src\Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

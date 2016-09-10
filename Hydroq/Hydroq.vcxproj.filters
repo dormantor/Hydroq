@@ -26,6 +26,9 @@
     <ClCompile Include="src\HydroqNetMsg.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
+    <ClCompile Include="src\TaskScheduler.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Worker.h">
@@ -111,6 +114,9 @@
     </ClInclude>
     <ClInclude Include="src\HydNetworkSender.h">
       <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TaskScheduler.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

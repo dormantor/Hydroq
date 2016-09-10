@@ -21,7 +21,6 @@ public:
 
 	}
 
-
 	void OnMessage(Msg& msg) {
 
 	}

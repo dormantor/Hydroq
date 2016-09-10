@@ -12,11 +12,14 @@
 #include "Move.h"
 #include "Scene.h"
 #include "DeltaUpdate.h"
+#include "TaskScheduler.h"
 
 void HydroqGameModel::Init() {
 	hydroqMap = new HydMap();
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
+
+	rootNode->AddBehavior(new TaskScheduler());
 }
 
 
@@ -50,7 +53,7 @@ bool HydroqGameModel::PositionContainsBridgeMark(Vec2i position) {
 void HydroqGameModel::MarkPositionForBridge(Vec2i position) {
 	COGLOGDEBUG("Hydroq", "Placing bridge mark at [%d, %d]", position.x, position.y);
 	auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK, this->faction, 0);
-	auto newTask = spt<GameTask>(new GameTask(StringHash(TASK_BRIDGE_BUILD)));
+	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_BUILD));
 	newTask->taskNode = node;
 	gameTasks.push_back(newTask);
 }
@@ -139,7 +142,10 @@ bool HydroqGameModel::PositionContainsDestroyMark(Vec2i position) {
 
 void HydroqGameModel::MarkPositionForDestroy(Vec2i position) {
 	COGLOGDEBUG("Hydroq", "Marked for destroy: at [%d, %d]", position.x, position.y);
-	CreateDynamicObject(position, EntityType::DESTROY_MARK, this->faction, 0);
+	auto node = CreateDynamicObject(position, EntityType::DESTROY_MARK, this->faction, 0);
+	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_DESTROY));
+	newTask->taskNode = node;
+	gameTasks.push_back(newTask);
 }
 
 
@@ -198,6 +204,23 @@ vector<spt<GameTask>> HydroqGameModel::GetGameTaskCopy() {
 	vector<spt<GameTask>> output = vector<spt<GameTask>>();
 	for (auto task : gameTasks) output.push_back(task);
 	return output;
+}
+
+vector<Node*> HydroqGameModel::GetMovingObjectsByType(EntityType type, bool internalOnly) {
+	
+	vector<Node*> output = vector<Node*>();
+	
+	for (auto& obj : movingObjects) {
+		EntityType enttype = obj->GetAttr<EntityType>(ATTR_ENTITYTYPE);
+		if (enttype == type) {
+			if (!internalOnly || obj->GetSubType() == 0) {
+				output.push_back(obj);
+			}
+		}
+	}
+
+	return output;
+
 }
 
 bool HydroqGameModel::RemoveGameTask(spt<GameTask> task) {
@@ -303,6 +326,7 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 	Node* nd = new Node("");
 	nd->SetSubType(identifier);
 	nd->AddAttr(ATTR_FACTION, faction);
+	nd->AddAttr(ATTR_ENTITYTYPE, entityType);
 
 	if (entityType == EntityType::BRIDGE_MARK) {
 		nd->SetTag("bridgemark");

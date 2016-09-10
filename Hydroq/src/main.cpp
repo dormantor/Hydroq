@@ -18,6 +18,7 @@
 #include "NetworkCommunicator.h"
 #include "HydNetworkSender.h"
 #include "HydNetworkReceiver.h"
+#include "TimeMeasure.h"
 
 #include "LuaScripting.h"
 
@@ -46,7 +47,29 @@ public:
 			}
 		}
 	}
+};
 
+class ReportKey : public Behavior {
+	OBJECT_PROTOTYPE(ReportKey)
+
+		void Init() {
+	}
+
+public:
+	virtual void Update(const uint64 delta, const uint64 absolute) {
+		for (auto key : CogGetPressedKeys()) {
+
+			if (!key->IsHandled()) {
+
+				if (key->key == (int)('t')) {
+					key->handlerNodeId = owner->GetId();
+					
+					// write report
+					TimeMeasure::GetInstance().Report(false);
+				}
+			}
+		}
+	}
 };
 
 
@@ -98,6 +121,7 @@ public:
 	void InitStage(Stage* stage) {
 		CogEngine::GetInstance().LoadStageFromXml(this->xmlConfig);
 		stage->GetRootObject()->AddBehavior(new BackButtonKey());
+		stage->GetRootObject()->AddBehavior(new ReportKey());
 	}
 };
 

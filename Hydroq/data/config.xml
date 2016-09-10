@@ -18,7 +18,7 @@
 		<item key="module_include">
 		  <value>Hydroq</value>
 		  <value>NETWORK</value>
-		  <value>DeltaMessage</value>
+		  <value>Measure</value>
 		</item>
       </setting>
 	  
