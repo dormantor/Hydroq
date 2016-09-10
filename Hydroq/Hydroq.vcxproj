@@ -207,17 +207,18 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Board.h" />
+    <ClInclude Include="src\HydroqPlayerController.h" />
     <ClInclude Include="src\BrickClickEvent.h" />
     <ClInclude Include="src\BrickEventBehavior.h" />
     <ClInclude Include="src\Helper.h" />
-    <ClInclude Include="src\HydBuilding.h" />
     <ClInclude Include="src\HydEntity.h" />
     <ClInclude Include="src\HydMap.h" />
     <ClInclude Include="src\HydroqDef.h" />
     <ClInclude Include="src\HydroqGameModel.h" />
     <ClInclude Include="src\HydroqGameView.h" />
-    <ClInclude Include="src\HydroqGameViewModel.h" />
+    <ClInclude Include="src\HydroqPlayerModel.h" />
     <ClInclude Include="src\HydroqSpriteManager.h" />
+    <ClInclude Include="src\MapObjectChangedEvent.h" />
     <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />
     <ClInclude Include="src\RightPanel.h" />

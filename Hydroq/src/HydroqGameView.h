@@ -18,7 +18,12 @@ class HydroqGameView : public Component {
 
 private:
 	spt<SpritesShape> staticSprites;
+
+	// dynamic sprites are not positioned
 	spt<SpritesShape> dynamicSprites;
+	map<Vec2i, spt<SpriteEntity>> dynamicSpriteMap;
+	HydroqSpriteManager* spriteManager;
+	spt<SpriteSet> defaultSpriteSet;
 
 public:
 
@@ -27,21 +32,36 @@ public:
 	}
 
 	void Init() {
-		
+		spriteManager = GETCOMPONENT(HydroqSpriteManager);
+		RegisterGlobalListening(ACT_MAP_OBJECT_CHANGED);
 	}
 
 	void Init(spt<ofxXml> xml) {
-		
+		Init();
+	}
+
+	void OnMessage(Msg& msg) {
+		if (msg.GetAction() == StringHash(ACT_MAP_OBJECT_CHANGED)) {
+			MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
+
+			if (evt->changeType == ObjectChangeType::DYNAMIC_CHANGED) {
+				// create new sprite
+				auto sprite = spriteManager->GetSprite(evt->changedEntity->GetName());
+				Trans transform = Trans();
+				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * evt->changedNode->pos.x;
+				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * evt->changedNode->pos.y;
+				dynamicSprites->GetSprites().push_back(spt<SpriteEntity>(new SpriteEntity(sprite, transform)));
+			}
+		}
 	}
 
 	void LoadSprites() {
 		auto gameModel = GETCOMPONENT(HydroqGameModel);
 		auto map = gameModel->GetMap();
-		auto spriteManager = GETCOMPONENT(HydroqSpriteManager);
 		auto cache = GETCOMPONENT(ResourceCache);
 
 		auto spriteSheet = cache->GetSpriteSheet("game_board");
-		auto spriteSet = spriteSheet->GetDefaultSpriteSet();
+		defaultSpriteSet = spriteSheet->GetDefaultSpriteSet();
 		auto mapSprites = vector<spt<SpriteEntity>>();
 
 		for (int i = 0; i < map->GetWidth(); i++) {
@@ -50,8 +70,8 @@ public:
 				auto sprite = spriteManager->GetSprite(obj->mapNodeName);
 
 				Trans transform = Trans();
-				transform.localPos.x = spriteSet->GetSpriteWidth() * i;
-				transform.localPos.y = spriteSet->GetSpriteHeight() * j;
+				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
+				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * j;
 
 				mapSprites.push_back(spt<SpriteEntity>(new SpriteEntity(sprite, transform)));
 			}

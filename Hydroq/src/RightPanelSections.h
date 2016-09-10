@@ -1,13 +1,13 @@
 #pragma once
 
 #include "ofxCogMain.h"
-#include "HydroqGameViewModel.h"
+#include "HydroqPlayerModel.h"
 
 
 class RightPanelSections : public Behavior {
 	OBJECT_PROTOTYPE(RightPanelSections)
 
-	HydroqGameViewModel* gameModel;
+	HydroqPlayerModel* playerModel;
 
 	int nodeBuildSeedbedId;
 	int nodeCommandBuildId;
@@ -17,7 +17,7 @@ class RightPanelSections : public Behavior {
 
 	void Init() {
 		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED);
-		gameModel = GETCOMPONENT(HydroqGameViewModel);
+		playerModel = GETCOMPONENT(HydroqPlayerModel);
 		nodeBuildSeedbedId = owner->GetScene()->FindNodeByTag("build_seedbed")->GetId();
 		nodeCommandBuildId = owner->GetScene()->FindNodeByTag("command_build")->GetId();
 		nodeCommandDestroyId = owner->GetScene()->FindNodeByTag("command_destroy")->GetId();
@@ -49,23 +49,23 @@ class RightPanelSections : public Behavior {
 	}
 
 	void SelectBuildSeedbed() {
-		gameModel->SetRightPanelFunc(RightPanelFunc::SEEDBED);
+		playerModel->SetHydroqAction(HydroqAction::SEEDBED);
 	}
 
 	void SelectCommandBuild() {
-		gameModel->SetRightPanelFunc(RightPanelFunc::BUILD);
+		playerModel->SetHydroqAction(HydroqAction::BUILD);
 	}
 
 	void SelectCommandDestroy() {
-		gameModel->SetRightPanelFunc(RightPanelFunc::DESTROY);
+		playerModel->SetHydroqAction(HydroqAction::DESTROY);
 	}
 
 	void SelectCommandForbid() {
-		gameModel->SetRightPanelFunc(RightPanelFunc::FORBID);
+		playerModel->SetHydroqAction(HydroqAction::FORBID);
 	}
 
 	void SelectCommandGuard() {
-		gameModel->SetRightPanelFunc(RightPanelFunc::GUARD);
+		playerModel->SetHydroqAction(HydroqAction::GUARD);
 	}
 
 public:

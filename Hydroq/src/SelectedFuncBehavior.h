@@ -2,7 +2,6 @@
 
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
-#include "HydroqGameViewModel.h"
 
 class SelectedFuncBehavior : public Behavior {
 	OBJECT_PROTOTYPE(SelectedFuncBehavior)
@@ -24,26 +23,26 @@ class SelectedFuncBehavior : public Behavior {
 	void OnMessage(Msg& msg) {
 		if (msg.GetAction() == actFuncSelected) {
 			// function selected
-			auto which = msg.GetDataS<ValueChangeEvent<RightPanelFunc>>();
+			auto which = msg.GetDataS<ValueChangeEvent<HydroqAction>>();
 
 			owner->SetRunningMode(RunningMode::RUNNING);
 
-			if (which->after == RightPanelFunc::SEEDBED) {
+			if (which->after == HydroqAction::SEEDBED) {
 				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_build_seedbed.png"));
 			}
-			else if (which->after == RightPanelFunc::BUILD) {
+			else if (which->after == HydroqAction::BUILD) {
 				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_build.png"));
 			}
-			else if (which->after == RightPanelFunc::DESTROY) {
+			else if (which->after == HydroqAction::DESTROY) {
 				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_destroy.png"));
 			}
-			else if (which->after == RightPanelFunc::FORBID) {
+			else if (which->after == HydroqAction::FORBID) {
 				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_forbid.png"));
 			}
-			else if (which->after == RightPanelFunc::GUARD) {
+			else if (which->after == HydroqAction::GUARD) {
 				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_guard.png"));
 			}
-			else if (which->after == RightPanelFunc::NONE) {
+			else if (which->after == HydroqAction::NONE) {
 				owner->SetRunningMode(RunningMode::INVISIBLE);
 			}
 		}

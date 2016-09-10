@@ -23,8 +23,23 @@ public:
 	MapNodeType mapNodeType;
 	int mapNodeTypeIndex; // for rigs and partial objects
 	string mapNodeName;
-
+	bool occupied = false; // true, if is occupied by a building
+	bool forbidden = false; // true, if it is forbidden
 	Vec2i pos;
+
+	vector<HydMapNode*> GetNeighbors() {
+		vector<HydMapNode*> output = vector<HydMapNode*>();
+		if (top != nullptr) output.push_back(top);
+		if (topRight != nullptr) output.push_back(topRight);
+		if (right != nullptr) output.push_back(right);
+		if (bottomRight != nullptr) output.push_back(bottomRight);
+		if (bottom != nullptr) output.push_back(bottom);
+		if (bottomLeft != nullptr) output.push_back(bottomLeft);
+		if (left != nullptr) output.push_back(left);
+		if (topLeft != nullptr) output.push_back(topLeft);
+
+		return output;
+	}
 };
 
 

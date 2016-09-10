@@ -15,5 +15,9 @@
 	  <item key="rig_topright" value="3" />
 	  <item key="rig_botleft" value="4" />
 	  <item key="rig_botright" value="5" />
+	  <item key="seedbed" value="14" />
+	  <item key="bridgemark" value="20" />
+	  <item key="forbidmark" value="21" />
+	  <item key="guardmark" value="22" />
 	</setting>
 </settings>

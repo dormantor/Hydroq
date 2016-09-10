@@ -432,6 +432,7 @@
 		  </setting>
 	    </behavior>
 		<behavior type="BrickEventBehavior" />
+		<behavior type="HydroqPlayerController" />
         <behavior type="HitEvent" />
         <behavior type="HydroqBoard" />
 
