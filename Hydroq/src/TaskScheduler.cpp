@@ -105,8 +105,8 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 				bool workerFound = false;
 				for (auto& worker : allWorkers) {
 
-					// each worker can have only up to 2 tasks reserved
-					if (assignedTasks.find(worker->GetId()) == assignedTasks.end() || assignedTasks[worker->GetId()] <= 2) {
+					// each player's worker can have only up to 2 tasks reserved;  AI workers have no buffer
+					if (assignedTasks.find(worker->GetId()) == assignedTasks.end() || (faction == gameModel->GetFaction() && assignedTasks[worker->GetId()] <= 2)) {
 
 						// try to find a path
 						float manhattanDistance = abs(worker->GetTransform().localPos.x - taskLocation.x) + abs(worker->GetTransform().localPos.y - taskLocation.y);

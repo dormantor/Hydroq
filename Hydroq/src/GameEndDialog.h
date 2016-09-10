@@ -18,7 +18,7 @@ class GameEndDialog : public Behavior {
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_BUTTON_CLICKED)) {
 			auto sceneContext = GETCOMPONENT(Stage);
-			if (msg.GetSourceObject()->GetTag().compare("gameend_msg") == 0) {
+			if (msg.GetSourceObject()->GetTag().compare("ok_but") == 0) {
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 			}

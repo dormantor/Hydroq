@@ -579,10 +579,10 @@
 		 
         <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
 		<node name="gameend_msg">
-		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Do you really want to exit the game?</text>
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">You lost the game!</text>
            <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />
 		</node>
-		<node name="no_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
+		<node name="ok_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
 		  <transform pos_x="0.5r" pos_y="0.8r" anchor="0.5"  />
           <node>
             <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Exit</text>

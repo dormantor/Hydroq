@@ -290,7 +290,7 @@ float HydroqGameModel::CalcAttractorAbsCardinality(Faction faction, int attracto
 void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 	auto oldFaction = rig->GetAttr<Faction>(ATTR_FACTION);
 	if (oldFaction == Faction::NONE) {
-		playerModel->AddBuildings(1);
+		if(faction == this->faction) playerModel->AddBuildings(1);
 		rig->ChangeAttr(ATTR_FACTION, faction);
 		rig->AddBehavior(new RigBehavior());
 		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
@@ -301,8 +301,9 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 			new GameStateChangedEvent(GameChangeType::EMPTY_RIG_CAPTURED, faction));
 	}
 	else {
-		if (oldFaction != faction) playerModel->RemoveBuilding(1);
-		
+		if (oldFaction == this->faction) playerModel->RemoveBuilding(1);
+		else playerModel->AddBuildings(1);
+
 		rig->ChangeAttr(ATTR_FACTION, faction);
 		
 		auto rigPos = Vec2i(rig->GetTransform().localPos.x, rig->GetTransform().localPos.y);
@@ -310,7 +311,7 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 			// change workers faction according to the new rig owner
 			worker->ChangeAttr(ATTR_FACTION, faction);
 			worker->SetTag(faction == Faction::RED ? "worker_red" : "worker_blue");
-			if (oldFaction != faction) playerModel->RemoveUnit(1);
+			if (oldFaction == this->faction) playerModel->RemoveUnit(1);
 			else playerModel->AddUnit(1);
 		}
 
@@ -642,7 +643,7 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 	{
 		auto dist1 = Vec2i::Distancef(blueRig, a);
 		auto dist2 = Vec2i::Distancef(blueRig, b);
-		return dist1 >= dist2;
+		return dist1 > dist2;
 	});
 
 	// pick the first one for red

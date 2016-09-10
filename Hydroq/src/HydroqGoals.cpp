@@ -62,7 +62,7 @@ void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 		goalStarted = absolute;
 	}
 	else {
-		if ((absolute - goalStarted) > 3500) {
+		if ((absolute - goalStarted) > 100) {
 
 			CogLogDebug("Hydroq", "Building bridge");
 			
