@@ -13,6 +13,8 @@ public:
 	}
 
 	void OnInit() {
+
+
 		SubscribeForMessages(ACT_BUTTON_CLICKED);
 		model = GETCOMPONENT(HydroqPlayerModel);
 	}
@@ -31,6 +33,12 @@ public:
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 		if (!firstInit && model->GameEnded()) {
+			// stop all sounds
+			auto sounds = CogGetPlayedSounds();
+			for (auto sound : sounds) {
+				sound->Stop();
+			}
+
 			auto msgNode = owner->GetScene()->FindNodeByTag("gameend_msg");
 			auto player = GETCOMPONENT(HydroqPlayerModel);
 			

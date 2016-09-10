@@ -9,18 +9,12 @@
 #include "MsgEvents.h"
 #include "HydroqGameModel.h"
 
-class HydNetworkReceiver : public Behavior {
+class HydNetworkReceiver : public Component {
 	
 public:
 
 	void OnInit() {
-		auto playerModel = GETCOMPONENT(HydroqPlayerModel);
-		if (playerModel->GetNetworkState() == HydroqNetworkState::NONE) {
-			owner->RemoveBehavior(this, true);
-		}
-		
-		SubscribeForMessages(ACT_NET_MESSAGE_RECEIVED);
-		model = owner->GetBehavior<HydroqGameModel>();
+		GlobalSubscribeForMessages(ACT_NET_MESSAGE_RECEIVED);
 	}
 
 	void OnMessage(Msg& msg) {
@@ -63,13 +57,14 @@ public:
 		SendMessageToListeners(StrId(ACT_SERVER_FOUND), 0, new CommonEvent<HydroqServerInitMsg>(mpInit), nullptr);
 	}
 
-
+	// todo .... !!!
 	HydroqGameModel* model = nullptr;
 	
 
 	void ProcessCommandMessage(spt<NetInputMessage> netMsg) {
 		auto cmdMsg = netMsg->GetData<HydroqCommandMsg>();
-		
+		//model = GETCOMPONENT(HydroqGameModel);
+
 		switch (cmdMsg->GetEventType()) {
 		case SyncEventType::OBJECT_CREATED:
 			switch (cmdMsg->GetEntityType()) {

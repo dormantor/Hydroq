@@ -11,7 +11,7 @@ class RigBehavior : public Behavior {
 	StrId frequencySh;
 	StrId lastSpawnSh;
 	HydroqGameModel* gameModel;
-	int totalWorkers = 0;
+
 public:
 	RigBehavior(HydroqGameModel* gameModel) : gameModel(gameModel) {
 
@@ -24,7 +24,6 @@ public:
 	}
 
 public:
-	
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
 

@@ -18,6 +18,8 @@ void RigBehavior::OnStart() {
 	}
 }
 
+int totalWorkers = 0;
+
 void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 	// spawns per second
 	float frequency = owner->GetAttr<float>(frequencySh);

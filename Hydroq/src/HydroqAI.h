@@ -37,13 +37,19 @@ struct RigInfo {
 	int distance;
 };
 
+enum class AIType {
+	SCRIPTED, MONTE_CARLO
+};
+
 class HydroqAI : public Behavior {
 
 	HydroqGameModel* gameModel;
 	Faction faction = Faction::NONE;
+	AIType aiType;
 
 public:
-	HydroqAI(HydroqGameModel* gameModel) :gameModel(gameModel) {
+	HydroqAI(HydroqGameModel* gameModel, Faction faction, AIType aiType) :gameModel(gameModel), faction(faction),
+	aiType(aiType){
 
 	}
 
@@ -77,41 +83,27 @@ public:
 	AITask actualTask;
 	int actualTaskIndex = 0;
 
-	virtual void Update(const uint64 delta, const uint64 absolute) {
+	vector<RigInfo> blueRedDist;
+	vector<RigInfo> redBlueDist;
+	vector<RigInfo> blueEmptyDist;
+	vector<RigInfo> redEmptyDist;
 
-		// todo: continuous update
-		this->faction = gameModel->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE;
+	uint64 lastTaskTime = 0;
+
+	virtual void Update(const uint64 delta, const uint64 absolute) {
 
 		if (CogGetFrameCounter() % 100 == 0) {
 
 			auto map = gameModel->GetMap();
-
-			vector<RigInfo> blueRedDist;
-			vector<RigInfo> redBlueDist;
-			vector<RigInfo> blueEmptyDist;
-			vector<RigInfo> redEmptyDist;
-
+			blueRedDist.clear();
+			redBlueDist.clear();
+			blueEmptyDist.clear();
+			redEmptyDist.clear();
+			
 			vector<RigInfo>& myOpponentDist = gameModel->GetFaction() == Faction::BLUE ? redBlueDist : blueRedDist;
 			vector<RigInfo>& myEmptyDist = gameModel->GetFaction() == Faction::BLUE? redEmptyDist : blueEmptyDist;
 			
 			CalcRigsDistance(blueRedDist, redBlueDist, blueEmptyDist, redEmptyDist);
-
-			for (auto i : blueRedDist) {
-				cout << "BLUE_RED " << i.distance << ", [" << i.nearest.x << ", " << i.nearest.y << "]" << endl;
-			}
-
-			for (auto i : redBlueDist) {
-				cout << "RED_BLUE " << i.distance << ", [" << i.nearest.x << ", " << i.nearest.y << "]" << endl;
-			}
-
-			for (auto i : blueEmptyDist) {
-				cout << "BLUE_EMPTY " << i.distance << ", [" << i.nearest.x << ", " << i.nearest.y << "]" << endl;
-			}
-
-			for (auto i : redEmptyDist) {
-				cout << "RED_EMPTY " << i.distance << ", [" << i.nearest.x << ", " << i.nearest.y << "]" << endl;
-			}
-
 
 			// if the task has been completed (there is not water at selected location), restart the task
 			if (actualTask.type != AITaskType::NONE) {
@@ -123,70 +115,86 @@ public:
 						}
 					}
 				}
+				else {
+					if ((absolute - lastTaskTime) > 10000) {
+						actualTask.type = AITaskType::NONE;
+					}
+				}
 			}
 
 			if (actualTask.type == AITaskType::NONE) {
-				auto aiAction = this->TrySimulator(blueRedDist, redBlueDist, blueEmptyDist, redEmptyDist);
-				AITaskType selectedTaskType = (AITaskType)aiAction.type;
-
-				if (selectedTaskType == AITaskType::CAPTURE_EMPTY) {
-					Task_CaptureEmpty(myEmptyDist[aiAction.index], absolute);
+				switch (aiType) {
+				case AIType::SCRIPTED:
+					UpdateScripted(myOpponentDist, myEmptyDist, delta, absolute);
+					break;
+				case AIType::MONTE_CARLO:
+					UpdateMonteCarlo(myOpponentDist, myEmptyDist, delta, absolute);
+					break;
 				}
-				else if (selectedTaskType == AITaskType::CAPTURE_ENEMY) {
-					Task_CaptureEnemy(myOpponentDist[aiAction.index], absolute);
-				}
-				else if (selectedTaskType == AITaskType::GOTO_EMPTY) {
-					auto nearestRig = myEmptyDist[aiAction.index];
-					Task_GotoEmpty(nearestRig, absolute);
-				}
-				else if (selectedTaskType == AITaskType::GOTO_ENEMY) {
-					auto nearestRig = myOpponentDist[aiAction.index];
-					Taks_GotoEnemy(nearestRig, absolute);
-				}
-			}
-			
-			return;
-
-			// capture some empty
-			for (auto dist : myEmptyDist) {
-				if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
-					Task_CaptureEmpty(dist, absolute);
-				}
-			}
-
-			// capture some opponents'
-			for (auto dist : myOpponentDist) {
-				if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
-					Task_CaptureEnemy(dist, absolute);
-				}
-			}
-
-			// build platform and go to empty rig
-			if (actualTask.type == AITaskType::NONE && !myEmptyDist.empty()) {
-				// get nearest empty
-				sort(myEmptyDist.begin(), myEmptyDist.end(), [](const RigInfo& a, const RigInfo&b) {
-					return a.distance < b.distance;
-				});
-
-				auto nearestRig = myEmptyDist[0];
-				Task_GotoEmpty(nearestRig, absolute);
-			}
-
-			// build platform and go to enemy rig
-			if (actualTask.type == AITaskType::NONE && !myOpponentDist.empty()) {
-				// get nearest empty
-				sort(myOpponentDist.begin(), myOpponentDist.end(), [](const RigInfo& a, const RigInfo&b) {
-					return a.distance < b.distance;
-				});
-
-				auto nearestRig = myOpponentDist[0];
-				Taks_GotoEnemy(nearestRig, absolute);
 			}
 		}
 	}
 
 
 private:
+
+	void UpdateMonteCarlo(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute) {
+		auto aiAction = this->TrySimulator(blueRedDist, redBlueDist, blueEmptyDist, redEmptyDist);
+		AITaskType selectedTaskType = (AITaskType)aiAction.type;
+
+		if (selectedTaskType == AITaskType::CAPTURE_EMPTY) {
+			Task_CaptureEmpty(myEmptyDist[aiAction.index], absolute);
+		}
+		else if (selectedTaskType == AITaskType::CAPTURE_ENEMY) {
+			Task_CaptureEnemy(myOpponentDist[aiAction.index], absolute);
+		}
+		else if (selectedTaskType == AITaskType::GOTO_EMPTY) {
+			auto nearestRig = myEmptyDist[aiAction.index];
+			Task_Goto(nearestRig, absolute);
+		}
+		else if (selectedTaskType == AITaskType::GOTO_ENEMY) {
+			auto nearestRig = myOpponentDist[aiAction.index];
+			Task_Goto(nearestRig, absolute);
+		}
+	}
+
+	void UpdateScripted(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute) {
+		// capture some empty
+		for (auto dist : myEmptyDist) {
+			if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
+				Task_CaptureEmpty(dist, absolute);
+			}
+		}
+
+		// capture some opponents'
+		for (auto dist : myOpponentDist) {
+			if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
+				Task_CaptureEnemy(dist, absolute);
+			}
+		}
+
+		// build platform and go to empty rig
+		if (actualTask.type == AITaskType::NONE && !myEmptyDist.empty()) {
+			// get nearest empty
+			sort(myEmptyDist.begin(), myEmptyDist.end(), [](const RigInfo& a, const RigInfo&b) {
+				return a.distance < b.distance;
+			});
+
+			auto nearestRig = myEmptyDist[0];
+			Task_Goto(nearestRig, absolute);
+		}
+
+		// build platform and go to enemy rig
+		if (actualTask.type == AITaskType::NONE && !myOpponentDist.empty()) {
+			// get nearest empty
+			sort(myOpponentDist.begin(), myOpponentDist.end(), [](const RigInfo& a, const RigInfo&b) {
+				return a.distance < b.distance;
+			});
+
+			auto nearestRig = myOpponentDist[0];
+			Task_Goto(nearestRig, absolute);
+		}
+	}
 
 	void CalcRigsDistance(vector<RigInfo>& blueRedDist, vector<RigInfo>& redBlueDist,
 		vector<RigInfo>& blueEmptyDist, vector<RigInfo>& redEmptyDist) {
@@ -237,7 +245,7 @@ private:
 		int closest = 100000;
 		int closestIndex = 0;
 
-		// find nearest blue
+		// find nearest opponents
 		for (int j = 0; j < refRigs.size(); j++) {
 			int distance = Vec2i::ManhattanDist(refRigsPos[j], targetRigsPos[index]);
 			if (distance < closest) {
@@ -249,12 +257,16 @@ private:
 		// calculate real distance
 		Vec2i start = Vec2i(refRigsPos[closestIndex].x - 1, refRigsPos[closestIndex].y - 1);
 		Vec2i end = Vec2i(targetRigsPos[index].x - 1, targetRigsPos[index].y - 1);
-		Vec2i nearest;
-		int distance = map->CalcNearestReachablePosition(start, end, nearest, closest * 2);
+		Vec2i nearest1;
+		Vec2i nearest2;
+		// calculate distance from A to B and from B to A
+		int distance1 = map->CalcNearestReachablePosition(start, end, nearest1, closest * 2);
+		int distance2 = map->CalcNearestReachablePosition(end, start, nearest2, closest * 2);
+
 
 		RigInfo info;
-		info.distance = distance;
-		info.nearest = nearest;
+		info.distance = min(distance1, distance2);
+		info.nearest = nearest1;
 		info.position = targetRigsPos[index];
 		distances.push_back(info);
 	}
@@ -293,6 +305,9 @@ private:
 	}
 
 	void Task_CaptureEmpty(RigInfo dist, uint64 absolute) {
+		lastTaskTime = absolute;
+
+		cout << "jdu lajznout prazdnou" << endl;
 		auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
 		actualTask = AITask(AITaskType::CAPTURE_EMPTY, absolute);
 		actualTask.positions.push_back(pos);
@@ -300,6 +315,9 @@ private:
 	}
 
 	void Task_CaptureEnemy(RigInfo dist, uint64 absolute) {
+		lastTaskTime = absolute;
+
+		cout << "jdu lajznout nepritele" << endl;
 		auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
 		actualTask = AITask(AITaskType::CAPTURE_ENEMY, absolute);
 		actualTask.positions.push_back(pos);
@@ -307,41 +325,45 @@ private:
 		gameModel->AddAttractor(pos, faction, 0.8f);
 	}
 
-	void Task_GotoEmpty(RigInfo nearestRig, uint64 absolute) {
+	void Task_Goto(RigInfo nearestRig, uint64 absolute) {
+		lastTaskTime = absolute;
+
+		cout << "jdu k rigu ["<< nearestRig.position.x << ", " <<nearestRig.position.y << "]" << endl;
 		auto map = gameModel->GetMap();
 		auto brick = map->GetNode(nearestRig.nearest);
-		auto neighbors = brick->GetNeighbors();
-
+		
 		auto newTask = AITask(AITaskType::GOTO_EMPTY, absolute);
 
-		for (auto neighbor : neighbors) {
-			// build platform so that the rig will be close
-			if (neighbor->mapNodeType == MapNodeType::WATER && !gameModel->PositionContainsBridgeMark(neighbor->pos) &&
-				Vec2i::Distance(nearestRig.position, neighbor->pos) <= Vec2i::Distance(nearestRig.position, nearestRig.nearest)) {
-				newTask.positions.push_back(neighbor->pos);
-				gameModel->MarkPositionForBridge(neighbor->pos, faction);
-			}
-		}
+		BuildAroundBrick(nearestRig, brick, newTask, 5);
 
 		if (!newTask.positions.empty()) actualTask = newTask;
 	}
 
-	void Taks_GotoEnemy(RigInfo nearestRig, uint64 absolute) {
-		auto map = gameModel->GetMap();
-		auto brick = map->GetNode(nearestRig.nearest);
-		auto neighbors = brick->GetNeighbors();
+	void BuildAroundBrick(RigInfo& nearestRig, HydMapNode* brick, AITask& task, int recursiveLevels) {
+		auto neighbors = brick->GetNeighborsFourDirections();
 
-		auto newTask = AITask(AITaskType::GOTO_ENEMY, absolute);
-
+		int closerNeighborDist = 100000;
+		HydMapNode* closerNeighbor = nullptr;
 		for (auto neighbor : neighbors) {
 			// build platform so that the rig will be close
-			if (neighbor->mapNodeType == MapNodeType::WATER && !gameModel->PositionContainsBridgeMark(neighbor->pos) &&
-				Vec2i::Distance(nearestRig.position, neighbor->pos) <= Vec2i::Distance(nearestRig.position, nearestRig.nearest)) {
-				newTask.positions.push_back(neighbor->pos);
-				gameModel->MarkPositionForBridge(neighbor->pos, faction);
+			if (neighbor->mapNodeType == MapNodeType::WATER) {
+				int distance = Vec2i::Distance(nearestRig.position, neighbor->pos);
+				if (distance < closerNeighborDist) {
+					closerNeighborDist = distance;
+					closerNeighbor = neighbor;
+				}
 			}
 		}
 
-		if (!newTask.positions.empty()) actualTask = newTask;
+		if (closerNeighbor != nullptr) {
+			if (!gameModel->PositionContainsBridgeMark(closerNeighbor->pos)) {
+				task.positions.push_back(closerNeighbor->pos);
+				gameModel->MarkPositionForBridge(closerNeighbor->pos, faction);
+			}
+
+			if (recursiveLevels > 0) {
+				BuildAroundBrick(nearestRig, closerNeighbor, task, recursiveLevels - 1);
+			}
+		}
 	}
 };

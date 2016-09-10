@@ -35,6 +35,7 @@ private:
 	map<int, Sprite> spriteBuffer;
 
 	HydroqGameModel* gameModel;
+	bool firstUpdate = false;
 public:
 
 	~HydroqGameView() {

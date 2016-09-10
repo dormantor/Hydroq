@@ -5,6 +5,7 @@
 #include "HydroqDef.h"
 #include "HydroqNetMsg.h"
 #include "HydroqGameModel.h"
+#include "HydNetworkSender.h"
 
 class MultiplayerMenu : public Behavior {
 private:
@@ -21,7 +22,7 @@ public:
 	}
 
 	void OnInit() {
-		SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED, ACT_SCENE_SWITCHED, ACT_NET_MESSAGE_RECEIVED);
+		SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED, ACT_SCENE_SWITCHED, ACT_SERVER_FOUND);
 		communicator = GETCOMPONENT(NetworkCommunicator);
 
 		// load map config
@@ -99,19 +100,12 @@ public:
 				DisableConnectButton();
 				DeselectServer();
 			}
-			else if (msg.HasAction(ACT_NET_MESSAGE_RECEIVED)) {
-
-				NetworkMsgEvent* msgEvent = msg.GetData<NetworkMsgEvent>();
-				auto netMsg = msgEvent->msg;
-				StrId action = netMsg->GetAction();
-				auto type = netMsg->GetMsgType();
-
-				string ipAddress = netMsg->GetSourceIp();
-				auto mpInit = netMsg->GetData<HydroqServerInitMsg>();
-				mpInit->SetIpAddress(netMsg->GetSourceIp());
-
+			else if (msg.HasAction(ACT_SERVER_FOUND)) {
+				auto msgEvent = msg.GetData<CommonEvent<HydroqServerInitMsg>>();
+				auto netMsg = msgEvent->value;
+				string ipAddress = netMsg->GetIpAddress();
 				// store message
-				serverMessages[ipAddress] = mpInit;
+				serverMessages[ipAddress] = netMsg;
 
 				if (find(foundIps.begin(), foundIps.end(), ipAddress) == foundIps.end()) {
 					// add new ip address
@@ -135,8 +129,12 @@ public:
 		auto model = GETCOMPONENT(HydroqPlayerModel);
 		// select the other faction than server did
 		Faction selectedFaction = (serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
-		model->StartGame(selectedFaction, serverMsg->GetMap(), HydroqNetworkState::CLIENT);
+		model->StartGame(selectedFaction, serverMsg->GetMap(), true);
 		communicator->ConnectToPeer(serverMsg->GetIpAddress());
+
+		// set other properties and switch the scene
+		auto sender = GETCOMPONENT(HydNetworkSender);
+		sender->SetNetworkState(HydroqNetworkState::CLIENT);
 		auto stage = GETCOMPONENT(Stage);
 		auto scene = stage->FindSceneByName("game");
 

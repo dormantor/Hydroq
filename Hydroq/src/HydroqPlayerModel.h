@@ -5,10 +5,6 @@
 #include "Events.h"
 #include "HydMap.h"
 
-enum class HydroqNetworkState {
-	NONE, SERVER, CLIENT
-};
-
 enum class HydroqAction {
 	NONE, BUILD, DESTROY, FORBID, ATTRACT
 };
@@ -27,7 +23,6 @@ private:
 	bool gameEnded = false;
 	string map;
 	bool isMultiplayer = false;
-	HydroqNetworkState networkState;
 public:
 
 	~HydroqPlayerModel() {
@@ -42,22 +37,13 @@ public:
 		gameEnded = false;
 		playerWin = false;
 		isMultiplayer = false;
-		networkState = HydroqNetworkState::NONE;
 	}
 
-	void StartGame(Faction faction, string map) {
+	void StartGame(Faction faction, string map, bool isMultiplayer) {
 		OnInit();
 		this->faction = faction;
 		this->map = map;
-		this->isMultiplayer = false;
-	}
-
-	void StartGame(Faction faction, string map, HydroqNetworkState networkState) {
-		OnInit();
-		this->faction = faction;
-		this->map = map;
-		this->isMultiplayer = true;
-		this->networkState = networkState;
+		this->isMultiplayer = isMultiplayer;
 	}
 
 	bool IsMultiplayer() {
@@ -66,10 +52,6 @@ public:
 
 	string GetMap() {
 		return map;
-	}
-
-	HydroqNetworkState GetNetworkState() {
-		return networkState;
 	}
 
 	HydroqAction GetHydroqAction() {

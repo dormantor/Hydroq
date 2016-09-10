@@ -33,7 +33,22 @@ public:
 		copy->agentsNumber = this->agentsNumber;
 		copy->possibleActions = this->possibleActions;
 		copy->rewards = this->rewards;
+		copy->aiFaction = this->aiFaction;
 		return copy;
+	}
+
+	inline bool IsBlueEnemy() {
+		return (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED)
+			|| (actualState.GetAgentOnTurn() != AGENT_AI && aiFaction == Faction::BLUE);
+	}
+
+	void SetRewards(int blueReward, int redReward) {
+		if (aiFaction == Faction::BLUE) {
+			rewards = AgentsReward(blueReward, redReward);
+		}
+		else {
+			rewards = AgentsReward(redReward, blueReward);
+		}
 	}
 
 	void MakeAction(HydAIAction act, bool isSimulation) {
@@ -44,47 +59,47 @@ public:
 		int index = act.index;
 
 		if (act.type == HydAIActionType::CAPTURE_ENEMY) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
+			if (IsBlueEnemy()) {
 				actualState.RemoveBlueRig(index);
 				actualState.distancesRed.push_back(1);
-				rewards = AgentsReward(100, 0);
+				SetRewards(100,0);
 			}
 			else {
 				actualState.RemoveRedRig(index);
 				actualState.distancesBlue.push_back(1);
-				rewards = AgentsReward(0, 100);
+				SetRewards(0, 100);
 			}
 		}
 		else if (act.type == HydAIActionType::CAPTURE_EMPTY) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
+			if (IsBlueEnemy()) {
 				actualState.distancesRed.push_back(actualState.distancesRedEmpty[index]);
 				actualState.RemoveEmptyRig(index);
-				rewards = AgentsReward(50, 0);
+				SetRewards(50, 0);
 			}
 			else {
 				actualState.distancesBlue.push_back(actualState.distancesBlueEmpty[index]);
 				actualState.RemoveEmptyRig(index);
-				rewards = AgentsReward(0, 50);
+				SetRewards(0, 50);
 			}
 		}
 		else if (act.type == HydAIActionType::GOTO_EMPTY) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
+			if (IsBlueEnemy()) {
 				actualState.distancesRedEmpty[index]--;
-				rewards = AgentsReward(2, 0);
+				SetRewards(2, 0);
 			}
 			else {
 				actualState.distancesBlueEmpty[index]--;
-				rewards = AgentsReward(0, 2);
+				SetRewards(0, 2);
 			}
 		}
 		else if (act.type == HydAIActionType::GOTO_ENEMY) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
+			if (IsBlueEnemy()) {
 				actualState.distancesBlue[index]--;
-				rewards = AgentsReward(1, 0);
+				SetRewards(1, 0);
 			}
 			else {
 				actualState.distancesRed[index]--;
-				rewards = AgentsReward(0, 1);
+				SetRewards(0, 1);
 			}
 		}
 
@@ -101,8 +116,8 @@ protected:
 
 		if (actualState.distancesBlue.empty() || actualState.distancesRed.empty()) return;
 
-		auto& distancesToEnemy = (aiFaction == Faction::RED && actualState.GetAgentOnTurn() == AGENT_AI) ? actualState.distancesBlue : actualState.distancesRed;
-		auto& distancesToEmpty = (aiFaction == Faction::RED && actualState.GetAgentOnTurn() == AGENT_AI) ? actualState.distancesRedEmpty : actualState.distancesBlueEmpty;
+		auto& distancesToEnemy = (IsBlueEnemy()) ? actualState.distancesBlue : actualState.distancesRed;
+		auto& distancesToEmpty = (IsBlueEnemy()) ? actualState.distancesRedEmpty : actualState.distancesBlueEmpty;
 
 		for (int i = 0; i < distancesToEnemy.size(); i++) {
 			if (distancesToEnemy[i] == 0) {

@@ -6,25 +6,18 @@
 #include "DeltaMessage.h"
 #include "HydroqNetMsg.h"
 
+enum class HydroqNetworkState {
+	NONE, SERVER, CLIENT
+};
 
-class HydNetworkSender : public Behavior {
+class HydNetworkSender : public Component {
 private:
 	HydroqNetworkState networkState = HydroqNetworkState::NONE;
 public:
 
-	HydroqGameModel* model = nullptr;
 
 	void OnInit() {
-		auto playerModel = GETCOMPONENT(HydroqPlayerModel);
-		this->networkState = playerModel->GetNetworkState();
-		
-		// remove if this is not a multiplayer
-		if (networkState == HydroqNetworkState::NONE) {
-			owner->RemoveBehavior(this, true);
-		}
-
-		SubscribeForMessages(ACT_SYNC_OBJECT_CHANGED);
-		model = owner->GetBehavior<HydroqGameModel>();
+		GlobalSubscribeForMessages(ACT_SYNC_OBJECT_CHANGED);
 	}
 
 	void OnMessage(Msg& msg) {
@@ -67,6 +60,8 @@ public:
 				// send delta message regularly
 				spt<DeltaInfo> deltaInf = spt<DeltaInfo>(new DeltaInfo());
 
+				// todo ... !!!
+				HydroqGameModel* model = nullptr;
 				auto& dynObjects = model->GetMovingObjects();
 
 				// update transformation of all objects

@@ -80,7 +80,7 @@ public:
 
 		if (this->IsWalkable()) output.push_back(this);
 
-		if (distance != 0) {
+		if (distance > 0) {
 			if (top != nullptr) top->FindWalkableNeighbor(distance - 1, output);
 			if (topRight != nullptr) topRight->FindWalkableNeighbor(distance - 1, output);
 			if (right != nullptr) right->FindWalkableNeighbor(distance - 1, output);
@@ -128,6 +128,16 @@ public:
 		if (bottomLeft != nullptr) output.push_back(bottomLeft);
 		if (left != nullptr) output.push_back(left);
 		if (topLeft != nullptr) output.push_back(topLeft);
+
+		return output;
+	}
+
+	vector<HydMapNode*> GetNeighborsFourDirections() {
+		vector<HydMapNode*> output;
+		if (top != nullptr) output.push_back(top);
+		if (right != nullptr) output.push_back(right);
+		if (bottom != nullptr) output.push_back(bottom);
+		if (left != nullptr) output.push_back(left);
 
 		return output;
 	}

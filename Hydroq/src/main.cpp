@@ -167,13 +167,16 @@ public:
 		REGISTER_BEHAVIOR(GameEndDialog);
 		REGISTER_BEHAVIOR(HydroqGameModel);
 		REGISTER_BEHAVIOR(HydroqGameView);
-		REGISTER_BEHAVIOR(HydNetworkSender);
-		REGISTER_BEHAVIOR(HydNetworkReceiver);
+
 
 		auto playerModel = new HydroqPlayerModel();
+		auto netSender = new HydNetworkSender();
+		auto netReceiver = new HydNetworkReceiver();
 		auto deltaUpdate = new DeltaUpdate();
 
 		REGISTER_COMPONENT(playerModel);
+		REGISTER_COMPONENT(netSender);
+		REGISTER_COMPONENT(netReceiver);
 		REGISTER_COMPONENT(deltaUpdate);
 		REGISTER_COMPONENT(new NetworkCommunicator());
 		REGISTER_COMPONENT(new LuaScripting());

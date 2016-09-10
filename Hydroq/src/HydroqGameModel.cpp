@@ -15,14 +15,16 @@
 #include "TaskScheduler.h"
 #include "HydroqPlayerModel.h"
 #include "HydroqAI.h"
+#include "CompositeBehavior.h"
 
-void HydroqGameModel::OnInit() {
-
+void HydroqGameModel::OnInit() {	
+	
 	hydroqMap = new HydMap();
 	playerModel = GETCOMPONENT(HydroqPlayerModel);
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
 	rootNode->AddBehavior(new TaskScheduler(this));
+	rootNode->AddBehavior(new HydroqAI(this));
 
 
 	this->faction = playerModel->GetFaction();
@@ -30,11 +32,15 @@ void HydroqGameModel::OnInit() {
 	this->multiplayer = playerModel->IsMultiplayer();
 	this->gameEnded = false;
 
+<<<<<<< HEAD
 
 	if (!multiplayer) {
-		rootNode->AddBehavior(new HydroqAI(this));
+		//rootNode->AddBehavior(new CompositeBehavior(new HydroqAI(this, Faction::BLUE, AIType::SCRIPTED), new HydroqAI(this, Faction::RED, AIType::MONTE_CARLO)));
+		rootNode->AddBehavior(new HydroqAI(this, faction == Faction::RED ? Faction::BLUE : Faction::RED, AIType::MONTE_CARLO));
 	}
 
+=======
+>>>>>>> parent of e6d3bb9... Hydroq: multiplayer is now playable !!!!!!!!
 	Settings mapConfig = Settings();
 	auto xml = CogLoadXMLFile("mapconfig.xml");
 	xml->pushTag("settings");
@@ -59,7 +65,7 @@ bool HydroqGameModel::IsPositionFreeForBridge(Vec2i position) {
 
 	if (isFree) {
 		// at least one neighbor mustn't be water or it is already marked
-		for (auto neighbor : node->GetNeighbors()) {
+		for (auto neighbor : node->GetNeighborsFourDirections()) {
 			if (neighbor->mapNodeType != MapNodeType::WATER ||
 				(dynObjects.find(neighbor->pos) != dynObjects.end() &&
 					dynObjects[neighbor->pos]->GetAttr<EntityType>(ATTR_ENTITYTYPE) == EntityType::BRIDGE_MARK))
@@ -296,7 +302,7 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 	if (oldFaction == Faction::NONE) {
 		if(faction == this->faction) playerModel->AddBuildings(1);
 		rig->ChangeAttr(ATTR_FACTION, faction);
-		rig->AddBehavior(new RigBehavior(this));
+		if(!multiplayer) rig->AddBehavior(new RigBehavior(this));
 		SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0,
 			new MapObjectChangedEvent(ObjectChangeType::RIG_TAKEN, nullptr, rig));
 
@@ -328,8 +334,7 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 
 		if (GetRigsByFaction(oldFaction).size() == 0) {
 			// todo... refactor
-			playerModel->SetGameEnded(true);
-			playerModel->SetPlayerWin(oldFaction != this->faction);
+			
 			// game over
 			this->gameEnded = true;
 			auto stage = GETCOMPONENT(Stage);
@@ -659,7 +664,7 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 		Faction fact = Faction::NONE;
 		if (rig == redRig) fact = Faction::RED;
 		else if (rig == blueRig) fact = Faction::BLUE;
-		
+
 		auto hydMapNode = hydroqMap->GetNode(rig.x, rig.y);
 		hydMapNode->occupied = true;
 		auto gameNode = CreateNode(EntityType::RIG, rig, fact, 0);
@@ -682,7 +687,7 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 		platforms.push_back(Vec2i(pos.x - 1, pos.y + 1));
 		platforms.push_back(Vec2i(pos.x - 1, pos.y));
 
-		spt<vector<RigPlatform>> rigPlatforms = spt<vector<RigPlatform>>(new vector <RigPlatform> ());
+		spt<vector<RigPlatform>> rigPlatforms = spt<vector<RigPlatform>>(new vector <RigPlatform>());
 
 		for (auto platformPos : platforms) {
 			RigPlatform rg = RigPlatform();

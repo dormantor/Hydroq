@@ -17,6 +17,13 @@ public:
 		if (msg.HasAction(ACT_BUTTON_CLICKED)) {
 			auto sceneContext = GETCOMPONENT(Stage);
 			if (msg.GetSourceObject()->GetTag().compare("yes_but") == 0) {
+				
+				// stop all sounds
+				auto sounds = CogGetPlayedSounds();
+				for (auto sound : sounds) {
+					sound->Stop();
+				}
+				
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 			}

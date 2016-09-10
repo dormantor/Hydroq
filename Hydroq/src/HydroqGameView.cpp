@@ -207,6 +207,13 @@ Sprite& HydroqGameView::GetSprite(int frame) {
 
 void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 
+	if (!firstUpdate) {
+		auto sound = CogGetSound("music/GameMusic1.mp3");
+		sound->SetLoop(true);
+		CogPlaySound(sound);
+		firstUpdate = true;
+	}
+
 	auto& movingObjects = gameModel->GetMovingObjects();
 
 	StrId stateIdle = StrId(STATE_WORKER_IDLE);
