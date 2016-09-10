@@ -6,25 +6,27 @@
 class MenuIconBehavior : public Behavior {
 	OBJECT_PROTOTYPE(MenuIconBehavior)
 
-		spt<TransformEnt> originTrans;
+	
+	spt<TransformEnt> originTrans;
 	spt<TransformEnt> animTrans;
 
-	void Init() {
-		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+	void OnInit() {
+		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+	}
 
+	void OnStart() {
 		Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
 		originTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(150, 6), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
 		animTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(100, 6), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
 	}
 
-
 	void OnMessage(Msg& msg) {
-		if (msg.GetAction() == ACT_TRANSFORM_ENDED && msg.GetSourceObject()->GetTag().compare("rightpanel") == 0) {
+		if (msg.HasAction(ACT_TRANSFORM_ENDED) && msg.GetSourceObject()->GetTag().compare("rightpanel") == 0) {
 			owner->ResetState(StringHash(STATES_LOCKED));
 		}
 
 
-		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED && msg.GetSourceObject()->GetId() == owner->GetId()) {
+		if (msg.HasAction(ACT_OBJECT_HIT_ENDED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
 			if (!owner->HasState(StringHash(STATES_LOCKED))) {
 				owner->SetState(StringHash(STATES_LOCKED));
 

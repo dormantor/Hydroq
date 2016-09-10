@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ofxCogCommon.h"
+
 enum class EntityType {
 	SEEDBED, BRIDGE_MARK, FORBID_MARK, GUARD_MARK, DESTROY_MARK, WORKER
 };

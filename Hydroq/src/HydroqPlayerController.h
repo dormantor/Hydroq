@@ -13,8 +13,8 @@ class HydroqPlayerController : public Behavior {
 	HydroqGameModel* gameModel;
 	HydroqPlayerModel* playerModel;
 
-	void Init() {
-		RegisterListening(owner->GetScene(), ACT_BRICK_CLICKED);
+	void OnInit() {
+		RegisterListening(ACT_BRICK_CLICKED);
 
 		gameModel = GETCOMPONENT(HydroqGameModel);
 		playerModel = GETCOMPONENT(HydroqPlayerModel);

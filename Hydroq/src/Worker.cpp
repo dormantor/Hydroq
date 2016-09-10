@@ -63,7 +63,7 @@ void WorkerIdleState::MoveAround() {
 		movingAround->SetListenerState(ListenerState::DISABLED);
 	}
 	else {
-		if (movingAround->Ended() || movingAround->GetListenerState() == ListenerState::DISABLED) {
+		if (movingAround->IsFinished() || movingAround->GetListenerState() == ListenerState::DISABLED) {
 			// find some point that can be used
 			float x = 0;
 			float y = 0;
@@ -88,7 +88,7 @@ void WorkerIdleState::MoveAround() {
 
 			if (map.size() > 0 && map.size() <= 2) {
 				// go there 
-				movingAround->Restart();
+				movingAround->Start();
 				movingAround->SetListenerState(ListenerState::ACTIVE_ALL);
 				// set destination
 				owner->AddAttr(ATTR_STEERING_BEH_SEEK_DEST, ofVec2f(endPrec));
@@ -134,7 +134,7 @@ void WorkerBridgeBuildState::OnMessage(Msg& msg) {
 	}
 }
 
-void WorkerBridgeBuildState::EnterState() {
+void WorkerBridgeBuildState::OnStart() {
 	task->handlerNode = owner;
 	task->isProcessing = true;
 
@@ -160,7 +160,7 @@ void WorkerBridgeBuildState::EnterState() {
 }
 
 void WorkerBridgeBuildState::Update(const uint64 delta, const uint64 absolute) {
-	if (buildGoal != nullptr && (buildGoal->HasEnded())) {
+	if (buildGoal != nullptr && (buildGoal->GoalEnded())) {
 
 		// change back to idle state
 		auto stateToChange = GetParent()->FindLocalState(StringHash(STATE_WORKER_IDLE));

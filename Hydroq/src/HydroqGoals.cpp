@@ -7,7 +7,7 @@
 
 using namespace Cog;
 
-void GotoPositionGoal::Init() {
+void GotoPositionGoal::OnStart() {
 	auto model = GETCOMPONENT(HydroqGameModel);
 	
 	// find path
@@ -34,11 +34,10 @@ void GotoPositionGoal::Init() {
 	else {
 		MLOGDEBUG("Hydroq", "Couldn't find path! Exiting GotoPositionGoal");
 		this->Complete();
-		Finish();
 	}
 }
 
-void GotoPositionGoal::OnAbort() {
+void GotoPositionGoal::OnGoalAbort() {
 	if (innerBehavior != nullptr) {
 		innerBehavior->Finish();
 		// stop moving
@@ -48,7 +47,7 @@ void GotoPositionGoal::OnAbort() {
 }
 
 void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {
-	if (innerBehavior != nullptr && innerBehavior->Ended()) {
+	if (innerBehavior != nullptr && innerBehavior->IsFinished()) {
 		this->SetGoalState(GoalState::COMPLETED);
 		Finish();
 	}
@@ -69,7 +68,6 @@ void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 			model->BuildPlatform(position);
 			task->isEnded = true;
 			this->Complete();
-			Finish();
 		}
 	}
 }

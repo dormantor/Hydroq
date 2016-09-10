@@ -21,8 +21,8 @@ class BrickEventBehavior : public Behavior {
 	int mapHeight = 0;
 	HydroqGameView* gameView;
 
-	void Init() {
-		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_STARTED, ACT_OBJECT_HIT_ENDED);
+	void OnInit() {
+		RegisterListening(ACT_OBJECT_HIT_STARTED, ACT_OBJECT_HIT_ENDED);
 
 		cache = GETCOMPONENT(ResourceCache);
 		gameView = GETCOMPONENT(HydroqGameView);
@@ -34,10 +34,10 @@ class BrickEventBehavior : public Behavior {
 
 			InputEvent* touch = static_cast<InputEvent*>(msg.GetData());
 
-			if (msg.GetAction() == ACT_OBJECT_HIT_STARTED) {
+			if (msg.HasAction(ACT_OBJECT_HIT_STARTED)) {
 				hitPos = touch->input->position;
 			}
-			else if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
+			else if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
 
 				if (mapWidth == 0 || mapHeight == 0) {
 					auto gameModel = GETCOMPONENT(HydroqGameModel);
@@ -72,7 +72,7 @@ class BrickEventBehavior : public Behavior {
 					// suppose that the collection follows positional ordering
 					auto pressedBrickSprite = gameView->GetStaticSprites()->GetSprites()[brickY*mapWidth + brickX];
 
-					SendMessageNoBubbling(ACT_BRICK_CLICKED, 0, new BrickClickEvent(brickX, brickY, pressedBrickSprite), owner);
+					SendMessageToListeners(ACT_BRICK_CLICKED, 0, new BrickClickEvent(brickX, brickY, pressedBrickSprite), owner);
 
 				}
 			}

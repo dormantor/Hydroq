@@ -9,9 +9,11 @@ class LeftPanel : public Behavior {
 	spt<TransformEnt> originTrans;
 	spt<TransformEnt> animTrans;
 
-	void Init() {
-		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+	void OnInit() {
+		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+	}
 
+	void OnStart() {
 		originTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(0, 0), 10, CalcType::GRID, ofVec2f(0, 0), ofVec2f(1), CalcType::LOC, 0));
 		animTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(6.0f, 0), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
 
@@ -20,7 +22,7 @@ class LeftPanel : public Behavior {
 
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED && msg.GetSourceObject()->GetId() == owner->GetId()) {
+		if (msg.HasAction(ACT_OBJECT_HIT_ENDED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
 			if (owner->HasState(StringHash(STATES_ENABLED))) {
 				owner->ResetState(StringHash(STATES_ENABLED));
 				// roll menu back

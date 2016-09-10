@@ -27,7 +27,7 @@ public:
 		return mapLoad.LoadFromPNGImage("map_2.png", mapConfig.GetSetting("names"));
 	}
 
-	void Init() {
+	void OnInit() {
 		cache = GETCOMPONENT(ResourceCache);
 
 		// 1) load collection of bricks
@@ -36,7 +36,7 @@ public:
 		// 2) create game map
 		auto gameModel = GETCOMPONENT(HydroqGameModel);
 		gameModel->GetMap()->LoadMap(bricks);
-		
+
 		// 3) load static sprites and assign it to the map_board node
 		auto gameView = GETCOMPONENT(HydroqGameView);
 		gameView->LoadSprites(mapConfig.GetSetting("sprites"));
@@ -55,6 +55,7 @@ public:
 		boardShape->SetWidth(staticSprites->GetWidth());
 		boardShape->SetHeight(staticSprites->GetHeight());
 	}
+
 
 	void OnMessage(Msg& msg) {
 

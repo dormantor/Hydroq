@@ -2,7 +2,7 @@
 #include "SeedBed.h"
 #include "HydroqGameModel.h"
 
-void Seedbed::Init() {
+void Seedbed::OnStart() {
 	frequencySh = StringHash(ATTR_SEEDBED_FREQUENCY);
 	lastSpawnSh = StringHash(ATTR_SEEDBED_LASTSPAWN);
 

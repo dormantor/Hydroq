@@ -6,13 +6,13 @@
 class MenuBehavior : public Behavior {
 	OBJECT_PROTOTYPE(MenuBehavior)
 
-		void Init() {
-		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED);
+		void OnInit() {
+		RegisterListening(ACT_OBJECT_HIT_ENDED);
 	}
 
 	void OnMessage(Msg& msg) {
 		
-		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
+		if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
 			if (msg.GetSourceObject()->GetTag().compare("sgame_but") == 0) {
 				// click on single game button -> switch scene
 				auto sceneContext = GETCOMPONENT(Stage);

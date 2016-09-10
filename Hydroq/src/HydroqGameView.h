@@ -45,7 +45,7 @@ public:
 	}
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetAction() == StringHash(ACT_MAP_OBJECT_CHANGED)) {
+		if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {
 			MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
 			
 			if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {

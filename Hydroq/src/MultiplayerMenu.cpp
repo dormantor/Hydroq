@@ -13,6 +13,7 @@ void MultiplayerMenu::AddServer(string ip) {
 	plane->AddBehavior(new HitEvent());
 
 	plane->AddBehavior(new MultiSelection(StringToColor("0x00000000"), StringToColor("0xFFFFFF88"), StringHash("SELECTION_SERVER")));
+	plane->AddAttr(ATTR_SERVER_IP, ip);
 	auto shape = spt<Plane>(new Plane(1, 1));
 	shape->SetColor(StringToColor("0x00000000"));
 	plane->SetShape(shape);
@@ -46,4 +47,20 @@ void MultiplayerMenu::AddServer(string ip) {
 
 	hosts_list->AddChild(text);
 
+}
+
+void MultiplayerMenu::RefreshServers() {
+	Node* hosts_list = owner->GetScene()->FindNodeByTag("hosts_list");
+
+	// remove all textboxes and refresh them
+	for (auto& child : hosts_list->GetChildren()) {
+		hosts_list->RemoveChild(child, true);
+	}
+
+	for (auto& ip : foundIps) {
+		AddServer(ip);
+	}
+
+	// disable CONNECT button
+	owner->GetScene()->FindNodeByTag("connect_but")->SetState(StringHash(STATES_DISABLED));
 }

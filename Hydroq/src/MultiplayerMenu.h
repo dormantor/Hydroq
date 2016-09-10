@@ -8,30 +8,58 @@
 class MultiplayerMenu : public Behavior {
 	OBJECT_PROTOTYPE(MultiplayerMenu)
 
+private:
+	NetworkCommunicator* communicator;
+	vector<string> foundIps;
+	string selectedIp = "";
+public:
 
-
-		void Init() {
-		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED, ACT_OBJECT_SELECTED, ACT_NET_SERVER_CONNECTED);
-
+	void OnInit() {
+		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_OBJECT_SELECTED, ACT_NET_SERVER_FOUND, ACT_SCENE_SWITCHED);
+		communicator = GETCOMPONENT(NetworkCommunicator);
 	}
 
-	vector<string> foundIps;
+	void OnResume() {
+		communicator->InitClient(HYDROQ_APPID, HYDROQ_CLIENTPORT, HYDROQ_SERVERPORT);
+	}
+
+	void OnStop() {
+		communicator->CloseClient();
+	}
 
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
+		if (msg.HasAction(ACT_SCENE_SWITCHED)) {
+			if (msg.GetSourceObject()->GetScene() == owner->GetScene()) {
+				OnResume();
+			}
+			else {
+				OnStop();
+			}
+		}
+		else if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
 			if (msg.GetSourceObject()->GetTag().compare("host_but") == 0) {
 				// click on HOST button
 				auto sceneContext = GETCOMPONENT(Stage);
 				auto scene = sceneContext->FindSceneByName("host_init");
 				sceneContext->SwitchToScene(scene, TweenDirection::NONE);
 			}
+			else if (msg.GetSourceObject()->GetTag().compare("connect_but") == 0) {
+				if (!selectedIp.empty()) {
+					communicator->GetClient()->ConnectToServer();
+				}
+			}
 		}
-		else if (msg.GetAction() == ACT_OBJECT_SELECTED && msg.GetSourceObject()->IsInGroup(StringHash("SELECTION_MAP"))) {
+		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StringHash("SELECTION_MAP"))) {
 			// if user selects a map, enable host button
 			owner->GetScene()->FindNodeByTag("host_but")->ResetState(StringHash(STATES_DISABLED));
 		}
-		else if (msg.GetAction() == ACT_NET_SERVER_CONNECTED) {
+		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StringHash("SELECTION_SERVER"))) {
+			// if user selects a map, enable host button
+			owner->GetScene()->FindNodeByTag("connect_but")->ResetState(StringHash(STATES_DISABLED));
+			selectedIp = msg.GetSourceObject()->GetAttr<string>(ATTR_SERVER_IP);
+		}
+		else if (msg.HasAction(ACT_NET_SERVER_FOUND)) {
 			NetworkMsgEvent* msgEvent = msg.GetDataS<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
 			string ipAddress = netMsg->GetSourceIp();
@@ -45,17 +73,31 @@ class MultiplayerMenu : public Behavior {
 	}
 
 	void AddServer(string ip);
-	bool firstRun = true;
+	void RefreshServers();
 
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
-		
-		auto communicator = GETCOMPONENT(NetworkCommunicator);
-		if (firstRun || communicator->IsServer()) {
-			firstRun = false;
-			
-			communicator->Init(HYDROQ_APPID, HYDROQ_PORT, false);
-			communicator->SetMode(NetworkComMode::CHECKING);
+		if (CogGetFrameCounter() % 100 == 0) {
+			if (communicator->GetClient() != nullptr) {
+				// check discovered servers
+				auto discoveredServers = communicator->GetClient()->GetDiscoveredServers();
+
+				for (auto& key : discoveredServers) {
+					auto found = find(foundIps.begin(), foundIps.end(), key.first);
+					if (found == foundIps.end()) {
+						// add new ip address
+						foundIps.push_back(key.first);
+						AddServer(key.first);
+					}
+					else {
+						if ((absolute - key.second) > 4000) {
+							// server lost
+							foundIps.erase(found);
+							RefreshServers();
+						}
+					}
+				}
+			}
 		}
 	}
 };

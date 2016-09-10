@@ -10,7 +10,7 @@ class Seedbed : public Behavior {
 	StringHash frequencySh;
 	StringHash lastSpawnSh;
 
-	void Init();
+	void OnStart();
 
 	void OnMessage(Msg& msg) {
 

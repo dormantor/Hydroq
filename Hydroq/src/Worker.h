@@ -21,8 +21,6 @@ public:
 
 	}
 
-	void Init() {
-	}
 
 	void OnMessage(Msg& msg) {
 
@@ -48,8 +46,8 @@ public:
 
 	}
 
-	void Init() {
-		RegisterListening(owner->GetScene(), ACT_TASK_ABORTED);
+	void OnInit() {
+		RegisterListening(ACT_TASK_ABORTED);
 	}
 
 	void OnMessage(Msg& msg);
@@ -67,11 +65,8 @@ public:
 		return this->task;
 	}
 
-	virtual void EnterState();
+	virtual void OnStart();
 
-	virtual void LeaveState() {
-
-	}
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };

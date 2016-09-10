@@ -10,18 +10,19 @@ class SelectedFuncBehavior : public Behavior {
 	int selectedFuncSeedBed;
 	int selectedFunc;
 
-	int actFuncSelected;
+	unsigned actFuncSelected;
 
-	void Init() {
-		owner->SetRunningMode(RunningMode::INVISIBLE);
+	void OnInit() {
 		actFuncSelected = StringHash(ACT_FUNC_SELECTED);
-
-		RegisterListening(owner->GetScene(), ACT_FUNC_SELECTED);
+		RegisterListening(ACT_FUNC_SELECTED);
 	}
 
+	void OnStart() {
+		owner->SetRunningMode(RunningMode::INVISIBLE);
+	}
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetAction() == actFuncSelected) {
+		if (msg.HasAction(StringHash(actFuncSelected))) {
 			// function selected
 			auto which = msg.GetDataS<ValueChangeEvent<HydroqAction>>();
 

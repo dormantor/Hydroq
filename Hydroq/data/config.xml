@@ -314,7 +314,7 @@
         </setting>
       </scene_settings>
 	  
-	  <node name="desk_board" img="desk_board_light.png">
+	  <node name="desk_board" img="desk_board_dark.png">
         <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
 		<behavior type="HostInit" />
 		<node name="host_status">
@@ -545,7 +545,7 @@
       </node>
 
 	  <node name="selected_func" img="game/functions_build_seedbed.png">
-	   <transform pos_x="100gr" pos_y="53gr" anchor="1" z_index="10" />
+	   <transform pos_x="15gr" pos_y="53gr" anchor="1" z_index="10" size="1.4" />
 	   <behavior type="SelectedFuncBehavior" />
 	  </node>
 	  

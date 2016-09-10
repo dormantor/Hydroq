@@ -236,7 +236,7 @@ public:
 	* Creates a platform on selected position
 	*/
 	void BuildPlatform(Vec2i position) {
-		MLOGDEBUG("Hydroq", "Creating platform at [%.2f, %.2f]", position.x, position.y);
+		MLOGDEBUG("Hydroq", "Creating platform at [%d, %d]", position.x, position.y);
 		// destroy bridge mark
 		DestroyDynamicObject(position);
 		// change node to ground
@@ -345,11 +345,11 @@ public:
 	}
 
 	void SendMessageOutside(StringHash action, int subaction, MsgEvent* data) {
-		SendMessageNoBubbling(action, subaction,data, nullptr);
+		SendMessageToListeners(action, subaction,data, nullptr);
 	}
 
 	void SendMessageToModel(StringHash action, int subaction, MsgEvent* data) {
-		Msg msg(BubblingType(Scope::DIRECT_NO_TRAVERSE, true, true), action, subaction, this->GetId(), nullptr, data);
+		Msg msg(HandlingType(Scope::DIRECT_NO_TRAVERSE, true, true), action, subaction, this->GetId(), nullptr, data);
 		gameScene->SendMessage(msg, nullptr);
 	}
 

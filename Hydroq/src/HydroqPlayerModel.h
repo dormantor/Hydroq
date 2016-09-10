@@ -42,7 +42,7 @@ public:
 	void SetHydroqAction(HydroqAction hydroqAction) {
 		auto previous = this->hydroqAction;
 		this->hydroqAction = hydroqAction;
-		SendMessageNoBubbling(StringHash(ACT_FUNC_SELECTED), 0, new ValueChangeEvent<HydroqAction>(previous, hydroqAction), nullptr);
+		SendMessageToListeners(StringHash(ACT_FUNC_SELECTED), 0, new ValueChangeEvent<HydroqAction>(previous, hydroqAction), nullptr);
 	}
 
 	virtual void Update(const uint64 delta, const uint64 absolute) {

@@ -17,8 +17,8 @@ class RightPanelSections : public Behavior {
 
 	int selectedNodeId = -1;
 
-	void Init() {
-		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED);
+	void OnInit() {
+		RegisterListening(ACT_OBJECT_HIT_ENDED);
 		playerModel = GETCOMPONENT(HydroqPlayerModel);
 		nodeBuildSeedbedId = owner->GetScene()->FindNodeByTag("build_seedbed")->GetId();
 		nodeCommandBuildId = owner->GetScene()->FindNodeByTag("command_build")->GetId();
@@ -29,7 +29,7 @@ class RightPanelSections : public Behavior {
 
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
+		if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
 			int targetId = msg.GetSourceObject()->GetId();
 
 

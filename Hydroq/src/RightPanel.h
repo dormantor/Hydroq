@@ -20,8 +20,8 @@ class RightPanel : public Behavior {
 	
 	Scene* scene;
 
-	void Init() {
-		RegisterListening(owner->GetScene(), ACT_STATE_CHANGED);
+	void OnInit() {
+		RegisterListening(ACT_STATE_CHANGED);
 		
 		scene = owner->GetScene();
 		buildIconId = scene->FindNodeByTag("icon_build")->GetId();
@@ -30,12 +30,14 @@ class RightPanel : public Behavior {
 
 		buildSectionId = scene->FindNodeByTag("section_build")->GetId();
 		commandSectionId = scene->FindNodeByTag("section_command")->GetId();
+	}
 
+	void OnStart() {
 		SelectBuildSection();
 	}
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetAction() == ACT_STATE_CHANGED && msg.GetSourceObject()->HasState(StringHash(STATES_SELECTED))) {
+		if (msg.HasAction(ACT_STATE_CHANGED) && msg.GetSourceObject()->HasState(StringHash(STATES_SELECTED))) {
 			if (msg.GetSourceObject()->GetId() == buildIconId) {
 				SelectBuildSection();
 			}

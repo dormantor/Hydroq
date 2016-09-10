@@ -26,9 +26,9 @@ public:
 
 	}
 
-	void Init();
+	void OnStart();
 
-	virtual void OnAbort();
+	virtual void OnGoalAbort();
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
@@ -47,9 +47,6 @@ public:
 
 	}
 
-	void Init() {
-
-	}
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
