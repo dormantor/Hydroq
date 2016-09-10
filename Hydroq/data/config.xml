@@ -321,6 +321,7 @@
 		 
 		<node name="icon_build" img="game/gm_setbuild.png" img_multiselect="game/gm_setbuild_act.png">
 		  <transform pos_x="0.15" pos_y="0.2" anchor_y="1"  ptype="per" stype="loc" />
+		  <state>SELECTED</state>
 		</node>
 		
 		<node name="icon_flag" img="game/gm_setflag.png" img_multiselect="game/gm_setflag_act.png">
@@ -333,19 +334,83 @@
 		
 		<node name="section_build">
 		  <transform pos_x="0.1" pos_y="0.25" anchor="0" ptype="per" width="0.7" stype="rel"/>
-		  <behavior type="HitEvent" />
 		  
-		  <node img="game/rightpanel_seedbed.png">
-		    <transform pos_x="0.85" pos_y="0" ptype="per" stype="loc" />
-		  </node>
-		  <node>
-            <transform pos_x="0.15" pos_y="0.15" ptype="per" stype="loc" />
-		    <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Seedbed</text>
-          </node>
-		  <node img="game/rightpanel_divider.png">
-		    <transform pos_x="0.15" pos_y="0.5" ptype="per" stype="loc" />
+		  
+		  <node name="build_seedbed">
+		    <transform size="1" stype="rel"/>
+		    <behavior type="HitEvent" hitbox="true" />
+		  
+		    <node img="game/functions_build_seedbed.png">
+		      <transform pos_x="0.85" pos_y="0" ptype="per" stype="loc" />
+		    </node>
+		    <node>
+              <transform pos_x="0.15" pos_y="0.15" ptype="per" stype="loc" />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Seedbed</text>
+            </node>
+		    <node img="game/rightpanel_divider.png">
+		      <transform pos_x="0.15" pos_y="0.5" ptype="per" stype="loc" />
+		    </node>
 		  </node>
 		</node>
+		
+		
+		<node name="section_command">
+		  <transform pos_x="0.0" pos_y="0.30" anchor="0" ptype="per" width="0.99" height="0.7" stype="rel"/>
+		  
+		  
+		  <node name="command_build">
+		    <transform size="1" stype="rel"/>
+		    <behavior type="HitEvent" hitbox="true" />
+		  
+		    <node img="game/functions_cmd_build.png">
+		      <transform pos_x="0.3" anchor="0.5" pos_y="0" ptype="per" stype="loc" />
+		    </node>
+		    <node>
+              <transform pos_x="0.3" pos_y="0.15" anchor="0.5" ptype="per" stype="loc" />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Build</text>
+            </node>
+		  </node>
+		  
+		  <node name="command_destroy">
+		    <transform size="1" stype="rel"/>
+		    <behavior type="HitEvent" hitbox="true"/>
+		  
+		    <node img="game/functions_cmd_destroy.png">
+		      <transform pos_x="0.7" anchor="0.5" pos_y="0" ptype="per" stype="loc" />
+		    </node>
+		    <node>
+              <transform pos_x="0.7" pos_y="0.15" anchor="0.5" ptype="per" stype="loc" />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Destroy</text>
+            </node>
+		  </node>
+		  
+		  <node name="command_forbid">
+		    <transform size="1" stype="rel"/>
+		    <behavior type="HitEvent" hitbox="true"/>
+		  
+		    <node img="game/functions_cmd_forbid.png">
+		      <transform pos_x="0.3" anchor="0.5" pos_y="0.3" ptype="per" stype="loc" />
+		    </node>
+		    <node>
+              <transform pos_x="0.3" pos_y="0.45" anchor="0.5" ptype="per" stype="loc" />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Forbid</text>
+            </node>
+		  </node>
+		  
+		  <node name="command_guard">
+		    <transform size="1" stype="rel"/>
+		    <behavior type="HitEvent" hitbox="true"/>
+		  
+		    <node img="game/functions_cmd_guard.png">
+		      <transform pos_x="0.7" anchor="0.5" pos_y="0.3" ptype="per" stype="loc" />
+		    </node>
+		    <node>
+              <transform pos_x="0.7" pos_y="0.45" anchor="0.5" ptype="per" stype="loc" />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Guard</text>
+            </node>
+		  </node>
+		</node>
+
       </node>
 
       <node name="menuicon" img="game/gm_menuicon.png" img_click="game/gm_menuicon_clicked.png" >
@@ -353,8 +418,9 @@
 		<behavior type="MenuIconBehavior" />
       </node>
 
-	  <node name="selected_func" img="game/rightpanel_seedbed.png">
+	  <node name="selected_func" img="game/functions_build_seedbed.png">
 	   <transform pos_x="100" pos_y="53" anchor="1" ptype="grid" stype="loc" z_index="10" />
+	   <behavior type="SelectedFuncBehavior" />
 	  </node>
 	  
       <!-- floating scene -->

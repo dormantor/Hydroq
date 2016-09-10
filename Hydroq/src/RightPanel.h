@@ -3,7 +3,7 @@
 #include "ofxCogMain.h"
 
 enum class Section {
-	NONE, BUILD, FLAG, OTHER
+	NONE, BUILD, COMMAND, OTHER
 };
 
 class RightPanel : public Behavior {
@@ -15,7 +15,7 @@ class RightPanel : public Behavior {
 	int otherIconId;
 
 	int buildSectionId;
-	int flagSectionId;
+	int commandSectionId;
 	int otherSectionId;
 	
 	Scene* scene;
@@ -28,9 +28,11 @@ class RightPanel : public Behavior {
 		flagIconId = scene->FindNodeByTag("icon_flag")->GetId();
 		otherIconId = scene->FindNodeByTag("icon_oth")->GetId();
 
-		scene->FindNodeById(buildIconId)->SetState(StringHash(STATES_SELECTED));
-	}
+		buildSectionId = scene->FindNodeByTag("section_build")->GetId();
+		commandSectionId = scene->FindNodeByTag("section_command")->GetId();
 
+		SelectBuildSection();
+	}
 
 	void OnMessage(Msg& msg) {
 		if (msg.GetAction() == ACT_STATE_CHANGED && msg.GetSourceObject()->HasState(StringHash(STATES_SELECTED))) {
@@ -38,7 +40,7 @@ class RightPanel : public Behavior {
 				SelectBuildSection();
 			}
 			else if (msg.GetSourceObject()->GetId() == flagIconId) {
-				SelectFlagSection();
+				SelectCommandSection();
 			}
 			else if (msg.GetSourceObject()->GetId() == otherIconId) {
 				SelectOtherSection();
@@ -49,22 +51,24 @@ class RightPanel : public Behavior {
 	void SelectBuildSection() {
 		UnSelectNodes();
 		selectedSection = Section::BUILD;
+		scene->FindNodeById(buildSectionId)->SetRunningMode(RunningMode::RUNNING);
 	}
 
-	void SelectFlagSection() {
+	void SelectCommandSection() {
 		UnSelectNodes();
-		selectedSection = Section::FLAG;
+		selectedSection = Section::COMMAND;
+		scene->FindNodeById(commandSectionId)->SetRunningMode(RunningMode::RUNNING);
 	}
 
 	void SelectOtherSection() {
 		UnSelectNodes();
 		selectedSection = Section::OTHER;
+		scene->FindNodeById(commandSectionId)->SetRunningMode(RunningMode::RUNNING);
 	}
 
 	void UnSelectNodes() {
-		scene->FindNodeById(buildIconId)->GetStates().ResetState(StringHash(STATES_SELECTED));
-		scene->FindNodeById(flagIconId)->GetStates().ResetState(StringHash(STATES_SELECTED));
-		scene->FindNodeById(otherIconId)->GetStates().ResetState(StringHash(STATES_SELECTED));
+		scene->FindNodeById(buildSectionId)->SetRunningMode(RunningMode::DISABLED);
+		scene->FindNodeById(commandSectionId)->SetRunningMode(RunningMode::DISABLED);
 	}
 
 public:

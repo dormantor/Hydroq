@@ -209,10 +209,12 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\BrickClickEvent.h" />
     <ClInclude Include="src\BrickEventBehavior.h" />
     <ClInclude Include="src\HydroqDef.h" />
+    <ClInclude Include="src\HydroqGameModel.h" />
     <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />
     <ClInclude Include="src\RightPanel.h" />
     <ClInclude Include="src\RightPanelSections.h" />
+    <ClInclude Include="src\SelectedFuncBehavior.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ProjectExtensions>

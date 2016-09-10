@@ -1,3 +1,4 @@
 #pragma once
 
 #define ACT_BRICK_CLICKED "BRICK_CLICKED"
+#define ACT_FUNC_SELECTED "FUNC_SELECTED"
