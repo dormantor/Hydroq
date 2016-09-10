@@ -6,6 +6,7 @@
 #include "HydEntity.h"
 #include "HydroqGameModel.h"
 #include "MultiAnim.h"
+#include "SpriteSheet.h"
 
 void HydroqGameView::OnInit() {
 	SubscribeForMessages(ACT_MAP_OBJECT_CHANGED);
@@ -16,7 +17,7 @@ void HydroqGameView::OnInit() {
 
 void HydroqGameView::OnMessage(Msg& msg) {
 	if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {		
-		MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
+		auto evt = msg.GetData<MapObjectChangedEvent>();
 
 		if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {
 			// new dynamic or moving object
@@ -38,7 +39,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			transform.localPos.z = trans.localPos.z; // set z-index
 
 			// push into collection of dynamic sprites
-			auto newEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
+			auto newEntity = spt<SpriteInst>(new SpriteInst(sprite, transform));
 			dynamicSprites->AddSprite(newEntity);
 			dynamicSprites->RefreshZIndex();
 			dynamicSpriteEntities[evt->changedNode->GetId()] = newEntity;
@@ -59,7 +60,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 
 					transform.localPos.z += 10; // increase z-index little bit
 					auto sprite = spriteTypes["explosion"][0];
-					auto explos = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
+					auto explos = spt<SpriteInst>(new SpriteInst(sprite, transform));
 					this->explosions.push_back(explos);
 					dynamicSprites->AddSprite(explos);
 					dynamicSprites->RefreshZIndex();
@@ -69,7 +70,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 		else if (evt->changeType == ObjectChangeType::STATIC_CHANGED) {
 			auto mapNode = evt->changedMapNode;
 			// get sprite entity and change its frame
-			spt<SpriteEntity> sprEntity = staticSpriteMap[mapNode->pos];
+			spt<SpriteInst> sprEntity = staticSpriteMap[mapNode->pos];
 			auto sprite = spriteTypes[mapNode->mapNodeName][0];
 			sprEntity->sprite = sprite;
 		}
@@ -141,8 +142,8 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
 	defaultSpriteSet = spriteSheet->GetDefaultSpriteSet();
 	
-	staticSprites = spt<MultiSpriteShape>(new MultiSpriteShape("map_board"));
-	dynamicSprites = spt<MultiSpriteShape>(new MultiSpriteShape("object_board"));
+	staticSprites = spt<MultiSpriteMesh>(new MultiSpriteMesh("map_board"));
+	dynamicSprites = spt<MultiSpriteMesh>(new MultiSpriteMesh("object_board"));
 
 
 	// load all sprite types
@@ -171,7 +172,7 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 			Trans transform = Trans();
 			transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
 			transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * j;
-			auto sprEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
+			auto sprEntity = spt<SpriteInst>(new SpriteInst(sprite, transform));
 			staticSprites->AddSprite(sprEntity);
 			staticSpriteMap[Vec2i(i, j)] = sprEntity;
 		}
@@ -431,7 +432,8 @@ void HydroqGameView::SaveMapImageToFile(string file){
 	mapConfig.LoadFromXml(xml);
 	xml->popTag();
 	string mapPath = mapConfig.GetSettingVal("maps_files", gameModel->GetMapName());
-	auto bricks = mapLoader.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names"));
+	TileMap bricks;
+	mapLoader.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names"), bricks);
 	mapLoader.GenerateMapImage(bricks, spriteTypes, spriteSheet, file, 0.1f);
 
 	// ===============================================================================================
@@ -442,18 +444,18 @@ void HydroqGameView::CreateAnimationText(string message) {
 	CogPlaySound(CogGetSound("music/Power_Up3.wav"));
 	if (animNode == nullptr) {
 		animNode = new Node("animnode");
-		animNode->SetShape(spt<Image>(new Image(CogPreload2DImage("button_default_click.png"))));
+		animNode->SetMesh(spt<Image>(new Image(CogPreload2DImage("button_default_click.png"))));
 		animNode->GetTransform().localPos.z = 200;
 		animNode->GetTransform().localPos.z = 200;
 		animNode->GetTransform().localPos.x = -1000;
 		animNode->GetTransform().localPos.y = -1000;
 		owner->GetParent()->AddChild(animNode);
 		animTextNode = new Node("inner");
-		animTextNode->SetShape(spt<Text>(new Text(CogGetFont("MotionControl-Bold.otf", 50), "")));
+		animTextNode->SetMesh(spt<Text>(new Text(CogGetFont("MotionControl-Bold.otf", 50), "")));
 		animNode->AddChild(animTextNode);
 	}
 
-	animTextNode->GetShape<Text>()->SetText(message);
+	animTextNode->GetMesh<Text>()->SetText(message);
 	TransformEnt ent;
 	ent.pos = ofVec2f(0.5f);
 	ent.anchor = ofVec2f(0.5f);

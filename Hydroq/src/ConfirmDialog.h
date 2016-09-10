@@ -16,7 +16,7 @@ public:
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_BUTTON_CLICKED)) {
 			auto sceneContext = GETCOMPONENT(Stage);
-			if (msg.GetSourceObject()->GetTag().compare("yes_but") == 0) {
+			if (msg.GetContextNode()->GetTag().compare("yes_but") == 0) {
 				
 				// stop all sounds
 				auto sounds = CogGetPlayedSounds();
@@ -27,7 +27,7 @@ public:
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 			}
-			else if (msg.GetSourceObject()->GetTag().compare("no_but") == 0) {
+			else if (msg.GetContextNode()->GetTag().compare("no_but") == 0) {
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 			}
 		}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofxCogMain.h"
-#include "BrickClickEvent.h"
+#include "TileClickEvent.h"
 #include "HydroqDef.h"
 #include "Helper.h"
 #include "AStarSearch.h"
@@ -73,7 +73,7 @@ public:
 
 	void LoadMap(Settings mapConfig, string selectedMap);
 
-	void LoadMap(BrickMap* brickMap);
+	void LoadMap(TileMap& brickMap);
 
 	void RefreshNode(Vec2i position) {
 		RefreshNode(GetNode(position.x, position.y));

@@ -70,12 +70,6 @@
     <ClInclude Include="src\GameTask.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\BrickEventBehavior.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\BrickClickEvent.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="src\Helper.h">
       <Filter>Misc</Filter>
     </ClInclude>
@@ -155,6 +149,12 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\HydroqBoard.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TileClickEvent.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TileEventBehavior.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

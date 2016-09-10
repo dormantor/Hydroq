@@ -233,8 +233,8 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\HydroqGoals.h" />
     <ClInclude Include="src\HydroqNetMsg.h" />
     <ClInclude Include="src\HydroqPlayerController.h" />
-    <ClInclude Include="src\BrickClickEvent.h" />
-    <ClInclude Include="src\BrickEventBehavior.h" />
+    <ClInclude Include="src\TileClickEvent.h" />
+    <ClInclude Include="src\TileEventBehavior.h" />
     <ClInclude Include="src\Helper.h" />
     <ClInclude Include="src\HydEntity.h" />
     <ClInclude Include="src\HydMap.h" />

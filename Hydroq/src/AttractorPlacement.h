@@ -28,7 +28,7 @@ public:
 
 	void OnInit();
 
-	Vec2i GetBrickPosition(ofVec2f objectAbsPos);
+	Vec2i GetTilePosition(ofVec2f objectAbsPos);
 
 	void OnMessage(Msg& msg);
 

@@ -98,10 +98,10 @@ void WorkerIdleState::MoveAround() {
 	if (movingAround == nullptr) {
 		movingAround = new ArriveBehavior(10, 10, 0.25f);
 		owner->AddBehavior(movingAround);
-		movingAround->SetListenerState(ListenerState::DISABLED);
+		movingAround->SetComponentState(ComponentState::DISABLED);
 	}
 	else {
-		if (movingAround->IsFinished() || movingAround->GetListenerState() == ListenerState::DISABLED) {
+		if (movingAround->HasFinished() || movingAround->GetComponentState() == ComponentState::DISABLED) {
 			// find some point that can be used
 			float x = 0;
 			float y = 0;
@@ -126,7 +126,7 @@ void WorkerIdleState::MoveAround() {
 			if (map.size() > 0 && map.size() <= 2) {
 				// go there 
 				movingAround->Start();
-				movingAround->SetListenerState(ListenerState::ACTIVE_ALL);
+				movingAround->SetComponentState(ComponentState::ACTIVE_ALL);
 				// set destination
 				owner->AddAttr(ATTR_STEERING_BEH_SEEK_DEST, ofVec2f(endPrec));
 			}
@@ -169,7 +169,7 @@ void WorkerIdleState::Update(const uint64 delta, const uint64 absolute) {
 
 void WorkerBridgeBuildState::OnMessage(Msg& msg) {
 	if (msg.GetAction() == StrId(ACT_TASK_ABORTED)) {
-		TaskAbortEvent* msgTask = msg.GetData<TaskAbortEvent>();
+		auto msgTask = msg.GetData<TaskAbortEvent>();
 		if (msgTask->taskToAbort == task) {
 			if (buildGoal != nullptr) {
 				COGLOGDEBUG("Hydroq", "BridgeBuildState: aborting process");
@@ -233,7 +233,7 @@ void WorkerBridgeBuildState::Update(const uint64 delta, const uint64 absolute) {
 
 void WorkerAttractorFollowState::OnMessage(Msg& msg) {
 	if (msg.GetAction() == StrId(ACT_TASK_ABORTED)) {
-		TaskAbortEvent* msgTask = msg.GetData<TaskAbortEvent>();
+		auto msgTask = msg.GetData<TaskAbortEvent>();
 		if (msgTask->taskToAbort == task) {
 			if (followGoal != nullptr) {
 				COGLOGDEBUG("Hydroq", "WorkerAttractorFollowState: aborting process");

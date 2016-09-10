@@ -19,16 +19,16 @@ private:
 	map<string, vector<Sprite>> spriteTypes;
 
 	// collection of static sprites
-	spt<MultiSpriteShape> staticSprites;
+	spt<MultiSpriteMesh> staticSprites;
 
 	// collection of static sprites, mapping by position
-	map<Vec2i, spt<SpriteEntity>> staticSpriteMap;
+	map<Vec2i, spt<SpriteInst>> staticSpriteMap;
 	// collection of dynamic sprites
-	spt<MultiSpriteShape> dynamicSprites;
+	spt<MultiSpriteMesh> dynamicSprites;
 
-	vector<spt<SpriteEntity>> explosions;
+	vector<spt<SpriteInst>> explosions;
 	// collection of dynamic sprites, mapping by identifier
-	map<int, spt<SpriteEntity>> dynamicSpriteEntities;
+	map<int, spt<SpriteInst>> dynamicSpriteEntities;
 	
 	vector<Node*> rigsToAnimate;
 
@@ -53,14 +53,14 @@ public:
 	/**
 	Gets collection of static sprites
 	*/
-	spt<MultiSpriteShape> GetStaticSprites() {
+	spt<MultiSpriteMesh> GetStaticSprites() {
 		return staticSprites;
 	}
 
 	/**
 	* Gets collection of dynamic sprites (including both moving and dynamic objects)
 	*/
-	spt<MultiSpriteShape> GetDynamicSprites() {
+	spt<MultiSpriteMesh> GetDynamicSprites() {
 		return dynamicSprites;
 	}
 

@@ -2,7 +2,7 @@
 
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
-#include "SpriteEntity.h"
+#include "SpriteInst.h"
 #include "HydroqPlayerModel.h"
 #include "HydroqGameModel.h"
 
@@ -25,8 +25,8 @@ public:
 
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetSourceObject()->GetId() == owner->GetId()) {
-			BrickClickEvent* clickEvent = static_cast<BrickClickEvent*>(msg.GetData());
+		if (msg.GetContextNode()->GetId() == owner->GetId()) {
+			auto clickEvent = msg.GetData<TileClickEvent>();
 
 			// get clicked entity directly from model
 			auto mapNode = gameModel->GetMap()->GetNode(clickEvent->brickPosX, clickEvent->brickPosY);

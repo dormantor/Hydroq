@@ -25,11 +25,11 @@ public:
 	}
 
 	void OnMessage(Msg& msg) {
-		if (msg.HasAction(ACT_TRANSFORM_ENDED) && msg.GetSourceObject()->GetTag().compare("rightpanel") == 0) {
+		if (msg.HasAction(ACT_TRANSFORM_ENDED) && msg.GetContextNode()->GetTag().compare("rightpanel") == 0) {
 			owner->ResetState(StrId(STATES_LOCKED));
 		}
 
-		if (msg.HasAction(ACT_BUTTON_CLICKED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
+		if (msg.HasAction(ACT_BUTTON_CLICKED) && msg.GetContextNode()->GetId() == owner->GetId()) {
 			if (!owner->HasState(StrId(STATES_LOCKED))) {
 				owner->SetState(StrId(STATES_LOCKED));
 

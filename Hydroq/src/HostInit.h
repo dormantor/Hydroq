@@ -29,7 +29,7 @@ public:
 		msgReceivedTime = 0;
 
 		auto textNode = owner->GetScene()->FindNodeByTag("host_status");
-		textNode->GetShape<Text>()->SetText("Listening...");
+		textNode->GetMesh<Text>()->SetText("Listening...");
 		TransformEnt ent = TransformEnt();
 		ent.pos = ofVec2f(0.5f);
 		ent.pType = CalcType::PER;
@@ -53,7 +53,7 @@ public:
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_SCENE_SWITCHED)) {
-			if (msg.GetSourceObject()->GetScene() == owner->GetScene()) {
+			if (msg.GetContextNode()->GetScene() == owner->GetScene()) {
 				OnResume();
 			}
 			else {
@@ -65,7 +65,7 @@ public:
 			auto netMsg = msgEvent->msg;
 			string ipAddress = netMsg->GetSourceIp();
 			auto textNode = owner->GetScene()->FindNodeByTag("host_status");
-			textNode->GetShape<Text>()->SetText(string_format("Connected client %s", ipAddress.c_str()));
+			textNode->GetMesh<Text>()->SetText(string_format("Connected client %s", ipAddress.c_str()));
 
 			TransformEnt ent = TransformEnt();
 			ent.pos = ofVec2f(0.5f);

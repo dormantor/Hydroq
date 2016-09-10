@@ -3,6 +3,7 @@
 #include "Goal.h"
 #include "HydroqDef.h"
 #include "GameTask.h"
+#include "ofxCogCommon.h"
 
 using namespace Cog;
 

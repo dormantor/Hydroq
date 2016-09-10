@@ -2,7 +2,7 @@
 
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
-#include "SpriteEntity.h"
+#include "SpriteInst.h"
 #include "HydroqGameView.h"
 #include "HydroqGameModel.h"
 
@@ -10,7 +10,7 @@
 /**
 * Informs other nodes that user clicked on brick
 */
-class BrickEventBehavior : public Behavior {
+class TileEventBehavior : public Behavior {
 
 	Node* objectBoard;
 	ResourceCache* cache;
@@ -21,7 +21,7 @@ class BrickEventBehavior : public Behavior {
 
 public:
 
-	BrickEventBehavior() {
+	TileEventBehavior() {
 
 	}
 
@@ -34,9 +34,9 @@ public:
 
 
 	void OnMessage(Msg& msg) {
-		if (msg.GetSourceObject()->GetId() == owner->GetId() || msg.GetSourceObject()->GetId() == owner->GetParent()->GetId()) {
+		if (msg.GetContextNode()->GetId() == owner->GetId() || msg.GetContextNode()->GetId() == owner->GetParent()->GetId()) {
 
-			InputEvent* touch = static_cast<InputEvent*>(msg.GetData());
+			auto touch = msg.GetData<InputEvent>();
 
 			if (msg.HasAction(ACT_OBJECT_HIT_STARTED)) {
 				hitPos = touch->input->position;
@@ -56,7 +56,7 @@ public:
 				bool isPointerOver = isPointerOver = endPos.distance(hitPos) < CogGetScreenWidth() / TOUCHMOVE_TOLERANCE;
 
 				if (isPointerOver) {
-					auto shape = owner->GetShape();
+					auto shape = owner->GetMesh();
 					
 					touch->input->SetIsProcessed(true);
 
@@ -74,9 +74,9 @@ public:
 					int brickY = (int)((distY / shapeHeight)*mapHeight);
 
 					// suppose that the collection follows positional ordering
-					auto pressedBrickSprite = gameView->GetStaticSprites()->GetSprites()[brickY*mapWidth + brickX];
+					auto pressedTileSprite = gameView->GetStaticSprites()->GetSprites()[brickY*mapWidth + brickX];
 
-					SendMessageToListeners(ACT_BRICK_CLICKED, 0, new BrickClickEvent(brickX, brickY, pressedBrickSprite), owner);
+					SendMessage(ACT_BRICK_CLICKED, spt<TileClickEvent>(new TileClickEvent(brickX, brickY, pressedTileSprite)));
 
 				}
 			}

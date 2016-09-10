@@ -114,18 +114,20 @@ void HydMap::LoadMap(Settings mapConfig, string selectedMap) {
 	if (mapPath.empty()) throw ConfigErrorException(string_format("Path to map %s not found", selectedMap.c_str()));
 	// load map
 	MapLoader mapLoad = MapLoader();
-	this->LoadMap(mapLoad.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names")));
+	TileMap tileMap;
+	mapLoad.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names"), tileMap);
+	this->LoadMap(tileMap);
 }
 
-void HydMap::LoadMap(BrickMap* brickMap) {
-	this->width = brickMap->width;
-	this->height = brickMap->height;
+void HydMap::LoadMap(TileMap& brickMap) {
+	this->width = brickMap.width;
+	this->height = brickMap.height;
 	gridNoBlock = GridGraph(width, height);
 	gridWithBlocks = GridGraph(width, height);
 
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
-			Brick br = brickMap->GetBrick(i, j);
+			Tile br = brickMap.GetTile(i, j);
 
 			HydMapNode* node = new HydMapNode();
 
@@ -151,8 +153,6 @@ void HydMap::LoadMap(BrickMap* brickMap) {
 	for (auto node : nodes) {
 		RefreshNode(node);
 	}
-
-	delete brickMap;
 }
 
 void HydMap::RefreshNode(HydMapNode* node) {

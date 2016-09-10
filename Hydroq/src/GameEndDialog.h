@@ -22,7 +22,7 @@ public:
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_BUTTON_CLICKED)) {
 			auto sceneContext = GETCOMPONENT(Stage);
-			if (msg.GetSourceObject()->GetTag().compare("ok_but") == 0) {
+			if (msg.GetContextNode()->GetTag().compare("ok_but") == 0) {
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 				sceneContext->SwitchBackToScene(TweenDirection::NONE);
 			}
@@ -42,7 +42,7 @@ public:
 			auto msgNode = owner->GetScene()->FindNodeByTag("gameend_msg");
 			auto player = GETCOMPONENT(HydroqPlayerModel);
 			
-			msgNode->GetShape<Text>()->SetText(!player->PlayerWin() ? "You lost the game!" : "You win the game!");
+			msgNode->GetMesh<Text>()->SetText(!player->PlayerWin() ? "You lost the game!" : "You win the game!");
 			firstInit = true;
 		}
 	}

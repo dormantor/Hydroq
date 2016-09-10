@@ -256,12 +256,12 @@ void HydroqAI::Task_Goto(RigInfo nearestRig, uint64 absolute) {
 
 	auto newTask = AITask(AITaskType::GOTO_EMPTY, absolute);
 
-	BuildAroundBrick(nearestRig, brick, newTask, 5);
+	BuildAroundTile(nearestRig, brick, newTask, 5);
 
 	if (!newTask.positions.empty()) actualTask = newTask;
 }
 
-void HydroqAI::BuildAroundBrick(RigInfo& nearestRig, HydMapNode* brick, AITask& task, int recursiveLevels) {
+void HydroqAI::BuildAroundTile(RigInfo& nearestRig, HydMapNode* brick, AITask& task, int recursiveLevels) {
 	auto neighbors = brick->GetNeighborsFourDirections();
 
 	int closerNeighborDist = 100000;
@@ -284,7 +284,7 @@ void HydroqAI::BuildAroundBrick(RigInfo& nearestRig, HydMapNode* brick, AITask& 
 		}
 
 		if (recursiveLevels > 0) {
-			BuildAroundBrick(nearestRig, closerNeighbor, task, recursiveLevels - 1);
+			BuildAroundTile(nearestRig, closerNeighbor, task, recursiveLevels - 1);
 		}
 	}
 }

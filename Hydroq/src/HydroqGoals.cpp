@@ -55,12 +55,12 @@ void GotoPositionGoal::OnGoalAbort() {
 }
 
 void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {
-	if (this->task->needRecalculation) {
+	if (innerBehavior != nullptr && this->task->needRecalculation) {
 		innerBehavior->Finish();
 		RecalcPath();
 	}
 	else {
-		if (innerBehavior != nullptr && innerBehavior->IsFinished()) {
+		if (innerBehavior != nullptr && innerBehavior->HasFinished()) {
 			this->SetGoalState(GoalState::COMPLETED);
 			Finish();
 		}

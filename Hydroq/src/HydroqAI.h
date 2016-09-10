@@ -93,5 +93,5 @@ protected:
 
 	void Task_Goto(RigInfo nearestRig, uint64 absolute);
 
-	void BuildAroundBrick(RigInfo& nearestRig, HydMapNode* brick, AITask& task, int recursiveLevels);
+	void BuildAroundTile(RigInfo& nearestRig, HydMapNode* brick, AITask& task, int recursiveLevels);
 };

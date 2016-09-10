@@ -511,7 +511,7 @@
 		<behavior type="HydroqGameModel" />
 		<behavior type="HydroqGameView" />
 		<behavior type="AttractorPlacement" /> <!-- must be declared after FloatingScene -->
-		<behavior type="BrickEventBehavior" />
+		<behavior type="TileEventBehavior" />
 		<behavior type="HydroqPlayerController" />
         <behavior type="HitEvent" />
         <behavior type="HydroqBoard" />

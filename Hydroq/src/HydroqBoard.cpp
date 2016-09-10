@@ -1,9 +1,9 @@
 #include "HydroqBoard.h"
-#include "BrickClickEvent.h"
+#include "TileClickEvent.h"
 #include "HydroqDef.h"
 #include "HydroqGameModel.h"
 #include "HydroqGameView.h"
-#include "Shape.h"
+#include "Mesh.h"
 
 
 void HydroqBoard::OnInit() {
@@ -20,16 +20,16 @@ void HydroqBoard::OnInit() {
 	gameView->LoadSprites(mapConfig.GetSetting("sprites"));
 
 	auto staticSprites = gameView->GetStaticSprites();
-	owner->GetScene()->FindNodeByTag("map_board")->SetShape(staticSprites);
+	owner->GetScene()->FindNodeByTag("map_board")->SetMesh(staticSprites);
 
 	// 4) load dynamic sprites and assign it to the object_board node
 	auto dynamicSprites = gameView->GetDynamicSprites();
-	owner->GetScene()->FindNodeByTag("object_board")->SetShape(dynamicSprites);
+	owner->GetScene()->FindNodeByTag("object_board")->SetMesh(dynamicSprites);
 
 	// ZOOM THE BOARD LITTLE BIT OUT
 	owner->GetTransform().scale /= 2.5f;
 
-	auto boardShape = owner->GetShape<Cog::Rectangle>();
+	auto boardShape = owner->GetMesh<Cog::Rectangle>();
 	boardShape->SetWidth(staticSprites->GetWidth());
 	boardShape->SetHeight(staticSprites->GetHeight());
 
@@ -50,8 +50,8 @@ void HydroqBoard::ZoomIntoPositionCenter(ofVec2f positionRelative) {
 	// recalculate transform
 	transform.CalcAbsTransform(owner->GetParent()->GetTransform());
 
-	float shapeWidth = owner->GetShape()->GetWidth();
-	float shapeHeight = owner->GetShape()->GetHeight();
+	float shapeWidth = owner->GetMesh()->GetWidth();
+	float shapeHeight = owner->GetMesh()->GetHeight();
 	float width = shapeWidth*owner->GetTransform().absScale.x;
 	float height = shapeHeight*owner->GetTransform().absScale.y;
 	auto screenSize = CogGetVirtualScreenSize();
@@ -73,8 +73,8 @@ void HydroqBoard::SetNewPosition(Trans& transform, ofVec3f& newAbsPos) {
 }
 
 void HydroqBoard::CheckNewPosition(Trans& transform, ofVec3f& newPos) {
-	float shapeWidth = owner->GetShape()->GetWidth();
-	float shapeHeight = owner->GetShape()->GetHeight();
+	float shapeWidth = owner->GetMesh()->GetWidth();
+	float shapeHeight = owner->GetMesh()->GetHeight();
 
 	// calculate absolute width and height
 	float width = shapeWidth*transform.absScale.x;

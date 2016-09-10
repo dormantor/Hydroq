@@ -39,11 +39,11 @@ public:
 	}
 
 	void OnMessage(Msg& msg) {
-		if (msg.HasAction(ACT_STATE_CHANGED) && msg.GetSourceObject()->HasState(StrId(STATES_SELECTED))) {
-			if (msg.GetSourceObject()->GetId() == buildIconId) {
+		if (msg.HasAction(ACT_STATE_CHANGED) && msg.GetContextNode()->HasState(StrId(STATES_SELECTED))) {
+			if (msg.GetContextNode()->GetId() == buildIconId) {
 				SelectBuildSection();
 			}
-			else if (msg.GetSourceObject()->GetId() == flagIconId) {
+			else if (msg.GetContextNode()->GetId() == flagIconId) {
 				SelectFlagSection();
 			}
 		}

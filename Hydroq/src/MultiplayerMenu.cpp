@@ -9,7 +9,7 @@ void MultiplayerMenu::OnMessage(Msg& msg) {
 		messagingLocked = true;
 
 		if (msg.HasAction(ACT_SCENE_SWITCHED)) {
-			if (msg.GetSourceObject()->GetScene() == owner->GetScene()) {
+			if (msg.GetContextNode()->GetScene() == owner->GetScene()) {
 				OnResume();
 			}
 			else {
@@ -17,14 +17,14 @@ void MultiplayerMenu::OnMessage(Msg& msg) {
 			}
 		}
 		else if (msg.HasAction(ACT_BUTTON_CLICKED)) {
-			if (msg.GetSourceObject()->GetTag().compare("host_but") == 0) {
+			if (msg.GetContextNode()->GetTag().compare("host_but") == 0) {
 				// click on HOST button
 				auto sceneContext = GETCOMPONENT(Stage);
 				keepConnected = true;
 				auto scene = sceneContext->FindSceneByName("host_init");
 				sceneContext->SwitchToScene(scene, TweenDirection::NONE);
 			}
-			else if (msg.GetSourceObject()->GetTag().compare("connect_but") == 0) {
+			else if (msg.GetContextNode()->GetTag().compare("connect_but") == 0) {
 				// connect to server
 				if (!selectedIp.empty()) {
 					auto selectedServer = serverMessages[selectedIp];
@@ -34,22 +34,22 @@ void MultiplayerMenu::OnMessage(Msg& msg) {
 				}
 			}
 		}
-		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StrId("SELECTION_MAP"))) {
+		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetContextNode()->IsInGroup(StrId("SELECTION_MAP"))) {
 			// if user selects a map, enable host button
 			EnableHostButton();
 			DisableConnectButton();
 			DeselectServer();
 		}
-		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StrId("SELECTION_SERVER"))) {
+		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetContextNode()->IsInGroup(StrId("SELECTION_SERVER"))) {
 			// if user selects a server, enable connect button
 			EnableConnectButton();
 			DisableHostButton();
-			selectedIp = msg.GetSourceObject()->GetAttr<string>(ATTR_SERVER_IP);
+			selectedIp = msg.GetContextNode()->GetAttr<string>(ATTR_SERVER_IP);
 			auto netMsg = serverMessages[selectedIp];
 			SelectFaction(netMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
 			SelectMap(netMsg->GetMap());
 		}
-		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StrId("faction_select"))) {
+		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetContextNode()->IsInGroup(StrId("faction_select"))) {
 			// user selected faction
 			EnableHostButton();
 			DisableConnectButton();
@@ -57,7 +57,7 @@ void MultiplayerMenu::OnMessage(Msg& msg) {
 		}
 		else if (msg.HasAction(ACT_NET_MESSAGE_RECEIVED)) {
 
-			NetworkMsgEvent* msgEvent = msg.GetData<NetworkMsgEvent>();
+			auto msgEvent = msg.GetData<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
 			StrId action = netMsg->GetAction();
 			auto type = netMsg->GetMsgType();

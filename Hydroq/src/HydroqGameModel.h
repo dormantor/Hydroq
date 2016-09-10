@@ -254,9 +254,9 @@ public:
 
 	Node* CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier);
 
-	void SendMessageOutside(StrId action, int subaction, MsgEvent* data);
+	void SendMessageOutside(StrId action, int subaction, spt<MsgEvent> data);
 
-	void SendMessageToModel(StrId action, int subaction, MsgEvent* data);
+	void SendMessageToModel(StrId action, int subaction, spt<MsgEvent> data);
 
 	Node* CreateNode(EntityType entityType, ofVec2f position, Faction faction, int identifier);
 

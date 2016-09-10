@@ -25,7 +25,7 @@ public:
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_NET_MESSAGE_RECEIVED)) {
-			NetworkMsgEvent* msgEvent = msg.GetData<NetworkMsgEvent>();
+			auto msgEvent = msg.GetData<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
 			StrId action = netMsg->GetAction();
 			auto type = netMsg->GetMsgType();
@@ -48,11 +48,8 @@ public:
 
 	void ProcessDeltaUpdate(spt<NetInputMessage> netMsg) {
 		spt<DeltaMessage> deltaMsg = netMsg->GetData<DeltaMessage>();
-		spt<DeltaInfo> deltaInfo = spt<DeltaInfo>(new DeltaInfo());
-		deltaInfo->deltas = deltaMsg->deltas;
-		deltaInfo->teleports = deltaMsg->teleports;
-		deltaInfo->time = netMsg->GetMsgTime();
-
+		spt<DeltaInfo> deltaInfo = spt<DeltaInfo>(new DeltaInfo(netMsg->GetMsgTime(),  deltaMsg->GetDeltas(),deltaMsg->GetTeleports()));
+		
 		auto deltaUpdate = GETCOMPONENT(DeltaUpdate);
 		deltaUpdate->AcceptDeltaUpdate(deltaInfo);
 	}
@@ -60,7 +57,7 @@ public:
 	void ProcessMultiplayerInit(spt<NetInputMessage> netMsg) {
 		auto mpInit = netMsg->GetData<HydroqServerInitMsg>();
 		mpInit->SetIpAddress(netMsg->GetSourceIp());
-		SendMessageToListeners(StrId(ACT_SERVER_FOUND), 0, new CommonEvent<HydroqServerInitMsg>(mpInit), nullptr);
+		SendMessage(StrId(ACT_SERVER_FOUND), spt<CommonEvent<HydroqServerInitMsg>>(new CommonEvent<HydroqServerInitMsg>(mpInit)));
 	}
 
 

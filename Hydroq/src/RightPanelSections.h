@@ -46,7 +46,7 @@ public:
 			}
 
 			if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
-				int targetId = msg.GetSourceObject()->GetId();
+				int targetId = msg.GetContextNode()->GetId();
 
 				if (targetId == selectedNodeId) {
 					// user clicked twice -> unselect the node
@@ -79,7 +79,7 @@ public:
 	}
 
 	void UnselectNode(int nodeId) {
-		owner->GetScene()->FindNodeById(nodeId)->GetShape<BoundingBox>()->SetIsRenderable(false);
+		owner->GetScene()->FindNodeById(nodeId)->GetMesh<BoundingBox>()->SetIsRenderable(false);
 	}
 
 	void SelectNode(int nodeId) {
@@ -87,7 +87,7 @@ public:
 			UnselectNode(selectedNodeId);
 		}
 		selectedNodeId = nodeId;
-		owner->GetScene()->FindNodeById(nodeId)->GetShape<BoundingBox>()->SetIsRenderable(true);
+		owner->GetScene()->FindNodeById(nodeId)->GetMesh<BoundingBox>()->SetIsRenderable(true);
 	}
 
 	void SelectCommandBuild() {

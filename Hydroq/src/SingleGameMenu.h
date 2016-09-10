@@ -27,7 +27,7 @@ public:
 	void OnMessage(Msg& msg) {
 		
 		if (msg.HasAction(ACT_BUTTON_CLICKED)) {
-			 if (msg.GetSourceObject()->GetTag().compare("play_but") == 0) {
+			 if (msg.GetContextNode()->GetTag().compare("play_but") == 0) {
 				// click on play button -> switch scene
 				auto model = GETCOMPONENT(HydroqPlayerModel);
 				model->StartGame(GetSelectedFaction(), selectedMap);
@@ -35,8 +35,8 @@ public:
 				auto scene = sceneContext->FindSceneByName("game");
 				sceneContext->SwitchToScene(scene, TweenDirection::LEFT);
 			}
-		} else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StrId("SELECTION_MAP"))) {
-			string map = msg.GetSourceObject()->GetAttr<string>(ATTR_MAP);
+		} else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetContextNode()->IsInGroup(StrId("SELECTION_MAP"))) {
+			string map = msg.GetContextNode()->GetAttr<string>(ATTR_MAP);
 			ShowMapPreview(map);
 			selectedMap = map;
 		}
@@ -66,7 +66,7 @@ public:
 		auto path = mapConfig.GetSettingVal("maps_icons", map);
 		auto image = CogGet2DImage(path);
 		auto mapIconNode = owner->GetScene()->FindNodeByTag("map_icon");
-		mapIconNode->GetShape<Image>()->SetImage(image);
+		mapIconNode->GetMesh<Image>()->SetImage(image);
 
 		TransformEnt ent = TransformEnt(ofVec2f(0.5f), 10, CalcType::PER, ofVec2f(0.5f), ofVec2f(1), CalcType::LOC);
 		TransformMath math = TransformMath();

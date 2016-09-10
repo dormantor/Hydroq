@@ -2,6 +2,7 @@
 #include "Node.h"
 #include "HydMap.h"
 #include "MultiSelection.h"
+#include "EnumConverter.h"
 
 using namespace Cog;
 
@@ -38,12 +39,12 @@ using namespace Cog;
 	 Node* plane = new Node("plane");
 	 plane->AddBehavior(new HitEvent());
 
-	 plane->AddBehavior(new MultiSelection(StringToColor("0x00000000"), StringToColor("0xFFFFFF88"), selectionGroup));
+	 plane->AddBehavior(new MultiSelection(EnumConverter::StrToColor("0x00000000"), EnumConverter::StrToColor("0xFFFFFF88"), selectionGroup));
 	 if (select) plane->SetState(StrId(STATES_SELECTED));
 	 plane->AddAttr(idAttr, idValue);
 	 auto shape = spt<Plane>(new Plane(1, 1));
-	 shape->SetColor(StringToColor("0x00000000"));
-	 plane->SetShape(shape);
+	 shape->SetColor(EnumConverter::StrToColor("0x00000000"));
+	 plane->SetMesh(shape);
 
 	 auto sceneSettings = owner->GetScene()->GetSettings();
 	 int gridWidth = sceneSettings.GetSettingValInt("transform", "grid_width");
@@ -62,8 +63,8 @@ using namespace Cog;
 
 	 Node* text = new Node("text");
 	 auto shape2 = spt<Text>(new Text(CogGetFont("MotionControl-Bold.otf", 35), idValue));
-	 shape2->SetColor(StringToColor("0xFFFFFF"));
-	 text->SetShape(shape2);
+	 shape2->SetColor(EnumConverter::StrToColor("0xFFFFFF"));
+	 text->SetMesh(shape2);
 
 	 transformEnt = TransformEnt();
 	 transformEnt.pos = ofVec2f(0.1f, 0.22f + 0.04f + 0.18f*index);

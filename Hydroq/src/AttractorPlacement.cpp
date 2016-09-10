@@ -8,8 +8,8 @@ void AttractorPlacement::OnInit() {
 	gameModel = owner->GetBehavior<HydroqGameModel>();
 }
 
-Vec2i AttractorPlacement::GetBrickPosition(ofVec2f objectAbsPos) {
-	auto shape = owner->GetShape();
+Vec2i AttractorPlacement::GetTilePosition(ofVec2f objectAbsPos) {
+	auto shape = owner->GetMesh();
 	// get pressed brick
 	float shapeWidth = shape->GetWidth()*owner->GetTransform().absScale.x;
 	float shapeHeight = shape->GetHeight()*owner->GetTransform().absScale.y;
@@ -32,21 +32,21 @@ void AttractorPlacement::OnMessage(Msg& msg) {
 		selectedAction = which->after;
 
 		if (which->after == HydroqAction::ATTRACT) {
-			floatingGameScene->SetListenerState(ListenerState::DISABLED);
+			floatingGameScene->SetComponentState(ComponentState::DISABLED);
 		}
 		else if (which->after == HydroqAction::NONE) {
-			floatingGameScene->SetListenerState(ListenerState::ACTIVE_ALL);
+			floatingGameScene->SetComponentState(ComponentState::ACTIVE_ALL);
 		}
 	}
 	else {
 		if (selectedAction == HydroqAction::ATTRACT) {
 
-			if (msg.GetSourceObject()->GetId() == owner->GetId()) {
+			if (msg.GetContextNode()->GetId() == owner->GetId()) {
 
 				if (msg.HasAction(ACT_OBJECT_HIT_STARTED)) {
-					InputEvent* touch = msg.GetData<InputEvent>();
+					auto touch = msg.GetData<InputEvent>();
 					ofVec2f endPos = touch->input->position;
-					Vec2i brickPos = GetBrickPosition(endPos);
+					Vec2i brickPos = GetTilePosition(endPos);
 
 					auto clickedNode = gameModel->GetMap()->GetNode(brickPos.x, brickPos.y);
 
@@ -69,10 +69,10 @@ void AttractorPlacement::OnMessage(Msg& msg) {
 				}
 				else if (msg.HasAction(ACT_OBJECT_HIT_OVER)) {
 					if (attractorPlaced) {
-						InputEvent* touch = msg.GetData<InputEvent>();
+						auto touch = msg.GetData<InputEvent>();
 						ofVec2f endPos = touch->input->position;
 						auto& trans = placedAttractor->GetTransform();
-						auto shape = placedAttractor->GetShape<Image>();
+						auto shape = placedAttractor->GetMesh<Image>();
 
 						auto absRadius = 0.5f * owner->GetTransform().absScale.x*trans.scale.x*shape->GetWidth();
 						auto absPos = trans.absPos + absRadius;
@@ -107,8 +107,8 @@ void AttractorPlacement::OnMessage(Msg& msg) {
 		}
 		else {
 			if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
-				if (msg.GetSourceObject()->GetId() == owner->GetId()) {
-					InputEvent* touch = msg.GetData<InputEvent>();
+				if (msg.GetContextNode()->GetId() == owner->GetId()) {
+					auto touch = msg.GetData<InputEvent>();
 					ofVec2f endPos = touch->input->position;
 
 					// remove on double-click
@@ -138,7 +138,7 @@ void AttractorPlacement::RefreshAttractorPosition(ofVec2f absPosition, ofVec2f s
 Node* AttractorPlacement::GetClickedAttractor(ofVec2f position) {
 	for (auto it = attractors.begin(); it != attractors.end(); ++it) {
 		auto node = (*it);
-		auto shape = node->GetShape<Image>();
+		auto shape = node->GetMesh<Image>();
 		float x = node->GetTransform().absPos.x;
 		float y = node->GetTransform().absPos.y;
 
@@ -156,7 +156,7 @@ Node* AttractorPlacement::GetClickedAttractor(ofVec2f position) {
 bool AttractorPlacement::RemoveAttractor(ofVec2f position) {
 	for (auto it = attractors.begin(); it != attractors.end(); ++it) {
 		auto node = (*it);
-		auto shape = node->GetShape<Image>();
+		auto shape = node->GetMesh<Image>();
 		float x = node->GetTransform().absPos.x;
 		float y = node->GetTransform().absPos.y;
 
@@ -184,7 +184,7 @@ void AttractorPlacement::InsertAttractor(ofVec2f position, Vec2i brickPos) {
 
 	placedAttractor = new Node("attractor");
 	if (selectedAction == HydroqAction::ATTRACT) {
-		placedAttractor->SetShape(spt<Image>(new Image(CogGet2DImage("game/functions_cmd_attract_placement.png"))));
+		placedAttractor->SetMesh(spt<Image>(new Image(CogGet2DImage("game/functions_cmd_attract_placement.png"))));
 	}
 
 	attrPlaced++;

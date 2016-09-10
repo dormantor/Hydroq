@@ -71,14 +71,16 @@ public:
 
 				// update transformation of all objects
 				for (auto& dynObj : dynObjects) {
-					if (dynObj->GetSubType() == 0) {
+					if (dynObj->GetSecondaryId() == 0) {
 
 						int id = dynObj->GetId();
 						auto transform = dynObj->GetTransform();
 
-						deltaInf->deltas[id*3+0] = transform.rotation;
-						deltaInf->deltas[id*3+1] = transform.localPos.x;
-						deltaInf->deltas[id*3+2] = transform.localPos.y;
+						auto& deltas = deltaInf->GetDeltas();
+
+						deltas[id*3+0] = transform.rotation;
+						deltas[id*3+1] = transform.localPos.x;
+						deltas[id*3+2] = transform.localPos.y;
 					}
 				}
 

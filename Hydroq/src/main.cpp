@@ -4,8 +4,8 @@
 #include "HydroqBoard.h"
 #include "RightPanel.h"
 #include "RightPanelSections.h"
-#include "BrickClickEvent.h"
-#include "BrickEventBehavior.h"
+#include "TileClickEvent.h"
+#include "TileEventBehavior.h"
 #include "SelectedFuncBehavior.h"
 #include "HydroqPlayerModel.h"
 #include "HydroqGameModel.h"
@@ -156,7 +156,7 @@ public:
 		REGISTER_BEHAVIOR(HydroqBoard);
 		REGISTER_BEHAVIOR(RightPanel);
 		REGISTER_BEHAVIOR(RightPanelSections);
-		REGISTER_BEHAVIOR(BrickEventBehavior);
+		REGISTER_BEHAVIOR(TileEventBehavior);
 		REGISTER_BEHAVIOR(SelectedFuncBehavior);
 		REGISTER_BEHAVIOR(HydroqPlayerController);
 		REGISTER_BEHAVIOR(LeftPanel);
@@ -230,8 +230,9 @@ public:
 #include "StrIdTest.h"
 #include "JavaScriptTest.h"
 #include "LuaTest.h"
-#include "MonteCarloTest.h"
+#include "MonteCarloTest.h"	
 #include "CoroutineTest.h"
+#include "MathTest.h"
 #include "cpplinq.hpp"
 
 int main() {

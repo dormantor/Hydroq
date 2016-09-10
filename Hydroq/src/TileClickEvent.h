@@ -4,14 +4,14 @@
 #include "Events.h"
 
 
-class BrickClickEvent : public MsgEvent {
+class TileClickEvent : public MsgEvent {
 public:
 	
 	int brickPosX;
 	int brickPosY;
-	spt<SpriteEntity> brick;
+	spt<SpriteInst> brick;
 
-	BrickClickEvent(int brickPosX, int brickPosY, spt<SpriteEntity> brick) :
+	TileClickEvent(int brickPosX, int brickPosY, spt<SpriteInst> brick) :
 	brickPosX(brickPosX), brickPosY(brickPosY), brick(brick)
 	{
 

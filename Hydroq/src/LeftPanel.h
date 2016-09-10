@@ -37,7 +37,7 @@ public:
 
 
 	void OnMessage(Msg& msg) {
-		if (msg.HasAction(ACT_OBJECT_HIT_ENDED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
+		if (msg.HasAction(ACT_OBJECT_HIT_ENDED) && msg.GetContextNode()->GetId() == owner->GetId()) {
 			if (owner->HasState(StrId(STATES_ENABLED))) {
 				owner->ResetState(StrId(STATES_ENABLED));
 				// roll menu back
@@ -57,8 +57,8 @@ public:
 		else if (msg.HasAction(ACT_COUNTER_CHANGED)) {
 			RefreshCounters();
 		}
-		else if (msg.HasAction(ACT_OBJECT_HIT_OVER) && msg.GetSourceObject()->GetId() == mapIcon->GetId()) {
-			InputEvent* evt = msg.GetData<InputEvent>();
+		else if (msg.HasAction(ACT_OBJECT_HIT_OVER) && msg.GetContextNode()->GetId() == mapIcon->GetId()) {
+			auto evt = msg.GetData<InputEvent>();
 			HandleMapDetailHit(evt);
 		}
 	}
@@ -69,15 +69,15 @@ private:
 	Node* counterBuildings;
 
 	void RefreshCounters() {
-		counterUnits->GetShape<Text>()->SetText(ofToString(playerModel->GetUnits()));
-		counterBuildings->GetShape<Text>()->SetText(ofToString(playerModel->GetBuildings()));
+		counterUnits->GetMesh<Text>()->SetText(ofToString(playerModel->GetUnits()));
+		counterBuildings->GetMesh<Text>()->SetText(ofToString(playerModel->GetBuildings()));
 	}
 
 	Node* mapIcon = nullptr;
 
 	void ReloadMapIcon(string pathToFile) {
 		auto image = CogGet2DImage(pathToFile);
-		auto shape = this->mapIcon->GetShape<Image>();
+		auto shape = this->mapIcon->GetMesh<Image>();
 		shape->SetImage(image);
 
 		ofVec2f size = shape->GetWidth() > shape->GetHeight() ? ofVec2f(0.55f, 0) : ofVec2f(0, 0.55f);
@@ -94,13 +94,13 @@ private:
 	void ReloadMapBorder() {
 		// map icon position and size
 		auto mapIconPos = mapIcon->GetTransform().absPos;
-		float mapIconWidth = mapIcon->GetShape()->GetWidth()*mapIcon->GetTransform().absScale.x;
-		float mapIconHeight = mapIcon->GetShape()->GetHeight()*mapIcon->GetTransform().absScale.y;
+		float mapIconWidth = mapIcon->GetMesh()->GetWidth()*mapIcon->GetTransform().absScale.x;
+		float mapIconHeight = mapIcon->GetMesh()->GetHeight()*mapIcon->GetTransform().absScale.y;
 
 		// game board position and size
 		auto gameBoardPos = gameBoard->GetTransform().absPos;
-		float gameBoardWidth = gameBoard->GetShape()->GetWidth()*gameBoard->GetTransform().absScale.x;
-		float gameBoardHeight = gameBoard->GetShape()->GetHeight()*gameBoard->GetTransform().absScale.y;
+		float gameBoardWidth = gameBoard->GetMesh()->GetWidth()*gameBoard->GetTransform().absScale.x;
+		float gameBoardHeight = gameBoard->GetMesh()->GetHeight()*gameBoard->GetTransform().absScale.y;
 
 
 		// relative % position of the map
@@ -110,7 +110,7 @@ private:
 		float zoomY = gameBoardHeight / CogGetVirtualScreenSize().y;
 
 		// map border position and size
-		auto borderShape = mapBorder->GetShape<Plane>();
+		auto borderShape = mapBorder->GetMesh<Plane>();
 		auto mapBorderPos = mapBorder->GetTransform().absPos;
 		float mapBorderWidth = borderShape->GetWidth()*mapBorder->GetTransform().absScale.x;
 		float mapBorderHeight = borderShape->GetHeight()*mapBorder->GetTransform().absScale.y;
@@ -137,10 +137,10 @@ private:
 		}
 	}
 
-	void HandleMapDetailHit(InputEvent* evt) {
+	void HandleMapDetailHit(spt<InputEvent> evt) {
 		auto mapIconPos = mapIcon->GetTransform().absPos;
-		float mapIconWidth = mapIcon->GetShape()->GetWidth()*mapIcon->GetTransform().absScale.x;
-		float mapIconHeight = mapIcon->GetShape()->GetHeight()*mapIcon->GetTransform().absScale.y;
+		float mapIconWidth = mapIcon->GetMesh()->GetWidth()*mapIcon->GetTransform().absScale.x;
+		float mapIconHeight = mapIcon->GetMesh()->GetHeight()*mapIcon->GetTransform().absScale.y;
 
 		auto clickPos = evt->input->position;
 

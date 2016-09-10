@@ -103,7 +103,7 @@ public:
 	void SetHydroqAction(HydroqAction hydroqAction) {
 		auto previous = this->hydroqAction;
 		this->hydroqAction = hydroqAction;
-		SendMessageToListeners(StrId(ACT_FUNC_SELECTED), 0, new ValueChangeEvent<HydroqAction>(previous, hydroqAction), nullptr);
+		SendMessage(StrId(ACT_FUNC_SELECTED), spt<ValueChangeEvent<HydroqAction>>(new ValueChangeEvent<HydroqAction>(previous, hydroqAction)));
 	}
 
 	int GetUnits() {
@@ -112,12 +112,12 @@ public:
 
 	void AddUnit(int num) {
 		this->units += num;
-		SendMessageToListeners(StrId(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(units-num, num), nullptr);
+		SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(units-num, num)));
 	}
 
 	void RemoveUnit(int num) {
 		this->units -= num;
-		SendMessageToListeners(StrId(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(units - num, num), nullptr);
+		SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(units - num, num)));
 	}
 
 	int GetBuildings() {
@@ -126,12 +126,12 @@ public:
 
 	void AddBuildings(int num) {
 		this->buildings += num;
-		SendMessageToListeners(StrId(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(buildings - num, num), nullptr);
+		SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(buildings - num, num)));
 	}
 
 	void RemoveBuilding(int num) {
 		this->buildings -= num;
-		SendMessageToListeners(StrId(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(buildings - num, num), nullptr);
+		SendMessage(StrId(ACT_COUNTER_CHANGED), spt<ValueChangeEvent<int>>(new ValueChangeEvent<int>(buildings - num, num)));
 	}
 
 	virtual void Update(const uint64 delta, const uint64 absolute) {
