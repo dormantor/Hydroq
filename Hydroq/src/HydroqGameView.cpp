@@ -84,7 +84,18 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	for (int i = 0; i < map->GetWidth(); i++) {
 		for (int j = 0; j < map->GetHeight(); j++) {
 			auto obj = map->GetNode(i, j);
-			auto sprite = spriteTypes[obj->mapNodeName];
+			
+			spt<Sprite> sprite;
+			
+			if (obj->owner == Faction::BLUE && obj->mapNodeType == MapNodeType::RIG) {
+				sprite = spt<Sprite>(new Sprite(defaultSpriteSet, spriteTypes[obj->mapNodeName]->GetFrame()+4));
+			}
+			else if (obj->owner == Faction::RED && obj->mapNodeType == MapNodeType::RIG) {
+				sprite = spt<Sprite>(new Sprite(defaultSpriteSet, spriteTypes[obj->mapNodeName]->GetFrame() + 8));
+			}
+			else {
+				sprite = spriteTypes[obj->mapNodeName];
+			}
 
 			Trans transform = Trans();
 			transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;

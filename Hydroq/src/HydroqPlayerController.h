@@ -32,11 +32,7 @@ class HydroqPlayerController : public Behavior {
 				Vec2i pos = Vec2i(clickEvent->brickPosX, clickEvent->brickPosY);
 
 				// if user selected a function, apply it
-				if (playerModel->GetHydroqAction() == HydroqAction::SEEDBED && 
-					gameModel->IsPositionFreeForBuilding(pos)) {
-					gameModel->CreateSeedBed(pos);
-				}
-				else if (playerModel->GetHydroqAction() == HydroqAction::BUILD){ 
+				if (playerModel->GetHydroqAction() == HydroqAction::BUILD){ 
 					if (gameModel->IsPositionFreeForBridge(pos)) {
 						gameModel->MarkPositionForBridge(pos);
 					}

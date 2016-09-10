@@ -169,12 +169,6 @@ public:
 	*/
 	void SpawnWorker(ofVec2f position, Faction faction, int identifier);
 
-
-	void CreateSeedBed(Vec2i position);
-	
-
-	void CreateSeedBed(Vec2i position, Faction faction, int identifier);
-
 	/**
 	* Creates a platform on selected position
 	*/
@@ -226,7 +220,7 @@ public:
 
 	bool RemoveGameTask(spt<GameTask> task);
 
-	Node* FindNearestDynamicNode(EntityType type, ofVec2f startPos);
+	Node* FindNearestRigByFaction(Faction fact, ofVec2f startPos);
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 

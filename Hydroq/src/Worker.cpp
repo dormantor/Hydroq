@@ -45,10 +45,11 @@ bool WorkerIdleState::FindTaskToDo() {
 				}
 				else {
 					// find platform the worker can return to base from
-					auto nearestBase = model->FindNearestDynamicNode(EntityType::SEEDBED, start);
+					auto nearestBase = model->FindNearestRigByFaction(model->GetFaction(), start);
 					ofVec2f preferredPosition = (nearestBase != nullptr) ? nearestBase->GetTransform().localPos : start;
 					nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(preferredPosition.x, preferredPosition.y));
 				}
+
 
 				if (nodeToWorkFrom != nullptr) {
 

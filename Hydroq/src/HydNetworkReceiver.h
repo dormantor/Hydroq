@@ -66,10 +66,6 @@ public:
 		switch (cmdMsg->GetEventType()) {
 		case SyncEventType::OBJECT_CREATED:
 			switch (cmdMsg->GetEntityType()) {
-			case EntityType::SEEDBED:
-				model->CreateSeedBed(cmdMsg->GetPosition(), cmdMsg->GetFaction(), cmdMsg->GetIdentifier());
-				break;
-
 			case EntityType::WORKER:
 				model->SpawnWorker(cmdMsg->GetPosition(), cmdMsg->GetFaction(), cmdMsg->GetIdentifier());
 				break;

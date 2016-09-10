@@ -355,6 +355,7 @@
 
         <node name="mapboard" img="game/gm_mapboard.png">
           <transform pos_x="1gr" pos_y="4gr"  />
+		  <behavior type="HitEvent" />
         </node>
 
 		<node name="mapborder">
@@ -420,39 +421,16 @@
 		<behavior type="RightPanelSections" />
 		 
 		<node name="icon_build" img="game/gm_setbuild.png" img_multiselect="game/gm_setbuild_act.png">
-		  <transform pos_x="0.15r" pos_y="0.2r" anchor_y="1"   />
+		  <transform pos_x="0.25r" pos_y="0.2r" anchor_y="1"   />
 		  <state>SELECTED</state>
 		</node>
 		
 		<node name="icon_flag" img="game/gm_setflag.png" img_multiselect="game/gm_setflag_act.png">
-		  <transform pos_x="0.45r" pos_y="0.2r" anchor_y="1"  />
+		  <transform pos_x="0.65r" pos_y="0.2r" anchor_y="1"  />
 		</node>
 		
-		<node name="icon_oth" img="game/gm_setoth.png" img_multiselect="game/gm_setoth_act.png">
-		  <transform pos_x="0.75r" pos_y="0.2r" anchor_y="1" />
-		</node>
-		
+				
 		<node name="section_build">
-		  <transform pos_x="0.1r" pos_y="0.25r" anchor="0" width="0.7r" />
-		  
-		  
-		  <node name="build_seedbed">
-		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
-		    <transform size="1r" />
-		    <behavior type="HitEvent"/>
-		  
-		    <node img="game/functions_build_seedbed.png">
-		      <transform pos_x="0.85r" pos_y="0r"  />
-		    </node>
-		    <node>
-              <transform pos_x="0.15r" pos_y="0.15r" />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Seedbed</text>
-            </node>
-		  </node>
-		</node>
-		
-		
-		<node name="section_command">
 		  <transform pos_x="0.05r" pos_y="0.30r" anchor="0" width="0.99r" height="0.7r" />
 		  
 		  
@@ -513,7 +491,7 @@
 		  </node>
 		</node>
 		
-		<node name="section_other">
+		<node name="section_flag">
 		  <transform pos_x="0.05r" pos_y="0.30r" anchor="0" width="0.99r" height="0.7r" />
 		  
 		  

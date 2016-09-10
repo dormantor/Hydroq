@@ -12,11 +12,9 @@ class RightPanel : public Behavior {
 	Section selectedSection = Section::NONE;
 	int buildIconId;
 	int flagIconId;
-	int otherIconId;
 
 	int buildSectionId;
-	int commandSectionId;
-	int otherSectionId;
+	int flagSectionId;
 	
 	Scene* scene;
 
@@ -26,11 +24,9 @@ class RightPanel : public Behavior {
 		scene = owner->GetScene();
 		buildIconId = scene->FindNodeByTag("icon_build")->GetId();
 		flagIconId = scene->FindNodeByTag("icon_flag")->GetId();
-		otherIconId = scene->FindNodeByTag("icon_oth")->GetId();
 
 		buildSectionId = scene->FindNodeByTag("section_build")->GetId();
-		commandSectionId = scene->FindNodeByTag("section_command")->GetId();
-		otherSectionId = scene->FindNodeByTag("section_other")->GetId();
+		flagSectionId = scene->FindNodeByTag("section_flag")->GetId();
 	}
 
 	void OnStart() {
@@ -43,10 +39,7 @@ class RightPanel : public Behavior {
 				SelectBuildSection();
 			}
 			else if (msg.GetSourceObject()->GetId() == flagIconId) {
-				SelectCommandSection();
-			}
-			else if (msg.GetSourceObject()->GetId() == otherIconId) {
-				SelectOtherSection();
+				SelectFlagSection();
 			}
 		}
 	}
@@ -57,22 +50,15 @@ class RightPanel : public Behavior {
 		scene->FindNodeById(buildSectionId)->SetRunningMode(RunningMode::RUNNING);
 	}
 
-	void SelectCommandSection() {
+	void SelectFlagSection() {
 		UnSelectNodes();
 		selectedSection = Section::COMMAND;
-		scene->FindNodeById(commandSectionId)->SetRunningMode(RunningMode::RUNNING);
-	}
-
-	void SelectOtherSection() {
-		UnSelectNodes();
-		selectedSection = Section::OTHER;
-		scene->FindNodeById(otherSectionId)->SetRunningMode(RunningMode::RUNNING);
+		scene->FindNodeById(flagSectionId)->SetRunningMode(RunningMode::RUNNING);
 	}
 
 	void UnSelectNodes() {
 		scene->FindNodeById(buildSectionId)->SetRunningMode(RunningMode::DISABLED);
-		scene->FindNodeById(commandSectionId)->SetRunningMode(RunningMode::DISABLED);
-		scene->FindNodeById(otherSectionId)->SetRunningMode(RunningMode::DISABLED);
+		scene->FindNodeById(flagSectionId)->SetRunningMode(RunningMode::DISABLED);
 	}
 
 public:

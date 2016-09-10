@@ -11,7 +11,7 @@ class LeftPanel : public Behavior {
 	HydroqPlayerModel* playerModel;
 	
 	void OnInit() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED, ACT_COUNTER_CHANGED);
+		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_OBJECT_HIT_OVER, ACT_TRANSFORM_ENDED, ACT_COUNTER_CHANGED);
 	}
 
 	void OnStart() {
@@ -58,6 +58,10 @@ class LeftPanel : public Behavior {
 		}
 		else if (msg.HasAction(ACT_COUNTER_CHANGED)) {
 			RefreshCounters();
+		}
+		else if (msg.HasAction(ACT_OBJECT_HIT_OVER) && msg.GetSourceObject()->GetId() == mapIcon->GetId()) {
+			InputEvent* evt = msg.GetDataS<InputEvent>();
+			HandleMapDetailHit(evt);
 		}
 	}
 
@@ -133,7 +137,20 @@ private:
 		if (newLocalPos.distance(mapBorder->GetTransform().localPos) > 1) {
 			mapBorder->GetTransform().localPos = ofVec3f(newLocalPos.x, newLocalPos.y, 120);
 		}
+	}
 
+	void HandleMapDetailHit(InputEvent* evt) {
+		auto mapIconPos = mapIcon->GetTransform().absPos;
+		float mapIconWidth = mapIcon->GetShape()->GetWidth()*mapIcon->GetTransform().absScale.x;
+		float mapIconHeight = mapIcon->GetShape()->GetHeight()*mapIcon->GetTransform().absScale.y;
+
+		auto clickPos = evt->input->position;
+
+		auto relativeClickX = (clickPos.x - mapIconPos.x) / mapIconWidth;
+		auto relativeClickY = (clickPos.y - mapIconPos.y) / mapIconHeight;
+
+		auto hydroqBoard = gameBoard->GetBehavior<HydroqBoard>();
+		hydroqBoard->ZoomIntoPositionCenter(ofVec2f(relativeClickX, relativeClickY));
 	}
 
 public:

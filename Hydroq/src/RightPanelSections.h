@@ -9,7 +9,6 @@ class RightPanelSections : public Behavior {
 
 	HydroqPlayerModel* playerModel;
 
-	int nodeBuildSeedbedId;
 	int nodeCommandBuildId;
 	int nodeCommandDestroyId;
 	int nodeCommandForbidId;
@@ -22,7 +21,6 @@ class RightPanelSections : public Behavior {
 	void OnInit() {
 		RegisterListening(ACT_OBJECT_HIT_ENDED);
 		playerModel = GETCOMPONENT(HydroqPlayerModel);
-		nodeBuildSeedbedId = owner->GetScene()->FindNodeByTag("build_seedbed")->GetId();
 		nodeCommandBuildId = owner->GetScene()->FindNodeByTag("command_build")->GetId();
 		nodeCommandDestroyId = owner->GetScene()->FindNodeByTag("command_destroy")->GetId();
 		nodeCommandForbidId = owner->GetScene()->FindNodeByTag("command_forbid")->GetId();
@@ -43,11 +41,7 @@ class RightPanelSections : public Behavior {
 				selectedNodeId = -1;
 			}
 			else {
-				if (targetId == nodeBuildSeedbedId) {
-					SelectBuildSeedbed();
-					SelectNode(nodeBuildSeedbedId);
-				}
-				else if (targetId == nodeCommandBuildId) {
+				if (targetId == nodeCommandBuildId) {
 					SelectCommandBuild();
 					SelectNode(nodeCommandBuildId);
 				}
@@ -85,10 +79,6 @@ class RightPanelSections : public Behavior {
 		}
 		selectedNodeId = nodeId;
 		owner->GetScene()->FindNodeById(nodeId)->GetShape<spt<BoundingBox>>()->SetIsRenderable(true);
-	}
-
-	void SelectBuildSeedbed() {
-		playerModel->SetHydroqAction(HydroqAction::SEEDBED);
 	}
 
 	void SelectCommandBuild() {

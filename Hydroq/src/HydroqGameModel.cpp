@@ -5,7 +5,7 @@
 #include "HydMap.h"
 #include "HydEntity.h"
 #include "MsgEvents.h"
-#include "Seedbed.h"
+#include "RigBehavior.h"
 #include "StateMachine.h"
 #include "Worker.h"
 #include "GameTask.h"
@@ -191,24 +191,6 @@ void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identif
 	}
 }
 
-void HydroqGameModel::CreateSeedBed(Vec2i position) {
-	CreateSeedBed(position, this->faction, 0);
-}
-
-void HydroqGameModel::CreateSeedBed(Vec2i position, Faction faction, int identifier) {
-	CogLogInfo("Hydroq", "Creating seedbed for %s faction at [%d, %d]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
-	auto node = CreateDynamicObject(position, EntityType::SEEDBED, faction, identifier);
-
-	if (faction == this->faction) {
-		playerModel->AddBuildings(1);
-	}
-
-	if (multiplayer && identifier == 0) {
-		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
-			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::SEEDBED, faction, position, node->GetId(), 0));
-	}
-}
-
 void HydroqGameModel::BuildPlatform(Vec2i position) {
 	BuildPlatform(position, this->faction, 0);
 
@@ -288,14 +270,15 @@ bool HydroqGameModel::RemoveGameTask(spt<GameTask> task) {
 	}
 }
 
-Node* HydroqGameModel::FindNearestDynamicNode(EntityType type, ofVec2f startPos) {
+Node* HydroqGameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 	Node* nearestSoFar = nullptr;
 	ofVec2f nearestPosSoFar = ofVec2f(0);
 
 	for (auto& key : dynObjects) {
 		auto node = key.second;
 
-		if (node->HasAttr(ATTR_ENTITYTYPE) && node->GetAttr<EntityType>(ATTR_ENTITYTYPE) == type) {
+		if (node->HasAttr(ATTR_ENTITYTYPE) && node->GetAttr<EntityType>(ATTR_ENTITYTYPE) == EntityType::RIG 
+			&& node->GetAttr<Faction>(ATTR_FACTION) == fact) {
 			if (nearestSoFar == nullptr) {
 				nearestSoFar = node;
 				nearestPosSoFar = node->GetTransform().localPos;
@@ -424,19 +407,6 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 	else if (entityType == EntityType::GUARD_MARK) {
 		nd->SetTag("guardmark");
 	}
-	else if (entityType == EntityType::SEEDBED) {
-		if (faction == Faction::BLUE) {
-			nd->SetTag("seedbed_blue");
-		}
-		else {
-			nd->SetTag("seedbed_red");
-		}
-
-		if (identifier == 0) {
-			auto nodeBeh = new Seedbed();
-			nd->AddBehavior(nodeBeh);
-		}
-	}
 	else if (entityType == EntityType::WORKER) {
 		if (faction == Faction::BLUE) {
 			nd->SetTag("worker_blue");
@@ -516,10 +486,18 @@ void HydroqGameModel::DivideRigsIntoFactions() {
 		return dist1 >= dist2;
 	});
 
-
 	// pick the first one for red
 	HydMapNode* redRig = allRigs[0];
 
 	blueRig->owner = Faction::BLUE;
 	redRig->owner = Faction::RED;
+
+	// set owner for other rig parts
+	this->hydroqMap->GetNode(redRig->pos.x+1, redRig->pos.y)->owner = Faction::RED;
+	this->hydroqMap->GetNode(redRig->pos.x, redRig->pos.y+1)->owner = Faction::RED;
+	this->hydroqMap->GetNode(redRig->pos.x+1, redRig->pos.y+1)->owner = Faction::RED;
+
+	this->hydroqMap->GetNode(blueRig->pos.x+1, blueRig->pos.y)->owner = Faction::BLUE;
+	this->hydroqMap->GetNode(blueRig->pos.x,   blueRig->pos.y+1)->owner = Faction::BLUE;
+	this->hydroqMap->GetNode(blueRig->pos.x+1, blueRig->pos.y+1)->owner = Faction::BLUE;
 }

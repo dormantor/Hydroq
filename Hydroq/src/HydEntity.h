@@ -3,7 +3,7 @@
 #include "ofxCogCommon.h"
 
 enum class EntityType {
-	SEEDBED, BRIDGE_MARK, FORBID_MARK, GUARD_MARK, DESTROY_MARK, WORKER, BRIDGE, WATER, PLATFORM
+	BRIDGE_MARK, FORBID_MARK, GUARD_MARK, DESTROY_MARK, WORKER, BRIDGE, WATER, PLATFORM, RIG
 };
 
 class HydEntity {
@@ -26,14 +26,6 @@ public:
 	HydBridge() : HydEntity(EntityType::BRIDGE_MARK, "bridgemark") {
 
 	}
-};
-
-class SeebedBuilding : public HydEntity {
-public:
-	SeebedBuilding() : HydEntity(EntityType::SEEDBED, "seedbed") {
-
-	}
-
 };
 
 class ForbidMark : public HydEntity {

@@ -3,8 +3,8 @@
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
 
-class Seedbed : public Behavior {
-	OBJECT_PROTOTYPE(Seedbed)
+class RigBehavior : public Behavior {
+	OBJECT_PROTOTYPE(RigBehavior)
 
 	// attributes sh
 	StringHash frequencySh;

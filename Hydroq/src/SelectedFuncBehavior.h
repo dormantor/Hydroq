@@ -28,10 +28,7 @@ class SelectedFuncBehavior : public Behavior {
 
 			owner->SetRunningMode(RunningMode::RUNNING);
 
-			if (which->after == HydroqAction::SEEDBED) {
-				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_build_seedbed.png"));
-			}
-			else if (which->after == HydroqAction::BUILD) {
+			if (which->after == HydroqAction::BUILD) {
 				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_build.png"));
 			}
 			else if (which->after == HydroqAction::DESTROY) {

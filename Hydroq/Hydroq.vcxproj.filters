@@ -5,9 +5,6 @@
     <ClCompile Include="src\Worker.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\Seedbed.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="src\HydroqGoals.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -32,12 +29,12 @@
     <ClCompile Include="src\AttractorPlacement.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="src\RigBehavior.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Worker.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Seedbed.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\HydroqPlayerModel.h">
@@ -132,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="src\HydAIState.h">
       <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RigBehavior.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

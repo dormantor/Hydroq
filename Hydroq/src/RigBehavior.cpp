@@ -1,8 +1,8 @@
 
-#include "SeedBed.h"
+#include "RigBehavior.h"
 #include "HydroqGameModel.h"
 
-void Seedbed::OnStart() {
+void RigBehavior::OnStart() {
 	frequencySh = StringHash(ATTR_SEEDBED_FREQUENCY);
 	lastSpawnSh = StringHash(ATTR_SEEDBED_LASTSPAWN);
 
@@ -16,7 +16,7 @@ void Seedbed::OnStart() {
 	}
 }
 
-void Seedbed::Update(const uint64 delta, const uint64 absolute) {
+void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 	// spawns per second
 	float frequency = owner->GetAttr<float>(frequencySh);
 	uint64 lastSpawn = owner->GetAttr<uint64>(lastSpawnSh);
