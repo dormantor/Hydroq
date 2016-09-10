@@ -15,22 +15,16 @@
 class HydAISimulator : public Simulator<HydAIState, HydAIAction>
 {
 public:
-	
+	Faction aiFaction;
+
 	HydAISimulator() {
 		// always two agents
 		this->agentsNumber = 2;
+		this->rewards = AgentsReward(0, 0);
 	}
 
 	void InitState() {
-		this->actualState = HydAIState(AGENT_AI);
-		this->actualState.distancesBlue.push_back(5);
-		this->actualState.distancesRed.push_back(5);
-		this->actualState.distancesBlueEmpty.push_back(2);
-		this->actualState.distancesRedEmpty.push_back(2);
-		this->actualState.Recalc();
-
-		RecalcPossibleActions();
-		this->rewards = AgentsReward(0, 0);
+		throw IllegalOperationException("This simulator can't be reinitialized");
 	}
 
 	spt<Simulator> DeepCopy() {
@@ -49,65 +43,53 @@ public:
 
 		int index = act.index;
 
-		if (act.type == HydAIActionType::CAPTURE_ENEMY_RIG) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI) {
-				if (!isSimulation) COGLOGDEBUG("AI", "Red absorbed blue rig at index %d", index);
+		if (act.type == HydAIActionType::CAPTURE_ENEMY) {
+			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
 				actualState.RemoveBlueRig(index);
 				actualState.distancesRed.push_back(1);
 				rewards = AgentsReward(100, 0);
 			}
 			else {
-				if (!isSimulation) COGLOGDEBUG("AI", "Blue absorbed red rig at index %d", index);
 				actualState.RemoveRedRig(index);
 				actualState.distancesBlue.push_back(1);
 				rewards = AgentsReward(0, 100);
 			}
 		}
-		else if (act.type == HydAIActionType::CAPTURE_EMPTY_RIG) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI) {
-				if (!isSimulation) COGLOGDEBUG("AI", "Red absorbed empty rig at index %d", index);
+		else if (act.type == HydAIActionType::CAPTURE_EMPTY) {
+			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
 				actualState.distancesRed.push_back(actualState.distancesRedEmpty[index]);
 				actualState.RemoveEmptyRig(index);
 				rewards = AgentsReward(50, 0);
 			}
 			else {
-				if (!isSimulation) COGLOGDEBUG("AI", "Blue absorbed empty rig at index %d", index);
 				actualState.distancesBlue.push_back(actualState.distancesBlueEmpty[index]);
 				actualState.RemoveEmptyRig(index);
 				rewards = AgentsReward(0, 50);
 			}
 		}
-		else if (act.type == HydAIActionType::GO_TO_EMPTY_RIG) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI) {
-				if (!isSimulation) COGLOGDEBUG("AI", "Red goes to empty rig at index %d", index);
+		else if (act.type == HydAIActionType::GOTO_EMPTY) {
+			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
 				actualState.distancesRedEmpty[index]--;
 				rewards = AgentsReward(2, 0);
 			}
 			else {
-				if (!isSimulation) COGLOGDEBUG("AI", "Blue goes to empty rig at index %d",index);
 				actualState.distancesBlueEmpty[index]--;
 				rewards = AgentsReward(0, 2);
 			}
 		}
-		else if (act.type == HydAIActionType::GO_TO_ENEMY_RIG) {
-			if (actualState.GetAgentOnTurn() == AGENT_AI) {
-				if (!isSimulation) COGLOGDEBUG("AI", "Red goes to blue rig at index %d",index);
+		else if (act.type == HydAIActionType::GOTO_ENEMY) {
+			if (actualState.GetAgentOnTurn() == AGENT_AI && aiFaction == Faction::RED) {
 				actualState.distancesBlue[index]--;
 				rewards = AgentsReward(1, 0);
 			}
 			else {
-				if (!isSimulation) COGLOGDEBUG("AI", "Blue goes to red rig at index %d",index);
 				actualState.distancesRed[index]--;
 				rewards = AgentsReward(0, 1);
 			}
 		}
 
-		if (!isSimulation) {
-			COGLOGDEBUG("AI", actualState.WriteInfo().c_str());
-		}
-
-		this->actualState.SwapAgentOnTurn(this->agentsNumber);
 		this->actualState.Recalc();
+		this->actualState.SwapAgentOnTurn(this->agentsNumber);
 		RecalcPossibleActions();
 	}
 
@@ -119,26 +101,26 @@ protected:
 
 		if (actualState.distancesBlue.empty() || actualState.distancesRed.empty()) return;
 
-		auto& distancesToEnemy = actualState.GetAgentOnTurn() == AGENT_AI ? actualState.distancesBlue : actualState.distancesRed;
-		auto& distancesToEmpty = actualState.GetAgentOnTurn() == AGENT_AI ? actualState.distancesRedEmpty : actualState.distancesBlueEmpty;
+		auto& distancesToEnemy = (aiFaction == Faction::RED && actualState.GetAgentOnTurn() == AGENT_AI) ? actualState.distancesBlue : actualState.distancesRed;
+		auto& distancesToEmpty = (aiFaction == Faction::RED && actualState.GetAgentOnTurn() == AGENT_AI) ? actualState.distancesRedEmpty : actualState.distancesBlueEmpty;
 
 		for (int i = 0; i < distancesToEnemy.size(); i++) {
 			if (distancesToEnemy[i] == 0) {
 				// zero distance -> rig can be captured
-				possibleActions.push_back(HydAIAction(HydAIActionType::CAPTURE_ENEMY_RIG, i));
+				possibleActions.push_back(HydAIAction(HydAIActionType::CAPTURE_ENEMY, i));
 			}
 			else {
 				// non-zero distance
-				possibleActions.push_back(HydAIAction(HydAIActionType::GO_TO_ENEMY_RIG, i));
+				possibleActions.push_back(HydAIAction(HydAIActionType::GOTO_ENEMY, i));
 			}
 		}
 
 		for (int i = 0; i < distancesToEmpty.size(); i++) {
 			if (distancesToEmpty[i] == 0) {
-				possibleActions.push_back(HydAIAction(HydAIActionType::CAPTURE_EMPTY_RIG, i));
+				possibleActions.push_back(HydAIAction(HydAIActionType::CAPTURE_EMPTY, i));
 			}
 			else {
-				possibleActions.push_back(HydAIAction(HydAIActionType::GO_TO_EMPTY_RIG, i));
+				possibleActions.push_back(HydAIAction(HydAIActionType::GOTO_EMPTY, i));
 			}
 		}
 	}

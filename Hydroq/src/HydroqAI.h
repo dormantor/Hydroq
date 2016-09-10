@@ -6,8 +6,15 @@
 #include "HydroqGameModel.h"
 #include "CoroutineContext.h"
 
+#include "HydAISimulator.h"
+#include "UCTAgent.h"
+
 enum class AITaskType {
-	NONE, CAPTURE_EMPTY, CAPTURE_ENEMY, GOTO_EMPTY, GOTO_ENEMY
+	NONE = 0, 
+	CAPTURE_EMPTY = 1, 
+	CAPTURE_ENEMY = 2, 
+	GOTO_EMPTY = 3, 
+	GOTO_ENEMY = 4
 };
 
 struct AITask {
@@ -115,24 +122,39 @@ public:
 				}
 			}
 
+			if (actualTask.type == AITaskType::NONE) {
+				auto aiAction = this->TrySimulator(blueRedDist, redBlueDist, blueEmptyDist, redEmptyDist);
+				AITaskType selectedTaskType = (AITaskType)aiAction.type;
+
+				if (selectedTaskType == AITaskType::CAPTURE_EMPTY) {
+					Task_CaptureEmpty(myEmptyDist[aiAction.index], absolute);
+				}
+				else if (selectedTaskType == AITaskType::CAPTURE_ENEMY) {
+					Task_CaptureEnemy(myOpponentDist[aiAction.index], absolute);
+				}
+				else if (selectedTaskType == AITaskType::GOTO_EMPTY) {
+					auto nearestRig = myEmptyDist[aiAction.index];
+					Task_GotoEmpty(nearestRig, absolute);
+				}
+				else if (selectedTaskType == AITaskType::GOTO_ENEMY) {
+					auto nearestRig = myOpponentDist[aiAction.index];
+					Taks_GotoEnemy(nearestRig, absolute);
+				}
+			}
+			
+			return;
+
 			// capture some empty
 			for (auto dist : myEmptyDist) {
 				if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
-					auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
-					actualTask = AITask(AITaskType::CAPTURE_EMPTY, absolute);
-					actualTask.positions.push_back(pos);
-					gameModel->AddAttractor(pos, faction, 0.3f);
+					Task_CaptureEmpty(dist, absolute);
 				}
 			}
 
 			// capture some opponents'
 			for (auto dist : myOpponentDist) {
 				if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
-					auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
-					actualTask = AITask(AITaskType::CAPTURE_ENEMY, absolute);
-					actualTask.positions.push_back(pos);
-					gameModel->DestroyAllAttractors(faction);
-					gameModel->AddAttractor(pos, faction, 0.8f);
+					Task_CaptureEnemy(dist, absolute);
 				}
 			}
 
@@ -143,23 +165,8 @@ public:
 					return a.distance < b.distance;
 				});
 
-
 				auto nearestRig = myEmptyDist[0];
-				auto brick = map->GetNode(nearestRig.nearest);
-				auto neighbors = brick->GetNeighbors();
-
-				auto newTask = AITask(AITaskType::GOTO_EMPTY, absolute);
-
-				for (auto neighbor : neighbors) {
-					// build platform so that the rig will be close
-					if (neighbor->mapNodeType == MapNodeType::WATER && !gameModel->PositionContainsBridgeMark(neighbor->pos) &&
-						Vec2i::Distance(nearestRig.position, neighbor->pos) <= Vec2i::Distance(nearestRig.position, nearestRig.nearest)) {
-						newTask.positions.push_back(neighbor->pos);
-						gameModel->MarkPositionForBridge(neighbor->pos, faction);
-					}
-				}
-
-				if (!newTask.positions.empty()) actualTask = newTask;
+				Task_GotoEmpty(nearestRig, absolute);
 			}
 
 			// build platform and go to enemy rig
@@ -170,22 +177,7 @@ public:
 				});
 
 				auto nearestRig = myOpponentDist[0];
-				auto brick = map->GetNode(nearestRig.nearest);
-				auto neighbors = brick->GetNeighbors();
-
-				auto newTask = AITask(AITaskType::GOTO_ENEMY, absolute);
-
-				for (auto neighbor : neighbors) {
-					// build platform so that the rig will be close
-					if (neighbor->mapNodeType == MapNodeType::WATER && !gameModel->PositionContainsBridgeMark(neighbor->pos) &&
-						Vec2i::Distance(nearestRig.position, neighbor->pos) <= Vec2i::Distance(nearestRig.position, nearestRig.nearest)) {
-						newTask.positions.push_back(neighbor->pos);
-						gameModel->MarkPositionForBridge(neighbor->pos, faction);
-					}
-				}
-
-				if (!newTask.positions.empty()) actualTask = newTask;
-
+				Taks_GotoEnemy(nearestRig, absolute);
 			}
 		}
 	}
@@ -263,5 +255,91 @@ private:
 		info.nearest = nearest;
 		info.position = targetRigsPos[index];
 		distances.push_back(info);
+	}
+
+	HydAIAction TrySimulator(vector<RigInfo>& blueRedDist, vector<RigInfo>& redBlueDist, 
+		vector<RigInfo>& blueEmptyDist, vector<RigInfo>& redEmptyDist) {
+
+		if (blueRedDist.empty() || redBlueDist.empty()) return HydAIAction();
+
+		spt<HydAISimulator> simulator = spt<HydAISimulator>(new HydAISimulator());
+		
+		simulator->aiFaction = this->faction;
+		HydAIState state;
+		
+		for (auto blueRed : blueRedDist) {
+			state.distancesRed.push_back(blueRed.distance);
+		}
+
+		for (auto redBlue : redBlueDist) {
+			state.distancesBlue.push_back(redBlue.distance);
+		}
+
+		for (auto blueEmpty : blueEmptyDist) {
+			state.distancesBlueEmpty.push_back(blueEmpty.distance);
+		}
+
+		for (auto redEmpty : redEmptyDist) {
+			state.distancesRedEmpty.push_back(redEmpty.distance);
+		}
+
+		simulator->SetActualState(state);
+
+		auto agent = spt<UCTAgent<HydAIState, HydAIAction>>(new UCTAgent<HydAIState, HydAIAction>("UCTAgent", 20, sqrt(2), 5));
+		auto action = agent->ChooseAction(simulator);
+		return action;
+	}
+
+	void Task_CaptureEmpty(RigInfo dist, uint64 absolute) {
+		auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
+		actualTask = AITask(AITaskType::CAPTURE_EMPTY, absolute);
+		actualTask.positions.push_back(pos);
+		gameModel->AddAttractor(pos, faction, 0.3f);
+	}
+
+	void Task_CaptureEnemy(RigInfo dist, uint64 absolute) {
+		auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
+		actualTask = AITask(AITaskType::CAPTURE_ENEMY, absolute);
+		actualTask.positions.push_back(pos);
+		gameModel->DestroyAllAttractors(faction);
+		gameModel->AddAttractor(pos, faction, 0.8f);
+	}
+
+	void Task_GotoEmpty(RigInfo nearestRig, uint64 absolute) {
+		auto map = gameModel->GetMap();
+		auto brick = map->GetNode(nearestRig.nearest);
+		auto neighbors = brick->GetNeighbors();
+
+		auto newTask = AITask(AITaskType::GOTO_EMPTY, absolute);
+
+		for (auto neighbor : neighbors) {
+			// build platform so that the rig will be close
+			if (neighbor->mapNodeType == MapNodeType::WATER && !gameModel->PositionContainsBridgeMark(neighbor->pos) &&
+				Vec2i::Distance(nearestRig.position, neighbor->pos) <= Vec2i::Distance(nearestRig.position, nearestRig.nearest)) {
+				newTask.positions.push_back(neighbor->pos);
+				gameModel->MarkPositionForBridge(neighbor->pos, faction);
+			}
+		}
+
+		if (!newTask.positions.empty()) actualTask = newTask;
+	}
+
+	void Taks_GotoEnemy(RigInfo nearestRig, uint64 absolute) {
+		auto map = gameModel->GetMap();
+		auto brick = map->GetNode(nearestRig.nearest);
+		auto neighbors = brick->GetNeighbors();
+
+		auto newTask = AITask(AITaskType::GOTO_ENEMY, absolute);
+
+		for (auto neighbor : neighbors) {
+			// build platform so that the rig will be close
+			if (neighbor->mapNodeType == MapNodeType::WATER && !gameModel->PositionContainsBridgeMark(neighbor->pos) &&
+				Vec2i::Distance(nearestRig.position, neighbor->pos) <= Vec2i::Distance(nearestRig.position, nearestRig.nearest)) {
+				newTask.positions.push_back(neighbor->pos);
+				gameModel->MarkPositionForBridge(neighbor->pos, faction);
+			}
+		}
+
+		if (!newTask.positions.empty()) actualTask = newTask;
 	}
 };

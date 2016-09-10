@@ -4,10 +4,10 @@
 * Type of action for AI
 */
 enum class HydAIActionType {
-	GO_TO_EMPTY_RIG = 1,
-	GO_TO_ENEMY_RIG = 2,
-	CAPTURE_EMPTY_RIG = 3,
-	CAPTURE_ENEMY_RIG = 4
+	CAPTURE_EMPTY = 1,
+	CAPTURE_ENEMY = 2,
+	GOTO_EMPTY = 3,
+	GOTO_ENEMY = 4
 };
 
 /**

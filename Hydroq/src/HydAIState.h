@@ -47,34 +47,6 @@ public:
 		RemoveFromArray(index, distancesRedEmpty);
 	}
 
-	string WriteInfo() {
-		
-		ostringstream ss;
-		ss << "BLUE-RED dist: ";
-		for (auto dist : distancesRed) {
-			ss << dist << ", ";
-		}
-		ss << endl;
-
-		ss << "RED-BLUE dist: ";
-		for (auto dist : distancesBlue) {
-			ss << dist << ", ";
-		}
-		ss << endl;
-		ss << "BLUE-EMPTY dist: ";
-		for (auto dist : distancesBlueEmpty) {
-			ss << dist << ", ";
-		}
-		ss << endl;
-		ss << "RED-EMPTY dist: ";
-		for (auto dist : distancesRedEmpty) {
-			ss << dist << ", ";
-		}
-		ss << endl;
-
-		return ss.str();
-	}
-
 	int GetBlueRigsNum() {
 		return distancesBlue.size();
 	}
