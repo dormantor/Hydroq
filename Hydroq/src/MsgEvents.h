@@ -14,7 +14,8 @@ enum class ObjectChangeType {
 	MOVING_REMOVED = 4,
 	ATTRACTOR_CREATED = 5,
 	ATTRACTOR_REMOVED = 6,
-	RIG_CAPTURED = 7
+	RIG_CAPTURED = 7,
+	RIG_TAKEN = 8
 };
 
 class MapObjectChangedEvent : public MsgEvent {

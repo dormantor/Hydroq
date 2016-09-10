@@ -524,5 +524,42 @@
       </node>
 	</node>
     </scene>
+	
+	<scene name="confirm_dialog" type="dialog">
+	  <scene_settings>
+        <setting name="transform">
+          <!-- grid sizing -->
+          <item key="grid_width" value="100" />
+          <item key="grid_height" value="53" />
+		  
+        </setting>
+      </scene_settings>
+	  
+	  <node name="desk_board" img="desk_board_dark.png">
+	     <behavior type="ConfirmDialog" />
+		 
+        <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
+		<node name="msg">
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Do you really want to exit the game?</text>
+           <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />
+		</node>
+		
+		<node name="yes_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
+		  <transform pos_x="0.3r" pos_y="0.8r" anchor="0.5"  />
+          <node>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Yes</text>
+            <transform pos="0.5r" anchor="0.5r" size="1"   />
+          </node>
+        </node>
+		<node name="no_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
+		  <transform pos_x="0.7r" pos_y="0.8r" anchor="0.5"  />
+          <node>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">No</text>
+            <transform pos="0.5r" anchor="0.5r" size="1"   />
+          </node>
+        </node>
+      </node>
+	</scene>
+	
   </scenes>
 </app_config>

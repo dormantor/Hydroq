@@ -219,6 +219,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   <ItemGroup>
     <ClInclude Include="src\AttractorPlacement.h" />
     <ClInclude Include="src\Board.h" />
+    <ClInclude Include="src\ConfirmDialog.h" />
     <ClInclude Include="src\GameTask.h" />
     <ClInclude Include="src\HostInit.h" />
     <ClInclude Include="src\HydNetworkReceiver.h" />

@@ -15,6 +15,8 @@
 	  <item key="rig" value="0|1|2|3" />
 	  <item key="rig_blue" value="24|25|26|27" />
 	  <item key="rig_red" value="56|57|58|59" />
+	  <item key="rig_blue_start" value="4|5|6|7" />
+	  <item key="rig_red_start" value="36|37|38|39" />
 	  <item key="bridgemark" value="71" />
 	  <item key="forbidmark" value="72" />
 	  <item key="destroymark" value="73" />

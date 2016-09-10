@@ -136,6 +136,9 @@
     <ClInclude Include="src\RigBehavior.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="src\ConfirmDialog.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

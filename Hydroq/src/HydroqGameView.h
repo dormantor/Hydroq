@@ -32,6 +32,7 @@ private:
 	// collection of dynamic sprites, mapping by identifier
 	map<int, spt<SpriteEntity>> dynamicSpriteEntities;
 	
+	vector<Node*> rigsToAnimate;
 public:
 
 	~HydroqGameView() {

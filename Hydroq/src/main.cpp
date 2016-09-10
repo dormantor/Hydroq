@@ -27,6 +27,7 @@
 #include "HydAISimulator.h"
 #include "HydAIState.h"
 #include "SpriteSheetGenerator.h"
+#include "ConfirmDialog.h"
 
 void RegenerateSpriteSheets() {
 	SpriteSheetGenerator generator = SpriteSheetGenerator();
@@ -104,8 +105,15 @@ public:
 					// handle key press
 					key->handlerNodeId = owner->GetId();
 					// simulate back button
-					auto sceneContext = GETCOMPONENT(Stage);
-					sceneContext->SwitchBackToScene(TweenDirection::NONE);
+					
+					auto stage = GETCOMPONENT(Stage);
+					if (stage->GetActualScene() != nullptr && stage->GetActualScene()->GetName().compare("game") == 0) {
+						auto scene = stage->FindSceneByName("confirm_dialog");
+						stage->SwitchToScene(scene, TweenDirection::NONE);
+					}
+					else {
+						stage->SwitchBackToScene(TweenDirection::NONE);
+					}
 				}
 			}
 		}
@@ -157,6 +165,7 @@ public:
 		REGISTER_BEHAVIOR(LeftPanel);
 		REGISTER_BEHAVIOR(HostInit);
 		REGISTER_BEHAVIOR(AttractorPlacement);
+		REGISTER_BEHAVIOR(ConfirmDialog);
 
 		auto playerModel = new HydroqPlayerModel();
 		auto gameModel = new HydroqGameModel();
@@ -189,6 +198,20 @@ public:
 
 		//RegenerateSpriteSheets();
 	}
+
+#ifdef ANDROID
+
+	virtual bool OnBackPress() {
+		auto stage = GETCOMPONENT(Stage);
+		if (stage->GetActualScene() != nullptr && stage->GetActualScene()->GetName().compare("game") == 0) {
+			auto scene = stage->FindSceneByName("confirm_dialog");
+			stage->SwitchToScene(scene, TweenDirection::NONE);
+			return false;
+		}
+		else return true;
+	}
+
+#endif
 };
 
 // todo: specify later

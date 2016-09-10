@@ -274,16 +274,17 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 	auto oldFaction = rig->GetAttr<Faction>(ATTR_FACTION);
 	if (oldFaction == Faction::NONE) {
 		playerModel->AddBuildings(1);
+		rig->ChangeAttr(ATTR_FACTION, faction);
+		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+			new MapObjectChangedEvent(ObjectChangeType::RIG_TAKEN, nullptr, rig));
 	}
 	else {
 		// todo ...
 		playerModel->AddBuildings(1);
+		rig->ChangeAttr(ATTR_FACTION, faction);
+		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+			new MapObjectChangedEvent(ObjectChangeType::RIG_CAPTURED, nullptr, rig));
 	}
-
-	rig->ChangeAttr(ATTR_FACTION, faction);
-
-	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-		new MapObjectChangedEvent(ObjectChangeType::RIG_CAPTURED, nullptr, rig));
 }
 
 vector<spt<GameTask>> HydroqGameModel::GetGameTaskCopy() {
