@@ -34,7 +34,7 @@ class HydroqPlayerController : public Behavior {
 				// if user selected a function, apply it
 				if (playerModel->GetHydroqAction() == HydroqAction::BUILD){ 
 					if (gameModel->IsPositionFreeForBridge(pos)) {
-						gameModel->MarkPositionForBridge(pos);
+						gameModel->MarkPositionForBridge(pos, gameModel->GetFaction());
 					}
 					else if (gameModel->PositionContainsBridgeMark(pos)) {
 						// nothing to do here
@@ -50,7 +50,7 @@ class HydroqPlayerController : public Behavior {
 				}
 				else if (playerModel->GetHydroqAction() == HydroqAction::DESTROY){
 					if (gameModel->IsPositionFreeForDestroy(pos)) {
-						gameModel->MarkPositionForDestroy(pos);
+						gameModel->MarkPositionForDestroy(pos, gameModel->GetFaction());
 					}
 					else if (gameModel->PositionContainsDestroyMark(pos) || gameModel->PositionContainsBridgeMark(pos)) {
 						gameModel->DeleteBridgeMark(pos);

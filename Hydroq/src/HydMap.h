@@ -233,18 +233,17 @@ public:
 		COGMEASURE_BEGIN("HYDROQ_PATHFINDING");
 
 		AStarSearch srch;
-		unordered_map<Vec2i, Vec2i> came_from;
-		unordered_map<Vec2i, int> cost_so_far;
+		AStarSearchContext context;
+		
 		// prefer grid with forbidden areas
-		bool found = srch.Search(gridWithBlocks, start, end, came_from, cost_so_far, maxIteration);
+		bool found = srch.Search(gridWithBlocks, start, end, context, maxIteration);
 		if (!found && crossForbiddenArea) {
-			came_from.clear();
-			cost_so_far.clear();
-			found = srch.Search(gridNoBlock, start, end, came_from, cost_so_far, maxIteration);
+			context = AStarSearchContext();
+			found = srch.Search(gridNoBlock, start, end, context, maxIteration);
 		}
 
 		if (found) {
-			vector<Vec2i> path = srch.CalcPathFromJumps(start, end, came_from);
+			vector<Vec2i> path = srch.CalcPathFromJumps(start, end, context.jumps);
 			COGMEASURE_END("HYDROQ_PATHFINDING");
 			return path;
 		}
@@ -252,6 +251,17 @@ public:
 			COGMEASURE_END("HYDROQ_PATHFINDING");
 			return vector<Vec2i>();
 		}
+	}
+
+	int CalcNearestReachablePosition(Vec2i start, Vec2i end, Vec2i& nearestBlock, int maxIteration) {
+
+		AStarSearch srch;
+		AStarSearchContext context;
+
+		// prefer grid with forbidden areas
+		bool found = srch.Search(gridNoBlock, start, end, context, maxIteration);
+		nearestBlock = context.nearestBlock;
+		return context.nearestDistance;
 	}
 
 	HydMapNode* GetNode(int x, int y) {

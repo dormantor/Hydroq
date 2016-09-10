@@ -85,6 +85,9 @@ class HydroqCommandMsg : public NetData {
 	Faction faction;
 	int identifier;
 
+	// position of owner that invoked the event
+	Vec2i ownerPosition;
+
 public:
 	HydroqCommandMsg() {
 
@@ -99,6 +102,10 @@ public:
 		this->position = ofVec2f(x, y);
 		this->faction = (Faction)reader->ReadByte();
 		this->identifier = reader->ReadDWord();
+		
+		int px = reader->ReadDWord();
+		int py = reader->ReadDWord();
+		this->ownerPosition = Vec2i(px, py);
 	}
 
 	void SaveToStream(NetWriter* writer) {
@@ -108,10 +115,12 @@ public:
 		writer->WriteFloat(position.y);
 		writer->WriteByte((tBYTE)faction);
 		writer->WriteDWord(identifier);
+		writer->WriteDWord(ownerPosition.x);
+		writer->WriteDWord(ownerPosition.y);
 	}
 
 	int GetDataLength() {
-		return sizeof(tBYTE) * 3 + sizeof(tDWORD) * 1 + sizeof(float)*2;
+		return sizeof(tBYTE) * 3 + sizeof(tDWORD) * 1 + sizeof(float)*2 + sizeof(tDWORD)*2;
 	}
 
 	SyncEventType GetEventType() {
@@ -152,6 +161,14 @@ public:
 
 	void SetIdentifier(int identifier) {
 		this->identifier = identifier;
+	}
+
+	Vec2i GetOwnerPosition() {
+		return ownerPosition;
+	}
+
+	void SetOwnerPosition(Vec2i ownerPosition) {
+		this->ownerPosition = ownerPosition;
 	}
 
 	spt<NetOutputMessage> CreateMessage() {

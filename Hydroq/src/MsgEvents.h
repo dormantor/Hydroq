@@ -37,6 +37,21 @@ public:
 	}
 };
 
+enum class GameChangeType {
+	EMPTY_RIG_CAPTURED,
+	ENEMY_RIG_CAPTURED
+};
+
+class GameStateChangedEvent : public MsgEvent {
+public:
+	GameChangeType changeType;
+	Faction ownerFaction;
+
+	GameStateChangedEvent(GameChangeType changeType, Faction ownerFaction) : changeType(changeType), ownerFaction(ownerFaction) {
+
+	}
+};
+
 class TaskAbortEvent : public MsgEvent {
 public:
 	spt<GameTask> taskToAbort;
@@ -65,13 +80,14 @@ public:
 	Faction faction;
 	int internalId;
 	int externalId;
+	Vec2i ownerPosition;
 
 	SyncEvent() {
 
 	}
 
-	SyncEvent(SyncEventType eventType, EntityType entityType, Faction faction, ofVec2f position, int internalId, int externalId) :
+	SyncEvent(SyncEventType eventType, EntityType entityType, Faction faction, ofVec2f position, int internalId, int externalId, Vec2i ownerPosition) :
 		eventType(eventType), entityType(entityType), faction(faction), 
-		positionf(position), internalId(internalId), externalId(externalId) {
+		positionf(position), internalId(internalId), externalId(externalId), ownerPosition(ownerPosition) {
 	}
 };

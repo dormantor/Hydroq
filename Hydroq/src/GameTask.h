@@ -9,6 +9,8 @@ enum class GameTaskType {
 	BRIDGE_BUILD, BRIDGE_DESTROY, ATTRACT
 };
 
+enum class Faction;
+
 class GameTask {
 public:
 	// task type
@@ -28,11 +30,11 @@ public:
 	// node that reserved the task
 	vector<Node*> reserverNodes;
 	uint64 reserverTime = 0;
-
+	Faction faction;
 	bool IsNodeReserved(int nodeId);
 
 	void RemoveReserverNode(int nodeId);
-	GameTask(GameTaskType taskType) :type(taskType) {
+	GameTask(GameTaskType taskType, Faction faction) :type(taskType), faction(faction) {
 
 	}
 };

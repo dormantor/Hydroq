@@ -14,6 +14,7 @@
 #include "DeltaUpdate.h"
 #include "TaskScheduler.h"
 #include "HydroqPlayerModel.h"
+#include "HydroqAI.h"
 
 void HydroqGameModel::Init() {
 	hydroqMap = new HydMap();
@@ -21,12 +22,14 @@ void HydroqGameModel::Init() {
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
 	rootNode->AddBehavior(new TaskScheduler());
+	rootNode->AddBehavior(new HydroqAI());
 }
 
 void HydroqGameModel::StartGame(Faction faction, string map, bool isMultiplayer) {
 	this->faction = faction;
 	this->mapName = map;
 	this->multiplayer = isMultiplayer;
+	this->gameEnded = false;
 
 	Settings mapConfig = Settings();
 	auto xml = CogLoadXMLFile("mapconfig.xml");
@@ -68,10 +71,10 @@ bool HydroqGameModel::PositionContainsBridgeMark(Vec2i position) {
 	return IsPositionOfType(position, EntityType::BRIDGE_MARK);
 }
 
-void HydroqGameModel::MarkPositionForBridge(Vec2i position) {
+void HydroqGameModel::MarkPositionForBridge(Vec2i position, Faction faction) {
 	COGLOGDEBUG("Hydroq", "Placing bridge mark at [%d, %d]", position.x, position.y);
 	auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK, this->faction, 0);
-	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_BUILD));
+	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_BUILD, faction));
 	newTask->taskNode = node;
 	gameTasks.push_back(newTask);
 }
@@ -129,10 +132,10 @@ bool HydroqGameModel::PositionContainsDestroyMark(Vec2i position) {
 	return IsPositionOfType(position, EntityType::DESTROY_MARK);
 }
 
-void HydroqGameModel::MarkPositionForDestroy(Vec2i position) {
+void HydroqGameModel::MarkPositionForDestroy(Vec2i position, Faction faction) {
 	COGLOGDEBUG("Hydroq", "Marked for destroy: at [%d, %d]", position.x, position.y);
 	auto node = CreateDynamicObject(position, EntityType::DESTROY_MARK, this->faction, 0);
-	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_DESTROY));
+	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_DESTROY, faction));
 	newTask->taskNode = node;
 	gameTasks.push_back(newTask);
 	this->hydroqMap->GetNode(position)->forbidden = true;
@@ -140,14 +143,17 @@ void HydroqGameModel::MarkPositionForDestroy(Vec2i position) {
 }
 
 
-void HydroqGameModel::SpawnWorker(ofVec2f position) {
-	SpawnWorker(position, this->faction, 0);
+void HydroqGameModel::SpawnWorker(ofVec2f position, Vec2i rigPosition) {
+	SpawnWorker(position, this->faction, 0, rigPosition);
 }
 
-void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier) {
+void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, Vec2i rigPosition) {
 	CogLogInfo("Hydroq", "Creating worker for %s faction at [%.2f, %.2f]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
+	
 	cellSpace->AddNode(node);
+
+	this->workers[rigPosition].push_back(node);
 
 	if (faction == this->faction) {
 		playerModel->AddUnit(1);
@@ -155,7 +161,7 @@ void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identif
 
 	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
-			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, node->GetId(), 0));
+			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, node->GetId(), 0, rigPosition));
 	}
 }
 
@@ -185,7 +191,7 @@ void HydroqGameModel::BuildPlatform(Vec2i position, Faction faction, int identif
 
 	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
-			new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::BRIDGE, faction, position, 0, 0));
+			new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::BRIDGE, faction, position, 0, 0, Vec2i(0)));
 	}
 }
 
@@ -207,31 +213,33 @@ void HydroqGameModel::DestroyPlatform(Vec2i position, Faction faction, int ident
 
 	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
-			new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::WATER, faction, position, 0, 0));
+			new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::WATER, faction, position, 0, 0, Vec2i(0)));
 	}
 }
 
 
-void HydroqGameModel::AddAttractor(Vec2i position, float cardinality) {
+void HydroqGameModel::AddAttractor(Vec2i position, Faction faction, float cardinality) {
 	CogLogInfo("Hydroq", "Adding attractor at [%d, %d]", position.x, position.y);
 	
 	auto gameNode = CreateNode(EntityType::ATTRACTOR, position, faction, 0);
 	gameNode->AddAttr(ATTR_CARDINALITY, cardinality);
-	attractors[position] = gameNode;
+	attractors[faction][position] = gameNode;
 
 	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 		new MapObjectChangedEvent(ObjectChangeType::ATTRACTOR_CREATED, nullptr, gameNode));
-	auto newTask = spt<GameTask>(new GameTask(GameTaskType::ATTRACT));
+	auto newTask = spt<GameTask>(new GameTask(GameTaskType::ATTRACT, faction));
 	newTask->taskNode = gameNode;
 	gameTasks.push_back(newTask);
 }
 
-void HydroqGameModel::DestroyAttractor(Vec2i position) {
-	if (attractors.find(position) != attractors.end()) {
-		auto gameNode = attractors[position];
-		
+void HydroqGameModel::DestroyAttractor(Vec2i position, Faction faction) {
+	if (attractors.find(faction) != attractors.end() && attractors[faction].find(position) != attractors[faction].end()) {
+
+		Node* gameNode = attractors[faction][position];
+
 		CogLogInfo("Hydroq", "Removing attractor at [%d, %d]", position.x, position.y);
-		attractors.erase(position);
+
+		attractors[faction].erase(position);
 
 		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 			new MapObjectChangedEvent(ObjectChangeType::ATTRACTOR_REMOVED, nullptr, gameNode));
@@ -248,19 +256,28 @@ void HydroqGameModel::DestroyAttractor(Vec2i position) {
 	}
 }
 
-void HydroqGameModel::ChangeAttractorCardinality(Vec2i position, float cardinality) {
-	if (attractors.find(position) != attractors.end()) {
-		auto gameNode = attractors[position];
-		gameNode->ChangeAttr(ATTR_CARDINALITY, cardinality);
+void HydroqGameModel::DestroyAllAttractors(Faction faction) {
+	vector<Vec2i> positions;
+	for (auto& attr : attractors[faction]) {
+		positions.push_back(attr.first);
+	}
+
+	for (auto pos : positions) {
+		DestroyAttractor(pos, faction);
 	}
 }
 
-float HydroqGameModel::CalcAttractorAbsCardinality(int attractorId) {
+void HydroqGameModel::ChangeAttractorCardinality(Vec2i position, Faction faction, float cardinality) {
+	auto gameNode = attractors[faction][position];
+	gameNode->ChangeAttr(ATTR_CARDINALITY, cardinality);
+}
+
+float HydroqGameModel::CalcAttractorAbsCardinality(Faction faction, int attractorId) {
 	
 	float attrCardinality = 0;
 	float cardinalitySum = 0;
 	
-	for (auto& key : attractors) {
+	for (auto& key : attractors[faction]) {
 		float card = key.second->GetAttr<float>(ATTR_CARDINALITY);
 		if (key.second->GetId() == attractorId) {
 			attrCardinality = card;
@@ -275,21 +292,55 @@ void HydroqGameModel::ChangeRigOwner(Node* rig, Faction faction) {
 	if (oldFaction == Faction::NONE) {
 		playerModel->AddBuildings(1);
 		rig->ChangeAttr(ATTR_FACTION, faction);
+		rig->AddBehavior(new RigBehavior());
 		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 			new MapObjectChangedEvent(ObjectChangeType::RIG_TAKEN, nullptr, rig));
+
+		// send message about game state change
+		SendMessageToModel(StringHash(ACT_GAMESTATE_CHANGED), 0,
+			new GameStateChangedEvent(GameChangeType::EMPTY_RIG_CAPTURED, faction));
 	}
 	else {
-		// todo ...
-		playerModel->AddBuildings(1);
+		if (oldFaction != faction) playerModel->RemoveBuilding(1);
+		
 		rig->ChangeAttr(ATTR_FACTION, faction);
+		
+		auto rigPos = Vec2i(rig->GetTransform().localPos.x, rig->GetTransform().localPos.y);
+		for (auto worker : workers[rigPos]) {
+			// change workers faction according to the new rig owner
+			worker->ChangeAttr(ATTR_FACTION, faction);
+			worker->SetTag(faction == Faction::RED ? "worker_red" : "worker_blue");
+			if (oldFaction != faction) playerModel->RemoveUnit(1);
+			else playerModel->AddUnit(1);
+		}
+
 		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 			new MapObjectChangedEvent(ObjectChangeType::RIG_CAPTURED, nullptr, rig));
+
+		// send message about game state change
+		SendMessageToModel(StringHash(ACT_GAMESTATE_CHANGED), 0,
+			new GameStateChangedEvent(GameChangeType::ENEMY_RIG_CAPTURED, faction));
+
+		if (GetRigsByFaction(oldFaction).size() == 0) {
+			// todo... refactor
+			
+			// game over
+			this->gameEnded = true;
+			auto stage = GETCOMPONENT(Stage);
+			auto scene = stage->FindSceneByName("gameend_dialog");
+			stage->SwitchToScene(scene, TweenDirection::NONE);
+		}
 	}
 }
 
-vector<spt<GameTask>> HydroqGameModel::GetGameTaskCopy() {
+
+vector<spt<GameTask>> HydroqGameModel::GetGameTasksByFaction(Faction faction) {
 	vector<spt<GameTask>> output = vector<spt<GameTask>>();
-	for (auto task : gameTasks) output.push_back(task);
+	for (auto task : gameTasks) {
+		if (task->faction == faction) {
+			output.push_back(task);
+		}
+	}
 	return output;
 }
 
@@ -348,7 +399,7 @@ Node* HydroqGameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 }
 
 vector<Node*> HydroqGameModel::GetRigsByFaction(Faction fact) {
-	vector<Node*> output = vector<Node*>();
+	vector<Node*> output;
 
 	for (auto rig : rigs) {
 		if (rig.second->GetAttr<Faction>(ATTR_FACTION) == fact) output.push_back(rig.second);
@@ -357,7 +408,19 @@ vector<Node*> HydroqGameModel::GetRigsByFaction(Faction fact) {
 	return output;
 }
 
+vector<Node*> HydroqGameModel::GetAttractorsByFaction(Faction fact) {
+	vector<Node*> output;
+
+	for (auto attractor : attractors[fact]) {
+		output.push_back(attractor.second);
+	}
+
+	return output;
+}
+
 void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
+
+	if (gameEnded) return;
 
 	if (multiplayer) {
 		// update deltas
@@ -504,7 +567,7 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 	else if (entityType == EntityType::RIG) {
 		nd->SetTag("rig");
 		
-		if (faction == this->faction) {
+		if (faction == this->faction || (!multiplayer && faction != Faction::NONE)) {
 			nd->AddBehavior(new RigBehavior());
 		}
 	}

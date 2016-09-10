@@ -139,6 +139,15 @@
     <ClInclude Include="src\ConfirmDialog.h">
       <Filter>Menu</Filter>
     </ClInclude>
+    <ClInclude Include="src\TopPanel.h">
+      <Filter>Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqAI.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameEndDialog.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

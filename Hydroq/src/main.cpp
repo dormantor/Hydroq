@@ -28,6 +28,8 @@
 #include "HydAIState.h"
 #include "SpriteSheetGenerator.h"
 #include "ConfirmDialog.h"
+#include "TopPanel.h"
+#include "GameEndDialog.h"
 
 void RegenerateSpriteSheets() {
 	SpriteSheetGenerator generator = SpriteSheetGenerator();
@@ -166,6 +168,8 @@ public:
 		REGISTER_BEHAVIOR(HostInit);
 		REGISTER_BEHAVIOR(AttractorPlacement);
 		REGISTER_BEHAVIOR(ConfirmDialog);
+		REGISTER_BEHAVIOR(TopPanel);
+		REGISTER_BEHAVIOR(GameEndDialog);
 
 		auto playerModel = new HydroqPlayerModel();
 		auto gameModel = new HydroqGameModel();
@@ -239,6 +243,7 @@ public:
 #include "JavaScriptTest.h"
 #include "LuaTest.h"
 #include "MonteCarloTest.h"
+#include "CoroutineTest.h"
 #include "cpplinq.hpp"
 
 int main() {

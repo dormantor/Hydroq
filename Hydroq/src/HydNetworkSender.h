@@ -32,6 +32,7 @@ public:
 			msg->SetEntityType(syncEvent->entityType);
 			msg->SetEventType(syncEvent->eventType);
 			msg->SetFaction(syncEvent->faction);
+			msg->SetOwnerPosition(syncEvent->ownerPosition);
 			msg->SetIdentifier(syncEvent->internalId);
 			msg->SetPosition(syncEvent->positionf);
 			auto netMsg = msg->CreateMessage();

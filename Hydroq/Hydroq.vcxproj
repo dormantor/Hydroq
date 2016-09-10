@@ -220,6 +220,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\AttractorPlacement.h" />
     <ClInclude Include="src\Board.h" />
     <ClInclude Include="src\ConfirmDialog.h" />
+    <ClInclude Include="src\GameEndDialog.h" />
     <ClInclude Include="src\GameTask.h" />
     <ClInclude Include="src\HostInit.h" />
     <ClInclude Include="src\HydNetworkReceiver.h" />
@@ -243,6 +244,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />
     <ClInclude Include="src\MultiplayerMenu.h" />
+    <ClInclude Include="src\HydroqAI.h" />
     <ClInclude Include="src\RightPanel.h" />
     <ClInclude Include="src\RightPanelSections.h" />
     <ClInclude Include="src\RigBehavior.h" />
@@ -250,6 +252,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\LeftPanel.h" />
     <ClInclude Include="src\SingleGameMenu.h" />
     <ClInclude Include="src\TaskScheduler.h" />
+    <ClInclude Include="src\TopPanel.h" />
     <ClInclude Include="src\Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -53,12 +53,22 @@ public:
 		SendMessageToListeners(StringHash(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(units-num, num), nullptr);
 	}
 
+	void RemoveUnit(int num) {
+		this->units -= num;
+		SendMessageToListeners(StringHash(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(units - num, num), nullptr);
+	}
+
 	int GetBuildings() {
 		return buildings;
 	}
 
 	void AddBuildings(int num) {
 		this->buildings += num;
+		SendMessageToListeners(StringHash(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(buildings - num, num), nullptr);
+	}
+
+	void RemoveBuilding(int num) {
+		this->buildings -= num;
 		SendMessageToListeners(StringHash(ACT_COUNTER_CHANGED), 0, new ValueChangeEvent<int>(buildings - num, num), nullptr);
 	}
 

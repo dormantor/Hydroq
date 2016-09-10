@@ -14,7 +14,8 @@ bool WorkerIdleState::FindTaskToDo() {
 	// position the worker stays
 	auto start = owner->GetTransform().localPos;
 
-	auto allTasks = model->GetGameTaskCopy();
+	auto faction = owner->GetAttr<Faction>(ATTR_FACTION);
+	auto allTasks = model->GetGameTasksByFaction(faction);
 
 	// order tasks by distance
 	sort(allTasks.begin(), allTasks.end(),
@@ -68,7 +69,7 @@ bool WorkerIdleState::FindTaskToDo() {
 				}
 			}
 			else if (task->type == GameTaskType::ATTRACT) {
-				float cardinality = model->CalcAttractorAbsCardinality(task->taskNode->GetId());
+				float cardinality = model->CalcAttractorAbsCardinality(faction, task->taskNode->GetId());
 				int neededDistance = cardinality * 4;
 				vector<HydMapNode*> nearestNodes = vector<HydMapNode*>();
 				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);

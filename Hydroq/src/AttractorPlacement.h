@@ -78,7 +78,7 @@ public:
 							attractors.erase(attractors.begin());
 							Vec2i brickPosition = firstAttr->GetAttr<Vec2i>(ATTR_BRICK_POS);
 							auto gameModel = GETCOMPONENT(HydroqGameModel);
-							gameModel->DestroyAttractor(brickPosition);
+							gameModel->DestroyAttractor(brickPosition, gameModel->GetFaction());
 							owner->RemoveChild(firstAttr, true);
 							attrPlaced--;
 						}
@@ -103,7 +103,7 @@ public:
 								
 								Vec2i brickPosition = placedAttractor->GetAttr<Vec2i>(ATTR_BRICK_POS);
 								auto gameModel = GETCOMPONENT(HydroqGameModel);
-								gameModel->ChangeAttractorCardinality(brickPosition,newScale.x / 3.0f);
+								gameModel->ChangeAttractorCardinality(brickPosition, gameModel->GetFaction(), newScale.x / 3.0f);
 
 								trans.scale = newScale;
 
@@ -192,7 +192,7 @@ public:
 				attractors.erase(it);
 
 				auto gameModel = GETCOMPONENT(HydroqGameModel);
-				gameModel->DestroyAttractor(brickPosition);
+				gameModel->DestroyAttractor(brickPosition, gameModel->GetFaction());
 				owner->RemoveChild(node, true);
 				attrPlaced--;
 				return true;
@@ -214,7 +214,7 @@ public:
 
 		placedAttractor->AddAttr(ATTR_BRICK_POS, brickPos);
 		auto gameModel = GETCOMPONENT(HydroqGameModel);
-		gameModel->AddAttractor(brickPos, 1);
+		gameModel->AddAttractor(brickPos, gameModel->GetFaction(), 1);
 
 		attractors.push_back(placedAttractor);
 		RefreshAttractorPosition(position, ofVec2f(1));

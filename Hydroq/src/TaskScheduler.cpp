@@ -21,9 +21,18 @@ map<int, int> TaskScheduler::CalcAssignedTasks(vector<spt<GameTask>>& tasks) {
 }
 
 void TaskScheduler::ScheduleTasks(uint64 absolute) {
+	if (gameModel->IsMultiplayer()) {
+		ScheduleTasksForFaction(absolute, gameModel->GetFaction());
+	}
+	else {
+		ScheduleTasksForFaction(absolute, Faction::BLUE);
+		ScheduleTasksForFaction(absolute, Faction::RED);
+	}
+}
 
-	auto allTasks = gameModel->GetGameTaskCopy();
-	auto allWorkers = gameModel->GetMovingObjectsByType(EntityType::WORKER, gameModel->GetFaction());
+void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
+	auto allTasks = gameModel->GetGameTasksByFaction(faction);
+	auto allWorkers = gameModel->GetMovingObjectsByType(EntityType::WORKER, faction);
 	auto map = gameModel->GetMap();
 
 	auto assignedTasks = CalcAssignedTasks(allTasks);
@@ -31,16 +40,16 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 	COGMEASURE_BEGIN("HYDROQ_SCHEDULER");
 
 	for (auto& task : allTasks) {
-		
-		if (!task->isDelayed && !task->isEnded && !task->isProcessing && 
+
+		if (!task->isDelayed && !task->isEnded && !task->isProcessing &&
 			(!task->isReserved || (task->isReserved && (absolute - task->reserverTime) > 10000))
 			&& (task->type == GameTaskType::BRIDGE_BUILD || task->type == GameTaskType::BRIDGE_DESTROY || task->type == GameTaskType::ATTRACT)) {
-			
+
 			auto taskLocation = task->taskNode->GetTransform().localPos;
-			
+
 			// node at position the bridge will stay
 			auto mapNode = map->GetNode((int)taskLocation.x, (int)taskLocation.y);
-			
+
 			// sort nodes by nearest
 			sort(allWorkers.begin(), allWorkers.end(),
 				[&taskLocation](Node*  a, Node* b) -> bool
@@ -49,7 +58,7 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 			});
 
 			if (task->type == GameTaskType::ATTRACT) {
-				float absCardinality = gameModel->CalcAttractorAbsCardinality(task->taskNode->GetId());
+				float absCardinality = gameModel->CalcAttractorAbsCardinality(faction, task->taskNode->GetId());
 				int neededDistance = absCardinality * 4;
 
 				vector<HydMapNode*> nearestNodes = vector<HydMapNode*>();
@@ -62,10 +71,10 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 						if (assignedTasks.find(worker->GetId()) == assignedTasks.end()) {
 							// if this worker is close to another attractor, skip him
 							bool skip = false;
-							for (auto& attr : gameModel->GetAttractors()) {
-								if (attr.second->GetId() != task->taskNode->GetId()) {
-									ofVec2f pos = ofVec2f(attr.first.x + 0.5f, attr.first.y + 0.5f);
-									if (pos.distance(worker->GetTransform().localPos) < 5) {
+							for (auto& attr : gameModel->GetAttractorsByFaction(faction)) {
+								if (attr->GetId() != task->taskNode->GetId()) {
+									ofVec2f attrLoc = (attr->GetTransform().localPos) + 0.5f;
+									if (attrLoc.distance(worker->GetTransform().localPos) < 5) {
 										skip = true;
 										break;
 									}
@@ -78,7 +87,7 @@ void TaskScheduler::ScheduleTasks(uint64 absolute) {
 					}
 
 					int workersToAssign = allWorkers.size()*absCardinality - task->reserverNodes.size();
-					workersToAssign = max((int)(workersToAssign / 1.8f),1); // assign continuously :
+					workersToAssign = max((int)(workersToAssign / 1.8f), 1); // assign continuously :
 
 					int workersAvailableToAsign = min(workersToAssign, (int)freeWorkers.size());
 

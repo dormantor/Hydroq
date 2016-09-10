@@ -25,6 +25,8 @@ public:
 
 	void ScheduleTasks(uint64 absolute);
 
+	void ScheduleTasksForFaction(uint64 absolute, Faction faction);
+
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 		
 		if (CogGetFrameCounter() % 30 == 0) {

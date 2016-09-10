@@ -67,7 +67,7 @@ public:
 		case SyncEventType::OBJECT_CREATED:
 			switch (cmdMsg->GetEntityType()) {
 			case EntityType::WORKER:
-				model->SpawnWorker(cmdMsg->GetPosition(), cmdMsg->GetFaction(), cmdMsg->GetIdentifier());
+				model->SpawnWorker(cmdMsg->GetPosition(), cmdMsg->GetFaction(), cmdMsg->GetIdentifier(), cmdMsg->GetOwnerPosition());
 				break;
 			}
 			break;

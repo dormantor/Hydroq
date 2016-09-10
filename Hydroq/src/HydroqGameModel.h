@@ -38,7 +38,10 @@ private:
 	// subset of dynamic objects -> rigs
 	map<Vec2i, Node*> rigs;
 	// attractors
-	map<Vec2i, Node*> attractors;
+	map<Faction, map<Vec2i, Node*>> attractors;
+
+	// rigs positions and workers the rig created
+	map<Vec2i, vector<Node*>> workers;
 	
 	// scene and its root node that run separately from the view
 	// part of the game
@@ -48,6 +51,7 @@ private:
 	Faction faction;
 	string mapName;
 	bool multiplayer = false;
+	bool gameEnded = false;
 	// list of waiting tasks
 	vector<spt<GameTask>> gameTasks;
 	
@@ -91,8 +95,16 @@ public:
 		return multiplayer;
 	}
 
-	map<Vec2i, Node*>& GetAttractors() {
+	bool GameEnded() {
+		return gameEnded;
+	}
+
+	map<Faction, map<Vec2i, Node*>>& GetAttractors() {
 		return attractors;
+	}
+
+	vector<Node*>& GetWorkersOfRigAtPosition(Vec2i pos) {
+		return workers[pos];
 	}
 
 	/**
@@ -113,7 +125,7 @@ public:
 	/**
 	* Marks position for a new bridge
 	*/
-	void MarkPositionForBridge(Vec2i position);
+	void MarkPositionForBridge(Vec2i position, Faction faction);
 
 	void DeleteBridgeMark(Vec2i position);
 
@@ -150,17 +162,17 @@ public:
 	/**
 	* Marks selected position to be intended for destroy
 	*/
-	void MarkPositionForDestroy(Vec2i position);
+	void MarkPositionForDestroy(Vec2i position, Faction faction);
 
 	/**
 	* Creates a new worker at selected position
 	*/
-	void SpawnWorker(ofVec2f position);
+	void SpawnWorker(ofVec2f position, Vec2i rigPosition);
 
 	/**
 	* Creates a new worker at selected position for selected faction
 	*/
-	void SpawnWorker(ofVec2f position, Faction faction, int identifier);
+	void SpawnWorker(ofVec2f position, Faction faction, int identifier, Vec2i rigPosition);
 
 	/**
 	* Creates a platform on selected position
@@ -182,13 +194,15 @@ public:
 	*/
 	void DestroyPlatform(Vec2i position, Faction faction, int identifier);
 
-	void AddAttractor(Vec2i position, float cardinality);
+	void AddAttractor(Vec2i position, Faction faction, float cardinality);
 
-	void DestroyAttractor(Vec2i position);
+	void DestroyAttractor(Vec2i position, Faction faction);
 
-	void ChangeAttractorCardinality(Vec2i position, float cardinality);
+	void DestroyAllAttractors(Faction faction);
 
-	float CalcAttractorAbsCardinality(int attractorId);
+	void ChangeAttractorCardinality(Vec2i position, Faction faction, float cardinality);
+
+	float CalcAttractorAbsCardinality(Faction faction, int attractorId);
 
 	void ChangeRigOwner(Node* rig, Faction faction);
 
@@ -220,7 +234,7 @@ public:
 	/**
 	* Gets copy of game tasks
 	*/
-	vector<spt<GameTask>> GetGameTaskCopy();
+	vector<spt<GameTask>> GetGameTasksByFaction(Faction faction);
 
 	vector<Node*> GetMovingObjectsByType(EntityType type, Faction faction);
 
@@ -229,6 +243,8 @@ public:
 	Node* FindNearestRigByFaction(Faction fact, ofVec2f startPos);
 
 	vector<Node*> GetRigsByFaction(Faction fact);
+
+	vector<Node*> GetAttractorsByFaction(Faction fact);
 
 
 	virtual void Update(const uint64 delta, const uint64 absolute);

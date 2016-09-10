@@ -58,8 +58,8 @@ void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 				posY = thisPos.y + (8 - circuitPosition);
 			}
 
-
-			gameModel->SpawnWorker(ofVec2f(posX, posY));
+			Faction faction = owner->GetAttr<Faction>(ATTR_FACTION);
+			gameModel->SpawnWorker(ofVec2f(posX, posY),faction,0, Vec2i(owner->GetTransform().localPos.x, owner->GetTransform().localPos.y));
 
 			if (totalWorkers++ > 20) Finish();
 		}

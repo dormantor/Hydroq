@@ -78,6 +78,24 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			if (evt->changeType == ObjectChangeType::RIG_TAKEN) {
 				rigsToAnimate.push_back(evt->changedNode);
 
+				auto gameModel = GETCOMPONENT(HydroqGameModel);
+				auto& movingObjects = gameModel->GetMovingObjects();
+
+				// update transformation of all objects
+				for (auto& dynObj : movingObjects) {
+					int id = dynObj->GetId();
+					auto sprite = dynamicSpriteEntities[id];
+					auto faction = dynObj->GetAttr<Faction>(ATTR_FACTION);
+					if (faction == Faction::RED) {
+						int frameToSet = spriteTypes["worker_red"][0]->GetFrame();
+						sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frameToSet));
+					}
+					else {
+						int frameToSet = spriteTypes["worker_blue"][0]->GetFrame();
+						sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frameToSet));
+					}
+				}
+
 
 				if (fact == Faction::BLUE) {
 					staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spriteTypes["rig_blue_start"][0];
