@@ -16,13 +16,20 @@ class MenuBehavior : public Behavior {
 	OBJECT_PROTOTYPE(MenuBehavior)
 
 	void Init() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED);
+		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED);
 	}
 
 	void OnMessage(Msg& msg) {
+
+
 		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
 			if (msg.GetSourceObject()->GetTag().compare("sgame_but") == 0) {
 				// click on single game button -> switch scene
+				auto sceneContext = GETCOMPONENT(SceneContext);
+				auto scene = sceneContext->FindSceneByName("main_menu_map");
+				sceneContext->SwitchToScene(scene);
+			}else if (msg.GetSourceObject()->GetTag().compare("play_but") == 0) {
+				// click on play button -> switch scene
 				auto sceneContext = GETCOMPONENT(SceneContext);
 				auto scene = sceneContext->FindSceneByName("game");
 				sceneContext->SwitchToScene(scene, TweenDirection::LEFT);
@@ -45,9 +52,9 @@ class MenuIconBehavior : public Behavior {
 	    Trans animTrans;
 
 	void Init() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
 
-		Node* menu = CogFindNodeByTag("rightpanel");
+		Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
 		initTrans = menu->GetTransform();
 
 

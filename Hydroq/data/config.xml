@@ -97,6 +97,86 @@
       </node>
     </scene>
 
+	
+	
+    <scene name="main_menu_map">
+		  <!-- scene settings overrides default settings -->
+      <scene_settings>
+        <setting name="transform">
+          <!-- grid sizing -->
+          <item key="grid_width" value="100" />
+          <item key="grid_height" value="53" />
+        </setting>
+      </scene_settings>
+
+      <node type="background" img="blue_background.png" />
+
+      <node name="desk_board" img="desk_board.png">
+        
+        <transform pos_x="10" pos_y="4" z_index="2" ptype="grid" anchor="0" width="80" stype="grid" />
+		<behavior name="MenuBehavior" />	  
+		
+        <node name="desk_left" img="desk.png">
+          <transform pos_x="8" pos_y="2" z_index="1" ptype="grid" anchor="0" stype="loc" />
+        </node>
+
+        <node name="desk_right" img="desk.png">
+          <transform pos_x="92" pos_y="2" z_index="1" ptype="grid" anchor="0" width="-1"  stype="loc" />
+        </node>
+
+        <node name="logo" img="hydroq.png">
+          <transform pos_x="50" pos_y="12" ptype="grid" anchor="0.5" stype="loc" />
+        </node>
+
+		<node name="board_1" img="menu_selectboard.png" >
+		  <transform pos_x="0.25" pos_y="0.3" ptype="per" stype="loc" anchor_x="0.5" />
+		  
+		  <node name="dummy_map" img="menu_map1.png">
+		    <transform pos_x="0.5" pos_y="0.5" ptype="per" anchor="0.5" stype="loc" />
+		  </node>
+		</node>
+		
+		<node name="board_2" img="menu_selectboard.png" >
+		  <transform pos_x="0.5" pos_y="0.3" ptype="per" stype="loc" anchor_x="0.5" />
+		  
+		  <node name="map_text">
+            <text font="MotionControl-Bold.otf" size="40" color="0xFFFFFF">Map1</text>
+            <transform pos="0.1" ptype="per" size="1" stype="loc"  />
+          </node>
+		</node>
+		
+		<node name="board_3" img="menu_selectboard.png" >
+		  <transform pos_x="0.75" pos_y="0.3" ptype="per" stype="loc" anchor_x="0.5" />
+		
+		  <node name="faction_red" img="menu_selection.png">
+		    <transform pos_x="0.5" pos_y="0.1" ptype="per" stype="loc" anchor_x="0.5" />
+			
+			<node name="icon_red" img="menu_faction_red.png">
+			  <transform pos="0.5" ptype="per" stype="loc" anchor="0.5"/>
+			</node>
+		  </node>
+		  
+		  <node name="faction_blue" img="menu_selection.png">
+		    <transform pos_x="0.5" pos_y="0.1" ptype="per" stype="loc" anchor_x="0.5" anchor_y="-1.2" />
+		  
+			<node name="icon_blue" img="menu_faction_blue.png">
+			  <transform pos="0.5" ptype="per" stype="loc" anchor="0.5"/>
+			</node>
+		  </node>
+		</node>
+		
+        <node name="play_but" img="button_default.png" img_click="button_default_click.png">
+          <transform pos_x="50" pos_y="42" ptype="grid" anchor="0.5"  stype="loc"/>
+
+          <node name="play_but_text">
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">PLAY</text>
+            <transform pos="0.5" anchor="0.5" ptype="per" size="1" stype="loc"  />
+          </node>
+        </node>
+      </node>
+    </scene>
+	
+	
     <scene name="game">
 	   <scene_settings>
         <setting name="transform">
