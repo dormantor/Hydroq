@@ -588,16 +588,18 @@
 	  
       <!-- floating scene -->
       <node name="gameboard">
-	    <behavior type="FloatingScene">
+	    
+		<behavior type="FloatingScene">
 		  <setting>
 		    <item key="scroll_enabled" value="true" />
 		  </setting>
 	    </behavior>
+		<behavior type="AttractorPlacement" /> <!-- must be declared after FloatingScene -->
 		<behavior type="BrickEventBehavior" />
 		<behavior type="HydroqPlayerController" />
         <behavior type="HitEvent" />
         <behavior type="HydroqBoard" />
-		<behavior type="AttractorPlacement" />
+		
 		
     	<transform pos_x="0gr" pos_y="0gr"  width="200gr" z_index="4" />
 		
