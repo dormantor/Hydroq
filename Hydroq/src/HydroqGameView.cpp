@@ -105,15 +105,17 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 
 void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 	auto model = GETCOMPONENT(HydroqGameModel);
-	auto& dynObjects = model->GetMovingObjects();
+	auto& movingObjects = model->GetMovingObjects();
 
 	// update transformation of all objects
-	for (auto& dynObj : dynObjects) {
+	for (auto& dynObj : movingObjects) {
 		int id = dynObj->GetId();
 		auto sprite = dynamicSpriteEntities[id];
 
 		sprite->transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * dynObj->GetTransform().localPos.x - defaultSpriteSet->GetSpriteWidth() / 2;
 		sprite->transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * dynObj->GetTransform().localPos.y - defaultSpriteSet->GetSpriteHeight() / 2;
 		sprite->transform.rotation = dynObj->GetTransform().rotation;
+
+		
 	}
 }

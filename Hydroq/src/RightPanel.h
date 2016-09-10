@@ -30,6 +30,7 @@ class RightPanel : public Behavior {
 
 		buildSectionId = scene->FindNodeByTag("section_build")->GetId();
 		commandSectionId = scene->FindNodeByTag("section_command")->GetId();
+		otherSectionId = scene->FindNodeByTag("section_other")->GetId();
 	}
 
 	void OnStart() {
@@ -65,12 +66,13 @@ class RightPanel : public Behavior {
 	void SelectOtherSection() {
 		UnSelectNodes();
 		selectedSection = Section::OTHER;
-		scene->FindNodeById(commandSectionId)->SetRunningMode(RunningMode::RUNNING);
+		scene->FindNodeById(otherSectionId)->SetRunningMode(RunningMode::RUNNING);
 	}
 
 	void UnSelectNodes() {
 		scene->FindNodeById(buildSectionId)->SetRunningMode(RunningMode::DISABLED);
 		scene->FindNodeById(commandSectionId)->SetRunningMode(RunningMode::DISABLED);
+		scene->FindNodeById(otherSectionId)->SetRunningMode(RunningMode::DISABLED);
 	}
 
 public:

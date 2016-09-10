@@ -517,6 +517,62 @@
             </node>
 		  </node>
 		</node>
+		
+		<node name="section_other">
+		  <transform pos_x="0.05r" pos_y="0.30r" anchor="0" width="0.99r" height="0.7r" />
+		  
+		  
+		  <node name="command_gather">
+		    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
+		    <transform size="1r" />
+		    <behavior type="HitEvent"/>
+		  
+		    <node img="game/functions_cmd_gather.png">
+		      <transform pos_x="0.3r" anchor="0.5" pos_y="0.1r"  />
+		    </node>
+		    <node name="command_gather_text">
+              <transform pos_x="0.3r" pos_y="0.25r" anchor="0.5"  />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Gather</text>
+            </node>
+		  </node>
+		  
+		  <node name="command_attack">
+	   	    <shape type="bounding_box" color="0xFFFFFF44" renderable="false" margin="0.1" />
+		    <transform size="1r" />
+		    <behavior type="HitEvent"/>
+		  
+		    <node img="game/functions_cmd_attack.png">
+		      <transform pos_x="0.7r" anchor="0.5" pos_y="0.1r"  />
+		    </node>
+		    <node>
+              <transform pos_x="0.7r" pos_y="0.25r" anchor="0.5"  />
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Attack</text>
+            </node>
+		  </node>
+		  
+		  <node name="command_spawnpriority">
+		    <transform size="1r" />
+		  
+		    <node img="game/gm_worker.png">
+		      <transform pos_x="0.1r" anchor="0.5" pos_y="0.4r"  />
+		    </node>
+			<node img="game/gm_warrior.png">
+		      <transform pos_x="0.9r" anchor="0.5" pos_y="0.4r"  />
+		    </node>
+			<node name="slider_border" img="game/slider_border.png">
+			  <behavior type="HitEvent" />
+			  <behavior type="Slider" body="slider_body" text="slider_text"  />
+		      <transform pos_x="0.5r" anchor="0.5" pos_y="0.4r"  />
+		    </node>
+			<node name="slider_body" img="game/slider.png">
+		      <transform pos_x="0.5r" anchor="0.5" pos_y="0.4r" />
+		    </node>
+		    <node name="slider_text">
+              <transform pos_x="0.5r" pos_y="0.41r" anchor="0.5"  />
+		      <text font="MotionControl-Bold.otf" size="40" color="0xFFFFFF">0%</text>
+            </node>
+		  </node>
+		</node>
 
       </node>
 

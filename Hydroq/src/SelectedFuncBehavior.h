@@ -43,6 +43,12 @@ class SelectedFuncBehavior : public Behavior {
 			else if (which->after == HydroqAction::GUARD) {
 				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_guard.png"));
 			}
+			else if (which->after == HydroqAction::GATHER) {
+				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_gather_icon.png"));
+			}
+			else if (which->after == HydroqAction::ATTACK) {
+				owner->GetShape<spt<Image>>()->SetImage(CogGet2DImage("game/functions_cmd_attack_icon.png"));
+			}
 			else if (which->after == HydroqAction::NONE) {
 				owner->SetRunningMode(RunningMode::INVISIBLE);
 			}
