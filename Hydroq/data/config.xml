@@ -87,22 +87,19 @@
         </node>
 
         <!-- buttons -->
-        <node name="continue_but" img="button_default.png" img_click="button_default_click.png" img_disabled="button_default_disabled.png">
-		  <state>DISABLED</state>
-		  
-          <transform pos_x="50gr" pos_y="23gr" anchor="0.5"  />
-
-          <node name="continue_but_text">
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Continue</text>
-            <transform pos="0.5r" anchor="0.5" size="1"  />
-          </node>
-        </node>
-
         <node name="sgame_but" img="button_default.png" img_click="button_default_click.png">
-          <transform pos_x="50gr" pos_y="35gr" anchor="0.5" />
+          <transform pos_x="50gr" pos_y="23gr" anchor="0.5" />
 
           <node name="sgame_but_text">
             <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Single game</text>
+            <transform pos="0.5r" anchor="0.5" size="1"  />
+          </node>
+        </node>
+		<node name="multiplayer_but" img="button_default.png" img_click="button_default_click.png">
+          <transform pos_x="50gr" pos_y="35gr" anchor="0.5"  />
+
+          <node name="multiplayer_but_text">
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Multiplayer</text>
             <transform pos="0.5r" anchor="0.5" size="1"  />
           </node>
         </node>
@@ -127,7 +124,7 @@
       <node name="desk_board" img="desk_board.png">
         
         <transform pos_x="10gr" pos_y="4gr" z_index="2" anchor="0" width="80gr" />
-		<behavior type="MenuBehavior" />	  
+		<behavior type="SingleGameMenu" />	  
 		
         <node name="desk_left" img="desk.png">
           <transform pos_x="8gr" pos_y="2gr" z_index="1" anchor="0" />
@@ -190,6 +187,139 @@
       </node>
     </scene>
 	
+	  <scene name="multiplayer_map">
+		  <!-- scene settings overrides default settings -->
+      <scene_settings>
+        <setting name="transform">
+          <!-- grid sizing -->
+          <item key="grid_width" value="100" />
+          <item key="grid_height" value="53" />
+		  
+        </setting>
+      </scene_settings>
+
+      <node  img="blue_background.png" />
+      <node name="desk_board" img="desk_board.png">
+        <transform pos_x="10gr" pos_y="4gr" z_index="2" anchor="0" width="80gr" />
+		<behavior type="MultiplayerMenu" />	  
+		
+        <node name="desk_left" img="desk.png">
+          <transform pos_x="8gr" pos_y="2gr" z_index="1" anchor="0" />
+        </node>
+        <node name="desk_right" img="desk.png">
+          <transform pos_x="92gr" pos_y="2gr" z_index="1" anchor="0" width="-1"   />
+        </node>
+        <node name="logo" img="hydroq.png">
+          <transform pos_x="50gr" pos_y="12gr" anchor="0.5"  />
+        </node>
+		
+		<!-- ========================================== HOSTING GAMES ======================================== -->
+		<!-- list of games: -->
+		<node name="board_1" img="menu_selectboard.png" >
+		  <transform pos_x="0.25r" pos_y="0.3r" anchor_x="0.5" />
+		  <node>
+            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Games:</text>
+            <transform pos="0.1r" size="1"   />
+          </node>
+
+		</node>
+		
+		<!-- ========================================== GAME MAPS ======================================== -->
+		<node name="board_2" img="menu_selectboard.png" >
+		  <transform pos_x="0.5r" pos_y="0.3r" anchor_x="0.5" />
+		  
+		  <node name="map_text">
+            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Maps:</text>
+            <transform pos="0.1r" size="1"   />
+          </node>
+		  <node name="maps_list">
+			  <transform size="1r" />
+			  <!-- MAP 1 -->
+			  <node>
+			       <behavior type="HitEvent" />
+				   <behavior type="MultiSelection" default_color="0x00000000" selected_color="0xFFFFFF88" selection_group="SELECTION_MAP" />
+			       <shape type="plane" size="1" color="0x00000000" />
+                   <transform pos_x="0.05r" pos_y="0.22r" width="17gr" height="3gr"   />
+			  </node>
+			  <node>
+				   <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Map1</text>
+                   <transform pos_x="0.1r" pos_y="0.26r" size="1"   />
+			  </node>	
+
+			  <!-- MAP 2 -->
+			  <node>
+			       <behavior type="HitEvent" />
+				   <behavior type="MultiSelection" default_color="0x00000000" selected_color="0xFFFFFF88" selection_group="SELECTION_MAP" />
+			       <shape type="plane" size="1" color="0x00000000" />
+                   <transform pos_x="0.05r" pos_y="0.40r" width="17gr" height="3gr"   />
+			  </node>
+			  <node>
+				   <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Map2</text>
+                   <transform pos_x="0.1r" pos_y="0.44r" size="1"   />
+			  </node>			  
+          </node>
+		</node>
+		
+		<node name="board_3" img="menu_selectboard.png" >
+		  <transform pos_x="0.75r" pos_y="0.3r" anchor_x="0.5" />
+		
+		  <node name="faction_red" img="menu_selection.png" img_multiselect="menu_selection_selected.png" select_group="faction_select">
+		    <transform pos_x="0.5r" pos_y="0.1r" anchor_x="0.5" />
+			
+			<node name="icon_red" img="menu_faction_red.png">
+			  <transform pos="0.5r" anchor="0.5"/>
+			</node>
+		  </node>
+		  
+		  <node name="faction_blue" img="menu_selection.png" img_multiselect="menu_selection_selected.png" select_group="faction_select" >
+		    <transform pos_x="0.5r" pos_y="0.1r" anchor_x="0.5" anchor_y="-1.2" />
+			<state>SELECTED</state>
+			 
+			<node name="icon_blue" img="menu_faction_blue.png">
+			  <transform pos="0.5r" anchor="0.5"/>
+			</node>
+		  </node>
+		</node>
+		
+        <node name="connect_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
+		   <state>DISABLED</state>
+          <transform pos_x="20gr" pos_y="42gr" anchor_x="0" anchor_y="0.5"  />
+          <node>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">CONNECT</text>
+            <transform pos="0.5r" anchor="0.5r" size="1"   />
+          </node>
+        </node>
+		<node name="host_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
+		  <state>DISABLED</state>
+          <transform pos_x="80gr" pos_y="42gr" anchor_x="1" anchor_y="0.5" />
+          <node>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">HOST</text>
+            <transform pos="0.5r" anchor="0.5r" size="1"   />
+          </node>
+        </node>
+      </node>
+    </scene>
+	
+	<scene name="host_init" type="dialog">
+	  <scene_settings>
+        <setting name="transform">
+          <!-- grid sizing -->
+          <item key="grid_width" value="100" />
+          <item key="grid_height" value="53" />
+		  
+        </setting>
+      </scene_settings>
+	  
+	  <node name="desk_board" img="desk_board_light.png">
+        <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
+		<behavior type="HostInit" />
+		<node name="host_status">
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Listening...</text>
+           <transform pos="0.5r" anchor="0.5r" size="1"   />
+		</node>
+      </node>
+	</scene>
+	
 	<scene name="loading">
 	  <scene_settings>
         <setting name="transform">
@@ -229,9 +359,10 @@
 
    	  
       <node name="leftpanel" img="game/gm_leftpanel.png">
+	  	<behavior type="HitEvent" />
+		<behavior type="LeftPanel" />
         <transform pos="0gr" z_index="10" />
 
-		<behavior type="HitEvent" />
         <node name="playertext">
           <transform pos_x="1gr" pos_y="2gr" />
 		  <text font="MotionControl-Bold.otf" size="54" color="0xFFFFFF">Player Mojo</text>
@@ -288,7 +419,8 @@
       </node>
 
       <node name="toppanel" img="game/gm_toppanel.png" >
-        <transform pos_x="50gr" pos_y="0gr"  anchor_x="0.5"   z_index="10" />
+        
+		<transform pos_x="50gr" pos_y="0gr"  anchor_x="0.5"   z_index="10" />
 
         <node name="redicon" img="game/gm_redicon.png">
           <transform pos_x="40gr" pos_y="0.5gr" anchor_x="0.5" anchor_y="0"  />

@@ -1,6 +1,7 @@
 #include "Worker.h"
 #include "HydroqGameModel.h"
 #include "SteeringBehavior.h"
+#include "MsgEvents.h"
 
 // ======================= WORKER IDLE STATE ==============================
 
@@ -83,14 +84,14 @@ void WorkerIdleState::MoveAround() {
 			auto model = GETCOMPONENT(HydroqGameModel);
 
 			// check if we can go at selected location
-			vector<Vec2i> map = model->GetMap()->FindPath(start, end);
+			vector<Vec2i> map = model->GetMap()->FindPath(start, end, false, 0);
 
 			if (map.size() > 0 && map.size() <= 2) {
 				// go there 
 				movingAround->Restart();
 				movingAround->SetListenerState(ListenerState::ACTIVE_ALL);
 				// set destination
-				owner->AddAttr(ATTR_STEERING_BEH_SEEK_DEST, endPrec);
+				owner->AddAttr(ATTR_STEERING_BEH_SEEK_DEST, ofVec2f(endPrec));
 			}
 		}
 	}
@@ -121,6 +122,18 @@ void WorkerIdleState::Update(const uint64 delta, const uint64 absolute) {
 
 // ========================== WORKER BRIDGE BUILD STATE ==============================
 
+void WorkerBridgeBuildState::OnMessage(Msg& msg) {
+	if (msg.GetAction() == StringHash(ACT_TASK_ABORTED)) {
+		TaskAbortEvent* msgTask = msg.GetDataS<TaskAbortEvent>();
+		if (msgTask->taskToAbort == task) {
+			if (buildGoal != nullptr) {
+				MLOGDEBUG("Hydroq", "BridgeBuildState: aborting process");
+				buildGoal->Abort();
+			}
+		}
+	}
+}
+
 void WorkerBridgeBuildState::EnterState() {
 	task->handlerNode = owner;
 	task->isProcessing = true;
@@ -147,7 +160,7 @@ void WorkerBridgeBuildState::EnterState() {
 }
 
 void WorkerBridgeBuildState::Update(const uint64 delta, const uint64 absolute) {
-	if (buildGoal != nullptr && (buildGoal->IsFailed() || buildGoal->IsCompleted())) {
+	if (buildGoal != nullptr && (buildGoal->HasEnded())) {
 
 		// change back to idle state
 		auto stateToChange = GetParent()->FindLocalState(StringHash(STATE_WORKER_IDLE));

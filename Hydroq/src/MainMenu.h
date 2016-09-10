@@ -20,6 +20,12 @@ class MenuBehavior : public Behavior {
 				auto scene = sceneContext->FindSceneByName("main_menu_map");
 				sceneContext->SwitchToScene(scene, TweenDirection::NONE);
 			}
+			else if (msg.GetSourceObject()->GetTag().compare("play_but") == 0) {
+				// click on play button -> switch scene
+				auto sceneContext = GETCOMPONENT(Stage);
+				auto scene = sceneContext->FindSceneByName("game");
+				sceneContext->SwitchToScene(scene, TweenDirection::LEFT);
+			}
 			else if (msg.GetSourceObject()->GetTag().compare("multiplayer_but") == 0) {
 				// click on multiplayer button -> switch scene
 				auto sceneContext = GETCOMPONENT(Stage);

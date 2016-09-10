@@ -11,7 +11,7 @@ void GotoPositionGoal::Init() {
 	auto model = GETCOMPONENT(HydroqGameModel);
 	
 	// find path
-	vector<Vec2i> map = model->GetMap()->FindPath(startCell, endCell);
+	vector<Vec2i> map = model->GetMap()->FindPath(startCell, endCell, true, 0);
 
 	if (!map.empty()) {
 		ofVec2f firstPoint = map.size() >= 2 ? ofVec2f(map[1].x, map[1].y) + 0.5f : targetPosition;
@@ -38,6 +38,14 @@ void GotoPositionGoal::Init() {
 	}
 }
 
+void GotoPositionGoal::OnAbort() {
+	if (innerBehavior != nullptr) {
+		innerBehavior->Finish();
+		// stop moving
+		Movement& movement = owner->GetAttr<Movement>(ATTR_MOVEMENT);
+		movement.Stop();
+	}
+}
 
 void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {
 	if (innerBehavior != nullptr && innerBehavior->Ended()) {

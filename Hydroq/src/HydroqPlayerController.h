@@ -49,7 +49,7 @@ class HydroqPlayerController : public Behavior {
 						gameModel->MarkPositionForForbid(pos);
 					}
 					else if (gameModel->PositionContainsForbidMark(pos)) {
-						gameModel->DestroyDynamicObject(pos);
+						gameModel->DeleteForbidMark(pos);
 					}
 				}
 				else if (playerModel->GetHydroqAction() == HydroqAction::GUARD){
@@ -57,7 +57,7 @@ class HydroqPlayerController : public Behavior {
 						gameModel->MarkPositionForGuard(pos);
 					}
 					else if (gameModel->PositionContainsGuardMark(pos)) {
-						gameModel->DestroyDynamicObject(pos);
+						gameModel->DeleteGuardMark(pos);
 					}
 				}
 				else if (playerModel->GetHydroqAction() == HydroqAction::DESTROY){
@@ -65,7 +65,7 @@ class HydroqPlayerController : public Behavior {
 						gameModel->MarkPositionForDestroy(pos);
 					}
 					else if (gameModel->PositionContainsDestroyMark(pos) || gameModel->PositionContainsBridgeMark(pos)) {
-						gameModel->DestroyDynamicObject(pos);
+						gameModel->DeleteBridgeMark(pos);
 					}
 				}
 			}

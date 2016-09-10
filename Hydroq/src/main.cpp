@@ -11,7 +11,11 @@
 #include "HydroqGameModel.h"
 #include "HydroqGameView.h"
 #include "HydroqPlayerController.h"
-
+#include "LeftPanel.h"
+#include "SingleGameMenu.h"
+#include "MultiplayerMenu.h"
+#include "HostInit.h"
+#include "NetworkCommunicator.h"
 
 #include "LuaScripting.h"
 
@@ -53,6 +57,8 @@ public:
 
 	void RegisterComponents() {
 		REGISTER_BEHAVIOR(MenuBehavior);
+		REGISTER_BEHAVIOR(SingleGameMenu);
+		REGISTER_BEHAVIOR(MultiplayerMenu);
 		REGISTER_BEHAVIOR(MenuIconBehavior);
 		REGISTER_BEHAVIOR(HydroqBoard);
 		REGISTER_BEHAVIOR(RightPanel);
@@ -60,14 +66,19 @@ public:
 		REGISTER_BEHAVIOR(BrickEventBehavior);
 		REGISTER_BEHAVIOR(SelectedFuncBehavior);
 		REGISTER_BEHAVIOR(HydroqPlayerController);
+		REGISTER_BEHAVIOR(LeftPanel);
+		REGISTER_BEHAVIOR(HostInit);
 
 		auto playerModel = new HydroqPlayerModel();
 		auto gameModel = new HydroqGameModel();
 		auto view = new HydroqGameView();
-
+		
 		REGISTER_COMPONENT(playerModel);
 		REGISTER_COMPONENT(gameModel);
 		REGISTER_COMPONENT(view);
+
+		auto comm = new NetworkCommunicator();
+		REGISTER_COMPONENT(comm);
 
 		REGISTER_COMPONENT(new LuaScripting());
 

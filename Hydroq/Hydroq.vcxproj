@@ -211,6 +211,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   <ItemGroup>
     <ClInclude Include="src\Board.h" />
     <ClInclude Include="src\GameTask.h" />
+    <ClInclude Include="src\HostInit.h" />
     <ClInclude Include="src\HydroqGoals.h" />
     <ClInclude Include="src\HydroqPlayerController.h" />
     <ClInclude Include="src\BrickClickEvent.h" />
@@ -222,13 +223,16 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\HydroqGameModel.h" />
     <ClInclude Include="src\HydroqGameView.h" />
     <ClInclude Include="src\HydroqPlayerModel.h" />
-    <ClInclude Include="src\MapObjectChangedEvent.h" />
+    <ClInclude Include="src\MsgEvents.h" />
     <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />
+    <ClInclude Include="src\MultiplayerMenu.h" />
     <ClInclude Include="src\RightPanel.h" />
     <ClInclude Include="src\RightPanelSections.h" />
     <ClInclude Include="src\Seedbed.h" />
     <ClInclude Include="src\SelectedFuncBehavior.h" />
+    <ClInclude Include="src\LeftPanel.h" />
+    <ClInclude Include="src\SingleGameMenu.h" />
     <ClInclude Include="src\Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

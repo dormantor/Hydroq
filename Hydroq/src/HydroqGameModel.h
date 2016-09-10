@@ -5,7 +5,7 @@
 #include "Events.h"
 #include "HydMap.h"
 #include "HydEntity.h"
-#include "MapObjectChangedEvent.h"
+#include "MsgEvents.h"
 #include "Seedbed.h"
 #include "StateMachine.h"
 #include "Worker.h"
@@ -95,10 +95,28 @@ public:
 	* Marks position for a new bridge
 	*/
 	void MarkPositionForBridge(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Placing bridge mark at [%d, %d]",position.x, position.y);
 		auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK);
 		auto newTask = spt<GameTask>(new GameTask(StringHash(TASK_BRIDGE_BUILD)));
 		newTask->taskNode = node;
 		gameTasks.push_back(newTask);
+	}
+
+	void DeleteBridgeMark(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Deleting bridge mark at [%d, %d]", position.x, position.y);
+		auto obj = dynObjects[position];
+		
+		for (auto task : gameTasks) {
+			if (task->taskNode->GetId() == obj->GetId()) {
+				MLOGDEBUG("Hydroq", "Aborting building task because of deleted bridge mark");
+				SendMessageToModel(StringHash(ACT_TASK_ABORTED), 0, new TaskAbortEvent(task));
+				task->isEnded = true; // for sure
+				RemoveGameTask(task);
+				break;
+			}
+		}
+
+		DestroyDynamicObject(position);
 	}
 
 	/**
@@ -121,7 +139,18 @@ public:
 	* Marks forbidden position
 	*/
 	void MarkPositionForForbid(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Forbidden position at [%d, %d]", position.x, position.y);
 		CreateDynamicObject(position, EntityType::FORBID_MARK);
+		this->hydroqMap->GetNode(position)->forbidden = true;
+		this->hydroqMap->RefreshNode(position);
+	}
+
+	/**
+	* Delete forbidden mark
+	*/
+	void DeleteForbidMark(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Canceling forbidden position at [%d, %d]", position.x, position.y);
+		DestroyDynamicObject(position);
 	}
 
 	/**
@@ -144,7 +173,26 @@ public:
 	* Marks position that will be guarded
 	*/
 	void MarkPositionForGuard(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Position for guard at [%d, %d]", position.x, position.y);
 		CreateDynamicObject(position, EntityType::GUARD_MARK);
+	}
+
+	/**
+	* Deletes guard mark at selected position
+	*/
+	void DeleteGuardMark(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Deleted guard position at [%d, %d]", position.x, position.y);
+		auto obj = dynObjects[position];
+		for (auto task : gameTasks) {
+			if (task->taskNode->GetId() == obj->GetId()) {
+				MLOGDEBUG("Hydroq", "Aborting guard task because of deleted guard mark");
+				SendMessageOutside(StringHash(ACT_TASK_ABORTED), 0, new TaskAbortEvent(task));
+				task->isEnded = true; // for sure
+				RemoveGameTask(task);
+				break;
+			}
+		}
+		DestroyDynamicObject(position);
 	}
 
 	/**
@@ -167,6 +215,7 @@ public:
 	* Marks selected position to be intended for destroy
 	*/
 	void MarkPositionForDestroy(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Marked for destroy: at [%d, %d]", position.x, position.y);
 		CreateDynamicObject(position, EntityType::DESTROY_MARK);
 	}
 
@@ -174,10 +223,12 @@ public:
 	* Creates a new worker at selected position
 	*/
 	void SpawnWorker(ofVec2f position) {
+		MLOGDEBUG("Hydroq", "Creating worker at [%.2f, %.2f]", position.x, position.y);
 		CreateMovingObject(position, EntityType::WORKER);
 	}
 
 	void CreateSeedBed(Vec2i position ) {
+		MLOGDEBUG("Hydroq", "Creating Seedbed at [%d, %d]", position.x, position.y);
 		CreateDynamicObject(position, EntityType::SEEDBED);
 	}
 
@@ -185,6 +236,7 @@ public:
 	* Creates a platform on selected position
 	*/
 	void BuildPlatform(Vec2i position) {
+		MLOGDEBUG("Hydroq", "Creating platform at [%.2f, %.2f]", position.x, position.y);
 		// destroy bridge mark
 		DestroyDynamicObject(position);
 		// change node to ground
@@ -193,8 +245,7 @@ public:
 		// refresh other models the node figures
 		hydroqMap->RefreshNode(node);
 		// send a message that the static object has been changed
-		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-			new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr), nullptr);
+		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0, new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr));
 	}
 
 	/**
@@ -238,23 +289,6 @@ public:
 		}
 	}
 
-	/**
-	* Destroys dynamic object at selected position
-	*/
-	void DestroyDynamicObject(Vec2i position) {
-		auto node = hydroqMap->GetNode(position.x, position.y);
-		// change state of static node
-		node->occupied = false;
-		node->forbidden = false;
-		// remove dynamic object
-		auto obj = dynObjects[position];
-		dynObjects.erase(position);
-		rootNode->RemoveChild(obj, true);
-		// send message
-		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj), nullptr);
-	}
-
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 		rootNode->SubmitChanges(true);
 		rootNode->Update(delta, absolute);
@@ -273,16 +307,50 @@ public:
 		auto gameNode = CreateNode(entityType, position);
 		dynObjects[position] = gameNode;
 
-		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CREATED, hydMapNode, gameNode), nullptr);
+		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CREATED, hydMapNode, gameNode));
 		return gameNode;
+	}
+
+	/**
+	* Destroys dynamic object at selected position
+	*/
+	void DestroyDynamicObject(Vec2i position) {
+		auto node = hydroqMap->GetNode(position.x, position.y);
+		// change state of static node
+		node->occupied = false;
+		node->forbidden = false;
+		// remove dynamic object
+		if (dynObjects.find(position) != dynObjects.end()) {
+			auto obj = dynObjects[position];
+			dynObjects.erase(position);
+			rootNode->RemoveChild(obj, true);
+
+			// refresh node
+			this->hydroqMap->RefreshNode(position);
+
+			// send message
+			SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+				new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj));
+		}
+		else {
+			this->hydroqMap->RefreshNode(position);
+		}
 	}
 
 	void CreateMovingObject(ofVec2f position, EntityType entityType) {
 		auto gameNode = CreateNode(EntityType::WORKER, position);
 		movingObjects.push_back(gameNode);
-		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-			new MapObjectChangedEvent(ObjectChangeType::MOVING_CREATED, nullptr, gameNode), nullptr);
+		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0, new MapObjectChangedEvent(ObjectChangeType::MOVING_CREATED, nullptr, gameNode));
+	}
+
+	void SendMessageOutside(StringHash action, int subaction, MsgEvent* data) {
+		SendMessageNoBubbling(action, subaction,data, nullptr);
+	}
+
+	void SendMessageToModel(StringHash action, int subaction, MsgEvent* data) {
+		Msg msg(BubblingType(Scope::DIRECT_NO_TRAVERSE, true, true), action, subaction, this->GetId(), nullptr, data);
+		gameScene->SendMessage(msg, nullptr);
 	}
 
 	Node* CreateNode(EntityType entityType, ofVec2f position) {

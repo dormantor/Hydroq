@@ -3,6 +3,7 @@
 #include "ofxCogMain.h"
 #include "Events.h"
 #include "HydMap.h"
+#include "GameTask.h"
 
 enum class ObjectChangeType {
 	STATIC_CHANGED,
@@ -26,6 +27,17 @@ public:
 
 	MapObjectChangedEvent(ObjectChangeType changeType, HydMapNode* changedMapNode, Node* changedNode) :
 		changedMapNode(changedMapNode), changeType(changeType), changedNode(changedNode)
+	{
+
+	}
+};
+
+class TaskAbortEvent : public MsgEvent {
+public:
+	spt<GameTask> taskToAbort;
+
+	TaskAbortEvent(spt<GameTask> taskToAbort) :
+		taskToAbort(taskToAbort)
 	{
 
 	}

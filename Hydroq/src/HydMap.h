@@ -82,13 +82,15 @@ private:
 	int height;
 	vector<HydMapNode*> nodes;
 	// grid for searching algorithms
-	Grid grid;
+	Grid gridNoBlock; // grid without forbidden areas
+	Grid gridWithBlocks; // grid with forbidden areas
 
 public:
 	void LoadMap(BrickMap* brickMap) {
 		this->width = brickMap->width;
 		this->height = brickMap->height;
-		grid = Grid(width, height);
+		gridNoBlock = Grid(width, height);
+		gridWithBlocks = Grid(width, height);
 
 		for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
@@ -104,7 +106,8 @@ public:
 				nodes.push_back(node);
 
 				if (node->mapNodeType != MapNodeType::GROUND) {
-					grid.AddBlock(i, j);
+					gridNoBlock.AddBlock(i, j);
+					gridWithBlocks.AddBlock(i, j);
 				}
 			}
 		}
@@ -113,6 +116,10 @@ public:
 		for (auto node : nodes) {
 			RefreshNode(node);
 		}
+	}
+
+	void RefreshNode(Vec2i position) {
+		RefreshNode(GetNode(position.x, position.y));
 	}
 
 	void RefreshNode(HydMapNode* node) {
@@ -129,20 +136,31 @@ public:
 		if (i < (width - 1) && j > 0) node->topRight = GetNode(i + 1, j - 1); // topright
 
 		if (node->mapNodeType == MapNodeType::GROUND) {
-			grid.RemoveBlock(i, j);
+			gridNoBlock.RemoveBlock(i, j);
+			gridWithBlocks.RemoveBlock(i, j);
 		}
 		else {
-			grid.AddBlock(i, j);
+			gridNoBlock.AddBlock(i, j);
+			gridWithBlocks.AddBlock(i, j);
+		}
+
+		if (node->forbidden) {
+			gridWithBlocks.AddBlock(i, j);
 		}
 	}
 
-	vector<Vec2i> FindPath(Vec2i start, Vec2i end) {
+	vector<Vec2i> FindPath(Vec2i start, Vec2i end, bool crossForbiddenArea, int maxIteration = 0) {
 		AStarSearch srch;
-		// path
 		unordered_map<Vec2i, Vec2i> came_from;
-		// cost
 		unordered_map<Vec2i, int> cost_so_far;
-		bool found = srch.Search(grid, start, end, came_from, cost_so_far);
+
+		// prefer grid with forbidden areas
+		bool found = srch.Search(gridWithBlocks, start, end, came_from, cost_so_far, maxIteration);
+		if (!found && crossForbiddenArea) {
+			came_from.clear();
+			cost_so_far.clear();
+			found = srch.Search(gridNoBlock, start, end, came_from, cost_so_far, maxIteration);
+		}
 		if (found) {
 			vector<Vec2i> path = srch.CalcPathFromJumps(start, end, came_from);
 			return path;
@@ -154,6 +172,10 @@ public:
 
 	HydMapNode* GetNode(int x, int y) {
 		return nodes[y*width + x];
+	}
+
+	HydMapNode* GetNode(Vec2i pos) {
+		return nodes[pos.y*width + pos.x];
 	}
 
 	int GetWidth() {

@@ -8,7 +8,6 @@
 #include "GameTask.h"
 #include "HydMap.h"
 
-
 namespace Cog {
 	class ArriveBehavior;
 }
@@ -23,7 +22,6 @@ public:
 	}
 
 	void Init() {
-		
 	}
 
 	void OnMessage(Msg& msg) {
@@ -49,6 +47,13 @@ public:
 	WorkerBridgeBuildState() :State(StringHash(STATE_WORKER_BUILD)) {
 
 	}
+
+	void Init() {
+		RegisterListening(owner->GetScene(), ACT_TASK_ABORTED);
+	}
+
+	void OnMessage(Msg& msg);
+
 
 	void SetGameTask(spt<GameTask> task) {
 		this->task = task;
