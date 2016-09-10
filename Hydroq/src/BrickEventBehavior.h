@@ -49,11 +49,7 @@ class BrickEventBehavior : public Behavior {
 
 				if (touch->input->IsProcessed()) return;
 
-				bool isPointerOver = true;
-				// android tolerance
-#ifdef ANDROID
-				isPointerOver = endPos.distance(hitPos) < CogGetScreenWidth() / SCREEN_TOLERANCE;
-#endif
+				bool isPointerOver = isPointerOver = endPos.distance(hitPos) < CogGetScreenWidth() / SCREEN_TOLERANCE;
 
 				if (isPointerOver) {
 					auto shape = owner->GetShape();

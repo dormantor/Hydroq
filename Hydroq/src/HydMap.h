@@ -28,28 +28,33 @@ public:
 	bool forbidden = false; // true, if it is forbidden
 	Vec2i pos;
 
+	void ChangeMapNodeType(MapNodeType newType) {
+		this->mapNodeType = newType;
+		this->mapNodeName = Helper::GetMapNameByNodeType(newType);
+	}
+
 	HydMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {
 		
 		if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
-			if (left->mapNodeType == type) return left;
-			if (bottom->mapNodeType == type) return bottom;
-			if (top->mapNodeType == type) return top;
-			if (right->mapNodeType == type) return right;
+			if (left != nullptr && left->mapNodeType == type) return left;
+			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
+			if (top != nullptr && top->mapNodeType == type) return top;
+			if (right != nullptr && right->mapNodeType == type) return right;
 		}else if (preferredPosition.x <= pos.x && preferredPosition.y > pos.y) {
-			if (left->mapNodeType == type) return left;
-			if (top->mapNodeType == type) return top;
-			if (right->mapNodeType == type) return right;
-			if (bottom->mapNodeType == type) return bottom;
+			if (left != nullptr && left->mapNodeType == type) return left;
+			if (top != nullptr && top->mapNodeType == type) return top;
+			if (right != nullptr && right->mapNodeType == type) return right;
+			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
 		}else if (preferredPosition.x > pos.x && preferredPosition.y <= pos.y) {
-			if (right->mapNodeType == type) return right;
-			if (bottom->mapNodeType == type) return bottom;
-			if (top->mapNodeType == type) return top;
-			if (left->mapNodeType == type) return left;
+			if (right != nullptr && right->mapNodeType == type) return right;
+			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
+			if (top != nullptr && top->mapNodeType == type) return top;
+			if (left != nullptr && left->mapNodeType == type) return left;
 		}else if (preferredPosition.x > pos.x && preferredPosition.y > pos.y) {
-			if (right->mapNodeType == type) return right;
-			if (top->mapNodeType == type) return top;
-			if (bottom->mapNodeType == type) return bottom;
-			if (left->mapNodeType == type) return left;
+			if (right != nullptr && right->mapNodeType == type) return right;
+			if (top != nullptr && top->mapNodeType == type) return top;
+			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
+			if (left != nullptr && left->mapNodeType == type) return left;
 		}
 
 		return nullptr;
@@ -137,9 +142,14 @@ public:
 		unordered_map<Vec2i, Vec2i> came_from;
 		// cost
 		unordered_map<Vec2i, int> cost_so_far;
-		srch.Search(grid, start, end, came_from, cost_so_far);
-		vector<Vec2i> path = srch.CalcPathFromJumps(start, end, came_from);
-		return path;
+		bool found = srch.Search(grid, start, end, came_from, cost_so_far);
+		if (found) {
+			vector<Vec2i> path = srch.CalcPathFromJumps(start, end, came_from);
+			return path;
+		}
+		else {
+			return vector<Vec2i>();
+		}
 	}
 
 	HydMapNode* GetNode(int x, int y) {

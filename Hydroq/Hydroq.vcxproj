@@ -222,7 +222,6 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\HydroqGameModel.h" />
     <ClInclude Include="src\HydroqGameView.h" />
     <ClInclude Include="src\HydroqPlayerModel.h" />
-    <ClInclude Include="src\HydroqSpriteManager.h" />
     <ClInclude Include="src\MapObjectChangedEvent.h" />
     <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />

@@ -8,9 +8,15 @@
 #include "GameTask.h"
 #include "HydMap.h"
 
+
+namespace Cog {
+	class ArriveBehavior;
+}
+
 class WorkerIdleState : public State {
 	
 public:
+	ArriveBehavior* movingAround = nullptr;
 
 	WorkerIdleState() : State(StringHash(STATE_WORKER_IDLE)) {
 
@@ -24,6 +30,10 @@ public:
 
 	}
 
+	bool FindTaskToDo();
+
+	void MoveAround();
+
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
@@ -32,6 +42,7 @@ class WorkerBridgeBuildState : public State {
 
 public:
 	spt<GameTask> task;
+	HydMapNode* nodeToBuildfrom;
 
 	// composite of goals to build the bridge
 	Goal* buildGoal;
@@ -41,6 +52,10 @@ public:
 
 	void SetGameTask(spt<GameTask> task) {
 		this->task = task;
+	}
+
+	void SetNodeToBuildFrom(HydMapNode* node) {
+		this->nodeToBuildfrom = node;
 	}
 
 	spt<GameTask> GetGameTask() {

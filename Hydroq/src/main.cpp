@@ -9,7 +9,6 @@
 #include "SelectedFuncBehavior.h"
 #include "HydroqPlayerModel.h"
 #include "HydroqGameModel.h"
-#include "HydroqSpriteManager.h"
 #include "HydroqGameView.h"
 #include "HydroqPlayerController.h"
 
@@ -64,12 +63,10 @@ public:
 
 		auto playerModel = new HydroqPlayerModel();
 		auto gameModel = new HydroqGameModel();
-		auto spriteManager = new HydroqSpriteManager();
 		auto view = new HydroqGameView();
 
 		REGISTER_COMPONENT(playerModel);
 		REGISTER_COMPONENT(gameModel);
-		REGISTER_COMPONENT(spriteManager);
 		REGISTER_COMPONENT(view);
 
 		REGISTER_COMPONENT(new LuaScripting());

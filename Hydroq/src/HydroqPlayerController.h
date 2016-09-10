@@ -34,7 +34,7 @@ class HydroqPlayerController : public Behavior {
 				// if user selected a function, apply it
 				if (playerModel->GetHydroqAction() == HydroqAction::SEEDBED && 
 					gameModel->IsPositionFreeForBuilding(pos)) {
-					gameModel->CreateDynamicObject(pos, EntityType::SEEDBED);
+					gameModel->CreateSeedBed(pos);
 				}
 				else if (playerModel->GetHydroqAction() == HydroqAction::BUILD){ 
 					if (gameModel->IsPositionFreeForBridge(pos)) {

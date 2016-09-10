@@ -4,7 +4,6 @@
 #include "BrickClickEvent.h"
 #include "HydroqDef.h"
 #include "HydroqGameModel.h"
-#include "HydroqSpriteManager.h"
 #include "HydroqGameView.h"
 
 class HydroqBoard : public Behavior {
@@ -37,19 +36,15 @@ public:
 		// 2) create game map
 		auto gameModel = GETCOMPONENT(HydroqGameModel);
 		gameModel->GetMap()->LoadMap(bricks);
-
-		// 3) create collection of all sprites
-		auto spriteManager = GETCOMPONENT(HydroqSpriteManager);
-		spriteManager->LoadSprites(mapConfig.GetSetting("sprites"));
 		
-		// 4) load static sprites and assign it to the map_board node
+		// 3) load static sprites and assign it to the map_board node
 		auto gameView = GETCOMPONENT(HydroqGameView);
-		gameView->LoadSprites();
+		gameView->LoadSprites(mapConfig.GetSetting("sprites"));
 
 		auto staticSprites = gameView->GetStaticSprites();
 		owner->GetScene()->FindNodeByTag("map_board")->SetShape(staticSprites);
 
-		// 5) load dynamic sprites and assign it to the object_board node
+		// 4) load dynamic sprites and assign it to the object_board node
 		auto dynamicSprites = gameView->GetDynamicSprites();
 		owner->GetScene()->FindNodeByTag("object_board")->SetShape(dynamicSprites);
 

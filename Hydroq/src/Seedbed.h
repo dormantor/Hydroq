@@ -6,22 +6,11 @@
 class Seedbed : public Behavior {
 	OBJECT_PROTOTYPE(Seedbed)
 
+	// attributes sh
 	StringHash frequencySh;
 	StringHash lastSpawnSh;
 
-	void Init() {
-		frequencySh = StringHash(ATTR_SEEDBED_FREQUENCY);
-		lastSpawnSh = StringHash(ATTR_SEEDBED_LASTSPAWN);
-
-		// set spawn frequency
-		if (!owner->HasAttr(frequencySh)) {
-			owner->AddAttr(frequencySh, 0.3f);
-		}
-
-		if (!owner->HasAttr(lastSpawnSh)) {
-			owner->AddAttr(lastSpawnSh, (uint64)0);
-		}
-	}
+	void Init();
 
 	void OnMessage(Msg& msg) {
 

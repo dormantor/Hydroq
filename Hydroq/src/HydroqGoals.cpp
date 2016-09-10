@@ -9,41 +9,40 @@ using namespace Cog;
 
 void GotoPositionGoal::Init() {
 	auto model = GETCOMPONENT(HydroqGameModel);
-	// find nearest neighbor that can be used
-	auto map = model->GetMap();
-	auto mapNode = map->GetNode((int)targetPosition.x, (int)targetPosition.y);
-	auto start = owner->GetTransform().localPos;
-	auto nodeToBuildfrom = mapNode->FindNeighborByType(MapNodeType::GROUND,Vec2i(start.x, start.y));
+	
+	// find path
+	vector<Vec2i> map = model->GetMap()->FindPath(startCell, endCell);
 
-	if (nodeToBuildfrom != nullptr) {
-		auto targetSafePos = nodeToBuildfrom->pos;
+	if (!map.empty()) {
+		ofVec2f firstPoint = map.size() >= 2 ? ofVec2f(map[1].x, map[1].y) + 0.5f : targetPosition;
+		Path* pth = new Path(startPosition, firstPoint);
 
-		MLOGDEBUG("Hydroq", "Going from [%d %d] to [%d %d]", (int)start.x, (int)start.y, (int)nodeToBuildfrom->pos.x, (int)nodeToBuildfrom->pos.y);
-
-		vector<Vec2i> map = model->GetMap()->FindPath(Vec2i(start.x, start.y), Vec2i(targetSafePos.x, targetSafePos.y));
-
-		ofVec2f precisePosition = ofVec2f(targetSafePos.x + (targetPosition.x - targetSafePos.x)/2.0f + 0.5f, targetSafePos.y + (targetPosition.y - targetSafePos.y)/2.0f + 0.5f);
-
-		// the last point will be at the very border
-		// skip first point, because we are already there
-		Vec2i firstPoint = map.size() >= 2 ? map[1] : Vec2i(start.x, start.y);
-		Path* pth = new Path(start, ofVec2f(firstPoint.x + 0.5f, firstPoint.y + 0.5f));
-		
 		for (int i = 2; i < map.size(); i++) {
 			auto point = map[i];
-			MLOGDEBUG("Hydroq", "  Map:: [%d, %d]", point.x, point.y);
 			pth->AddSegment(ofVec2f(point.x + 0.5f, point.y + 0.5f));
-
 		}
 
-		// add the last point
-		pth->AddSegment(precisePosition);
+		if (map.size() >= 2) {
+			// add the last point
+			pth->AddSegment(targetPosition);
+		}
 
+		// run follow behavior
 		innerBehavior = new FollowBehavior(pth, 60, 0.25f, 0.1f);
 		owner->AddBehavior(innerBehavior);
 	}
 	else {
+		MLOGDEBUG("Hydroq", "Couldn't find path! Exiting GotoPositionGoal");
+		this->Complete();
+		Finish();
+	}
+}
+
+
+void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {
+	if (innerBehavior != nullptr && innerBehavior->Ended()) {
 		this->SetGoalState(GoalState::COMPLETED);
+		Finish();
 	}
 }
 
