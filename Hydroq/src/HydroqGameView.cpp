@@ -7,8 +7,10 @@
 #include "HydroqGameModel.h"
 
 
-void HydroqGameView::Init() {
-	RegisterGlobalListening(ACT_MAP_OBJECT_CHANGED);
+void HydroqGameView::OnInit() {
+	SubscribeForMessages(ACT_MAP_OBJECT_CHANGED);
+
+	gameModel = owner->GetBehavior<HydroqGameModel>();
 }
 
 
@@ -20,7 +22,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			// new dynamic or moving object
 			auto trans = evt->changedNode->GetTransform();
 			// create new sprite
-			auto sprite = spriteTypes[evt->changedNode->GetTag()][0];
+			auto& sprite = spriteTypes[evt->changedNode->GetTag()][0];
 
 			Trans transform = Trans();
 			// moving objects will have its origin set to the middle of the cell
@@ -78,7 +80,6 @@ void HydroqGameView::OnMessage(Msg& msg) {
 			if (evt->changeType == ObjectChangeType::RIG_TAKEN) {
 				rigsToAnimate.push_back(evt->changedNode);
 
-				auto gameModel = GETCOMPONENT(HydroqGameModel);
 				auto& movingObjects = gameModel->GetMovingObjects();
 
 				// update transformation of all objects
@@ -87,12 +88,12 @@ void HydroqGameView::OnMessage(Msg& msg) {
 					auto sprite = dynamicSpriteEntities[id];
 					auto faction = dynObj->GetAttr<Faction>(ATTR_FACTION);
 					if (faction == Faction::RED) {
-						int frameToSet = spriteTypes["worker_red"][0]->GetFrame();
-						sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frameToSet));
+						int frameToSet = spriteTypes["worker_red"][0].GetFrame();
+						sprite->sprite = Sprite(defaultSpriteSet, frameToSet);
 					}
 					else {
-						int frameToSet = spriteTypes["worker_blue"][0]->GetFrame();
-						sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frameToSet));
+						int frameToSet = spriteTypes["worker_blue"][0].GetFrame();
+						sprite->sprite = Sprite(defaultSpriteSet, frameToSet);
 					}
 				}
 
@@ -129,7 +130,6 @@ void HydroqGameView::OnMessage(Msg& msg) {
 }
 
 void HydroqGameView::LoadSprites(Setting sprites) {
-	auto gameModel = GETCOMPONENT(HydroqGameModel);
 	auto map = gameModel->GetMap();
 	auto cache = GETCOMPONENT(ResourceCache);
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
@@ -140,11 +140,11 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	for (auto& it : sprites.items) {
 		auto indices = it.second.GetValues();
 		
-		auto sprites = vector<spt<Sprite>>();
+		auto sprites = vector<Sprite>();
 		// one sprite could be on various indices
 		for (auto index : indices) {
 			int indexInt = ofToInt(index);
-			auto sprite =spt<Sprite>(new Sprite(defaultSpriteSet, indexInt));
+			auto sprite = Sprite(defaultSpriteSet, indexInt);
 			sprites.push_back(sprite);
 		}
 
@@ -157,7 +157,7 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 		for (int j = 0; j < map->GetHeight(); j++) {
 			auto obj = map->GetNode(i, j);
 
-			spt<Sprite> sprite = spriteTypes[obj->mapNodeName][obj->mapNodeTypeIndex];
+			Sprite& sprite = spriteTypes[obj->mapNodeName][obj->mapNodeTypeIndex];
 
 			Trans transform = Trans();
 			transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * i;
@@ -176,7 +176,7 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 			Faction fact = dyn.second->GetAttr<Faction>(ATTR_FACTION);
 			
 			Vec2i pos = ofVec2f(dyn.second->GetTransform().localPos);
-			int index = staticSpriteMap[pos]->sprite->GetFrame();
+			int index = staticSpriteMap[pos]->sprite.GetFrame();
 
 			if (fact == Faction::BLUE) {	
 				staticSpriteMap[Vec2i(pos.x, pos.y)]->sprite = spriteTypes["rig_blue"][0];
@@ -200,15 +200,18 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 	dynamicSprites = spt<SpritesShape>(new SpritesShape("object_board", crates));
 }
 
+Sprite& HydroqGameView::GetSprite(int frame) {
+	if (spriteBuffer.count(frame) == 0) spriteBuffer[frame] = Sprite(defaultSpriteSet, frame);
+	return spriteBuffer[frame];
+}
 
 void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 
-	auto model = GETCOMPONENT(HydroqGameModel);
-	auto& movingObjects = model->GetMovingObjects();
+	auto& movingObjects = gameModel->GetMovingObjects();
 
-	StringHash stateIdle = StringHash(STATE_WORKER_IDLE);
-	StringHash stateBuild = StringHash(STATE_WORKER_BUILD);
-	StringHash stateAttract = StringHash(STATE_WORKER_ATTRACTOR_FOLLOW);
+	StrId stateIdle = StrId(STATE_WORKER_IDLE);
+	StrId stateBuild = StrId(STATE_WORKER_BUILD);
+	StrId stateAttract = StrId(STATE_WORKER_ATTRACTOR_FOLLOW);
 
 	// update transformation of all objects
 	for (auto& dynObj : movingObjects) {
@@ -225,8 +228,8 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 		}
 		else if (dynObj->HasState(stateBuild) || dynObj->HasState(stateAttract)) {
 			// set animation
-			int startFrame = spriteTypes[dynObj->GetTag()][0]->GetFrame()+1;
-			int actualFrame = sprite->sprite->GetFrame();
+			int startFrame = spriteTypes[dynObj->GetTag()][0].GetFrame()+1;
+			int actualFrame = sprite->sprite.GetFrame();
 			int frames = 3;
 
 			if (CogGetFrameCounter() % 2 == 0) {
@@ -234,16 +237,16 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 				if (startFrame > actualFrame) frameToSet = startFrame;
 				else if (actualFrame == (startFrame + frames - 1)) frameToSet = startFrame;
 				else frameToSet = actualFrame + 1;
-				sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frameToSet));
+				sprite->sprite = GetSprite(frameToSet);
 			}
 		}
 	}
 
 	if (CogGetFrameCounter() % 5 == 0) {
 		auto spriteType = spriteTypes["rig_blue"];
-		for (auto& rig : model->GetRigsByFaction(Faction::BLUE)) {
+		for (auto& rig : gameModel->GetRigsByFaction(Faction::BLUE)) {
 			if (!spriteType.empty()) {
-				auto startFrame = spriteType[0]->GetFrame();
+				auto startFrame = spriteType[0].GetFrame();
 
 				auto pos = ofVec2f(rig->GetTransform().localPos);
 
@@ -253,23 +256,23 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 				auto sprite4 = this->staticSpriteMap[Vec2i(pos.x + 1, pos.y + 1)];
 
 				if (sprite1 && sprite2 && sprite3 &&sprite4) {
-					if (sprite1->sprite->GetFrame() >= startFrame) { // prevent from rig capturing animation
-						auto actualFrame = sprite1->sprite->GetFrame() + 4;
+					if (sprite1->sprite.GetFrame() >= startFrame) { // prevent from rig capturing animation
+						auto actualFrame = sprite1->sprite.GetFrame() + 4;
 						if (actualFrame == startFrame + 4 * 3) actualFrame = startFrame;
 
-						sprite1->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame));
-						sprite2->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 1));
-						sprite3->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 2));
-						sprite4->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 3));
+						sprite1->sprite = GetSprite(actualFrame);
+						sprite2->sprite = GetSprite(actualFrame + 1);
+						sprite3->sprite = GetSprite(actualFrame + 2);
+						sprite4->sprite = GetSprite(actualFrame + 3);
 					}
 				}
 			}
 		}
 
 		spriteType = spriteTypes["rig_red"];
-		for (auto& rig : model->GetRigsByFaction(Faction::RED)) {
+		for (auto& rig : gameModel->GetRigsByFaction(Faction::RED)) {
 			if (!spriteType.empty()) {
-				auto startFrame = spriteType[0]->GetFrame();
+				auto startFrame = spriteType[0].GetFrame();
 
 				auto pos = ofVec2f(rig->GetTransform().localPos);
 
@@ -279,14 +282,14 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 				auto sprite4 = this->staticSpriteMap[Vec2i(pos.x + 1, pos.y + 1)];
 
 				if (sprite1 && sprite2 && sprite3 &&sprite4) {
-					if (sprite1->sprite->GetFrame() >= startFrame) { // prevent from rig capturing animation
-						auto actualFrame = sprite1->sprite->GetFrame() + 4;
+					if (sprite1->sprite.GetFrame() >= startFrame) { // prevent from rig capturing animation
+						auto actualFrame = sprite1->sprite.GetFrame() + 4;
 						if (actualFrame == startFrame + 4 * 3) actualFrame = startFrame;
 
-						sprite1->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame));
-						sprite2->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 1));
-						sprite3->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 2));
-						sprite4->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame + 3));
+						sprite1->sprite = GetSprite(actualFrame);
+						sprite2->sprite = GetSprite(actualFrame + 1);
+						sprite3->sprite = GetSprite(actualFrame + 2);
+						sprite4->sprite = GetSprite(actualFrame + 3);
 					}
 				}
 			}
@@ -296,14 +299,14 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 	if (CogGetFrameCounter() % 3 == 0) {
 		auto spriteType = spriteTypes["explosion"];
 		for (auto it = explosions.begin(); it != explosions.end();) {
-			int startFrame = spriteType[0]->GetFrame();
-			int actualFrame = (*it)->sprite->GetFrame() + 1;
+			int startFrame = spriteType[0].GetFrame();
+			int actualFrame = (*it)->sprite.GetFrame() + 1;
 			if ((actualFrame - startFrame) > 11) {
 				dynamicSprites->RemoveSprite(*it);
 				it = explosions.erase(it);
 			}
 			else {
-				(*it)->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualFrame));
+				(*it)->sprite = GetSprite(actualFrame);
 				++it;
 			}
 		}
@@ -311,12 +314,12 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 
 	if (CogGetFrameCounter() % 2 == 0) {
 		if (!spriteTypes["rig_platform"].empty()) {
-			int platformDefFrame = spriteTypes["rig_platform"][0]->GetFrame();
-			int platformStompBlueFrame = spriteTypes["rig_platform_stomp_blue"][0]->GetFrame();
-			int platformStompRedFrame = spriteTypes["rig_platform_stomp_red"][0]->GetFrame();
-			int platformStompBothFrame = spriteTypes["rig_platform_stomp_both"][0]->GetFrame();
+			int platformDefFrame = spriteTypes["rig_platform"][0].GetFrame();
+			int platformStompBlueFrame = spriteTypes["rig_platform_stomp_blue"][0].GetFrame();
+			int platformStompRedFrame = spriteTypes["rig_platform_stomp_red"][0].GetFrame();
+			int platformStompBothFrame = spriteTypes["rig_platform_stomp_both"][0].GetFrame();
 
-			for (auto& rig : model->GetRigs()) {
+			for (auto& rig : gameModel->GetRigs()) {
 				
 				auto rigHoldings = rig.second->GetAttr<spt<vector<RigPlatform>>>(ATTR_PLATFORMS);
 
@@ -326,28 +329,28 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 
 					if (holding.factionHoldings[Faction::BLUE] == 0 && holding.factionHoldings[Faction::RED] == 0) {
 
-						if (platform->sprite->GetFrame() != platformDefFrame) {
-							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet,platformDefFrame));
+						if (platform->sprite.GetFrame() != platformDefFrame) {
+							platform->sprite = GetSprite(platformDefFrame);
 						}
 
 					}else if (holding.factionHoldings[Faction::BLUE] > holding.factionHoldings[Faction::RED]) {
 
-						if (platform->sprite->GetFrame() != platformStompBlueFrame) {
-							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, platformStompBlueFrame));
+						if (platform->sprite.GetFrame() != platformStompBlueFrame) {
+							platform->sprite = GetSprite(platformStompBlueFrame);
 						}
 
 					}
 					else if(holding.factionHoldings[Faction::BLUE] == holding.factionHoldings[Faction::RED]){
 
-						if (platform->sprite->GetFrame() != platformStompBothFrame) {
-							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, platformStompBothFrame));
+						if (platform->sprite.GetFrame() != platformStompBothFrame) {
+							platform->sprite = GetSprite(platformStompBothFrame);
 						}
 
 					}
 					else {
 
-						if (platform->sprite->GetFrame() != platformStompRedFrame) {
-							platform->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, platformStompRedFrame));
+						if (platform->sprite.GetFrame() != platformStompRedFrame) {
+							platform->sprite = GetSprite(platformStompRedFrame);
 						}
 
 					}
@@ -360,10 +363,10 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 	// animate taken rigs
 		for (auto it = rigsToAnimate.begin(); it != rigsToAnimate.end();) {
 			auto rig = (*it);
-			int redStartPos = spriteTypes["rig_red_start"][0]->GetFrame();
-			int blueStartPos = spriteTypes["rig_blue_start"][0]->GetFrame();
-			int redEndPos = spriteTypes["rig_red"][0]->GetFrame();
-			int blueEndPos = spriteTypes["rig_blue"][0]->GetFrame();
+			int redStartPos = spriteTypes["rig_red_start"][0].GetFrame();
+			int blueStartPos = spriteTypes["rig_blue_start"][0].GetFrame();
+			int redEndPos = spriteTypes["rig_red"][0].GetFrame();
+			int blueEndPos = spriteTypes["rig_blue"][0].GetFrame();
 
 			auto rigPos = Vec2i(rig->GetTransform().localPos.x, rig->GetTransform().localPos.y);
 			auto rigPart1 = staticSpriteMap[Vec2i(rigPos.x, rigPos.y)];
@@ -374,13 +377,13 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 			auto faction = rig->GetAttr<Faction>(ATTR_FACTION);
 			int endPos = faction == Faction::RED ? redEndPos : blueEndPos;
 
-			int actualIndex = rigPart1->sprite->GetFrame();
+			int actualIndex = rigPart1->sprite.GetFrame();
 			if (actualIndex != endPos) {
 				actualIndex += 4;
-				rigPart1->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualIndex));
-				rigPart2->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualIndex + 1));
-				rigPart3->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualIndex + 2));
-				rigPart4->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, actualIndex + 3));
+				rigPart1->sprite = GetSprite(actualIndex);
+				rigPart2->sprite = GetSprite(actualIndex + 1);
+				rigPart3->sprite = GetSprite(actualIndex + 2);
+				rigPart4->sprite = GetSprite(actualIndex + 3);
 				++it;
 			}
 			else {
@@ -392,7 +395,6 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 
 void HydroqGameView::SaveMapImageToFile(string file){
 	// ============ uncomment this if you want to generate map image for detail window ===============
-	auto gameModel = GETCOMPONENT(HydroqGameModel);
 	auto cache = GETCOMPONENT(ResourceCache);
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
 	MapLoader mapLoader;

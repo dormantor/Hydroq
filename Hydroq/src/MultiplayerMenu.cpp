@@ -7,7 +7,7 @@
 void MultiplayerMenu::AddServer(string ip, int index) {
 
 	Node* hosts_list = owner->GetScene()->FindNodeByTag("hosts_list");
-	Helper::SetPanelItem(owner, hosts_list, index, StringHash("SELECTION_SERVER"), ATTR_SERVER_IP, ip);
+	Helper::SetPanelItem(owner, hosts_list, index, StrId("SELECTION_SERVER"), ATTR_SERVER_IP, ip);
 }
 
 void MultiplayerMenu::LoadMaps() {
@@ -20,7 +20,7 @@ void MultiplayerMenu::LoadMaps() {
 	for (auto& key : items) {
 		auto val = key.second;
 		string mapName = val.key;
-		Helper::SetPanelItem(owner, maps_list, index, StringHash("SELECTION_MAP"), ATTR_MAP, mapName);
+		Helper::SetPanelItem(owner, maps_list, index, StrId("SELECTION_MAP"), ATTR_MAP, mapName);
 		index++;
 	}
 }
@@ -44,12 +44,12 @@ void MultiplayerMenu::RefreshServers() {
 	}
 
 	// disable CONNECT button
-	owner->GetScene()->FindNodeByTag("connect_but")->SetState(StringHash(STATES_DISABLED));
+	owner->GetScene()->FindNodeByTag("connect_but")->SetState(StrId(STATES_DISABLED));
 }
 
 void MultiplayerMenu::SelectFaction(Faction fact) {
 	auto node = owner->GetScene()->FindNodeByTag((fact == Faction::BLUE ? "faction_blue" : "faction_red"));
-	node->SetState(StringHash(STATES_SELECTED));
+	node->SetState(StrId(STATES_SELECTED));
 }
 
 void MultiplayerMenu::SelectMap(string map) {
@@ -59,7 +59,7 @@ void MultiplayerMenu::SelectMap(string map) {
 	for (auto& child : children) {
 		if (child->HasAttr(ATTR_MAP) && child->GetAttr<string>(ATTR_MAP).compare(map) == 0) {
 			// select map
-			child->SetState(StringHash(STATES_SELECTED));
+			child->SetState(StrId(STATES_SELECTED));
 		}
 	}
 

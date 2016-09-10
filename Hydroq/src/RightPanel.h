@@ -7,8 +7,7 @@ enum class Section {
 };
 
 class RightPanel : public Behavior {
-	OBJECT_PROTOTYPE(RightPanel)
-
+	
 	Section selectedSection = Section::NONE;
 	int buildIconId;
 	int flagIconId;
@@ -18,8 +17,14 @@ class RightPanel : public Behavior {
 	
 	Scene* scene;
 
+public:
+
+	RightPanel() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_STATE_CHANGED);
+		SubscribeForMessages(ACT_STATE_CHANGED);
 		
 		scene = owner->GetScene();
 		buildIconId = scene->FindNodeByTag("icon_build")->GetId();
@@ -34,7 +39,7 @@ class RightPanel : public Behavior {
 	}
 
 	void OnMessage(Msg& msg) {
-		if (msg.HasAction(ACT_STATE_CHANGED) && msg.GetSourceObject()->HasState(StringHash(STATES_SELECTED))) {
+		if (msg.HasAction(ACT_STATE_CHANGED) && msg.GetSourceObject()->HasState(StrId(STATES_SELECTED))) {
 			if (msg.GetSourceObject()->GetId() == buildIconId) {
 				SelectBuildSection();
 			}

@@ -92,11 +92,7 @@ void RegenerateSpriteSheets() {
 * Back button simulator that checks BACKSPACE key
 */
 class BackButtonKey : public Behavior {
-	OBJECT_PROTOTYPE(BackButtonKey)
-
-	void Init() {
-	}
-
+	
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 		for (auto key : CogGetPressedKeys()) {
@@ -123,7 +119,6 @@ public:
 };
 
 class ReportKey : public Behavior {
-	OBJECT_PROTOTYPE(ReportKey)
 
 		void Init() {
 	}
@@ -170,24 +165,20 @@ public:
 		REGISTER_BEHAVIOR(ConfirmDialog);
 		REGISTER_BEHAVIOR(TopPanel);
 		REGISTER_BEHAVIOR(GameEndDialog);
+		REGISTER_BEHAVIOR(HydroqGameModel);
+		REGISTER_BEHAVIOR(HydroqGameView);
+
 
 		auto playerModel = new HydroqPlayerModel();
-		auto gameModel = new HydroqGameModel();
-		auto view = new HydroqGameView();
 		auto netSender = new HydNetworkSender();
 		auto netReceiver = new HydNetworkReceiver();
 		auto deltaUpdate = new DeltaUpdate();
 
 		REGISTER_COMPONENT(playerModel);
-		REGISTER_COMPONENT(gameModel);
-		REGISTER_COMPONENT(view);
 		REGISTER_COMPONENT(netSender);
 		REGISTER_COMPONENT(netReceiver);
 		REGISTER_COMPONENT(deltaUpdate);
-
-		auto comm = new NetworkCommunicator();
-		REGISTER_COMPONENT(comm);
-
+		REGISTER_COMPONENT(new NetworkCommunicator());
 		REGISTER_COMPONENT(new LuaScripting());
 
 	}
@@ -239,7 +230,7 @@ public:
 #include "GoalTest.h"
 #include "SettingsTest.h"
 #include "EngineTest.h"
-#include "StringHashTest.h"
+#include "StrIdTest.h"
 #include "JavaScriptTest.h"
 #include "LuaTest.h"
 #include "MonteCarloTest.h"

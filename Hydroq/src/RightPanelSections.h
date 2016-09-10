@@ -5,7 +5,6 @@
 
 
 class RightPanelSections : public Behavior {
-	OBJECT_PROTOTYPE(RightPanelSections)
 
 	HydroqPlayerModel* playerModel;
 
@@ -16,8 +15,14 @@ class RightPanelSections : public Behavior {
 
 	int selectedNodeId = -1;
 
+public:
+
+	RightPanelSections() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_FUNC_SELECTED);
+		SubscribeForMessages(ACT_OBJECT_HIT_ENDED, ACT_FUNC_SELECTED);
 		playerModel = GETCOMPONENT(HydroqPlayerModel);
 		nodeCommandBuildId = owner->GetScene()->FindNodeByTag("command_build")->GetId();
 		nodeCommandDestroyId = owner->GetScene()->FindNodeByTag("command_destroy")->GetId();

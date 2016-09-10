@@ -8,8 +8,6 @@
 #include "HydNetworkSender.h"
 
 class MultiplayerMenu : public Behavior {
-	OBJECT_PROTOTYPE(MultiplayerMenu)
-
 private:
 	NetworkCommunicator* communicator;
 	vector<string> foundIps;
@@ -19,8 +17,12 @@ private:
 	bool keepConnected = false;
 public:
 
+	MultiplayerMenu() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED, ACT_SCENE_SWITCHED, ACT_SERVER_FOUND);
+		SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED, ACT_SCENE_SWITCHED, ACT_SERVER_FOUND);
 		communicator = GETCOMPONENT(NetworkCommunicator);
 
 		// load map config
@@ -77,13 +79,13 @@ public:
 					}
 				}
 			}
-			else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StringHash("SELECTION_MAP"))) {
+			else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StrId("SELECTION_MAP"))) {
 				// if user selects a map, enable host button
 				EnableHostButton();
 				DisableConnectButton();
 				DeselectServer();
 			}
-			else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StringHash("SELECTION_SERVER"))) {
+			else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StrId("SELECTION_SERVER"))) {
 				// if user selects a server, enable connect button
 				EnableConnectButton();
 				DisableHostButton();
@@ -92,14 +94,14 @@ public:
 				SelectFaction(netMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
 				SelectMap(netMsg->GetMap());
 			}
-			else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StringHash("faction_select"))) {
+			else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetSourceObject()->IsInGroup(StrId("faction_select"))) {
 				// user selected faction
 				EnableHostButton();
 				DisableConnectButton();
 				DeselectServer();
 			}
 			else if (msg.HasAction(ACT_SERVER_FOUND)) {
-				auto msgEvent = msg.GetDataS<CommonEvent<HydroqServerInitMsg>>();
+				auto msgEvent = msg.GetData<CommonEvent<HydroqServerInitMsg>>();
 				auto netMsg = msgEvent->value;
 				string ipAddress = netMsg->GetIpAddress();
 				// store message
@@ -124,7 +126,7 @@ public:
 	void DeselectServer();
 
 	void ConnectToServer(spt<HydroqServerInitMsg> serverMsg) {
-		auto model = GETCOMPONENT(HydroqGameModel);
+		auto model = GETCOMPONENT(HydroqPlayerModel);
 		// select the other faction than server did
 		Faction selectedFaction = (serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
 		model->StartGame(selectedFaction, serverMsg->GetMap(), true);
@@ -141,19 +143,19 @@ public:
 	}
 
 	void EnableConnectButton() {
-		owner->GetScene()->FindNodeByTag("connect_but")->ResetState(StringHash(STATES_DISABLED));
+		owner->GetScene()->FindNodeByTag("connect_but")->ResetState(StrId(STATES_DISABLED));
 	}
 
 	void DisableConnectButton() {
-		owner->GetScene()->FindNodeByTag("connect_but")->SetState(StringHash(STATES_DISABLED));
+		owner->GetScene()->FindNodeByTag("connect_but")->SetState(StrId(STATES_DISABLED));
 	}
 
 	void EnableHostButton() {
-		owner->GetScene()->FindNodeByTag("host_but")->ResetState(StringHash(STATES_DISABLED));
+		owner->GetScene()->FindNodeByTag("host_but")->ResetState(StrId(STATES_DISABLED));
 	}
 
 	void DisableHostButton() {
-		owner->GetScene()->FindNodeByTag("host_but")->SetState(StringHash(STATES_DISABLED));
+		owner->GetScene()->FindNodeByTag("host_but")->SetState(StrId(STATES_DISABLED));
 	}
 
 public:

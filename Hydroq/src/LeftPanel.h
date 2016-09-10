@@ -6,21 +6,25 @@
 #include "Board.h"
 
 class LeftPanel : public Behavior {
-	OBJECT_PROTOTYPE(LeftPanel)
 
 	spt<TransformEnt> originTrans;
 	spt<TransformEnt> animTrans;
 	HydroqPlayerModel* playerModel;
-	
+	HydroqGameModel* gameModel = nullptr;
+public:
+	LeftPanel() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_OBJECT_HIT_OVER, ACT_TRANSFORM_ENDED, ACT_COUNTER_CHANGED);
+		SubscribeForMessages(ACT_OBJECT_HIT_ENDED, ACT_OBJECT_HIT_OVER, ACT_TRANSFORM_ENDED, ACT_COUNTER_CHANGED);
 	}
 
 	void OnStart() {
 		originTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(0, 0), 10, CalcType::GRID, ofVec2f(0, 0), ofVec2f(1), CalcType::LOC, 0));
 		animTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(6.0f, 0), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
 
-		owner->SetState(StringHash(STATES_ENABLED));
+		owner->SetState(StrId(STATES_ENABLED));
 		playerModel = GETCOMPONENT(HydroqPlayerModel);
 
 		counterUnits = owner->GetScene()->FindNodeByTag("counter_units");
@@ -29,28 +33,20 @@ class LeftPanel : public Behavior {
 		mapIcon = owner->GetScene()->FindNodeByTag("mapboard");
 		mapBorder = owner->GetScene()->FindNodeByTag("mapborder");
 		gameBoard = owner->GetScene()->FindNodeByTag("gameboard");
-
-		auto model = GETCOMPONENT(HydroqGameModel);
-		auto& mapConfig = model->GetMap()->GetMapConfig();
-		string mapIconPath = mapConfig.GetSettingVal("maps_icons",model->GetMapName());
-		ReloadMapIcon(mapIconPath);
-		ReloadMapBorder();
-
-		RefreshCounters();
 	}
 
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_OBJECT_HIT_ENDED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
-			if (owner->HasState(StringHash(STATES_ENABLED))) {
-				owner->ResetState(StringHash(STATES_ENABLED));
+			if (owner->HasState(StrId(STATES_ENABLED))) {
+				owner->ResetState(StrId(STATES_ENABLED));
 				// roll menu back
 				Node* menu = owner->GetScene()->FindNodeByTag("leftpanel");
 				TransformAnim* anim = new TransformAnim(originTrans, animTrans, 250, 0, false, AnimBlend::OVERLAY);
 				menu->AddBehavior(anim);
 			}
 			else {
-				owner->SetState(StringHash(STATES_ENABLED));
+				owner->SetState(StrId(STATES_ENABLED));
 
 				// roll the menu
 				Node* menu = owner->GetScene()->FindNodeByTag("leftpanel");
@@ -62,7 +58,7 @@ class LeftPanel : public Behavior {
 			RefreshCounters();
 		}
 		else if (msg.HasAction(ACT_OBJECT_HIT_OVER) && msg.GetSourceObject()->GetId() == mapIcon->GetId()) {
-			InputEvent* evt = msg.GetDataS<InputEvent>();
+			InputEvent* evt = msg.GetData<InputEvent>();
 			HandleMapDetailHit(evt);
 		}
 	}
@@ -110,8 +106,8 @@ private:
 		// relative % position of the map
 		float leftCornerX = (-gameBoardPos.x) / gameBoardWidth;
 		float leftCornerY = (-gameBoardPos.y) / gameBoardHeight;
-		float zoomX = gameBoardWidth / CogGetScreenSize().x;
-		float zoomY = gameBoardHeight / CogGetScreenSize().y;
+		float zoomX = gameBoardWidth / CogGetVirtualScreenSize().x;
+		float zoomY = gameBoardHeight / CogGetVirtualScreenSize().y;
 
 		// map border position and size
 		auto borderShape = mapBorder->GetShape<spt<Plane>>();
@@ -157,6 +153,16 @@ private:
 
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
+		if (this->gameModel == nullptr) {
+			gameModel = gameBoard->GetBehavior<HydroqGameModel>();
+			auto& mapConfig = gameModel->GetMap()->GetMapConfig();
+			string mapIconPath = mapConfig.GetSettingVal("maps_icons", gameModel->GetMapName());
+			ReloadMapIcon(mapIconPath);
+			ReloadMapBorder();
+
+			RefreshCounters();
+		}
+
 		ReloadMapBorder();
 	}
 };

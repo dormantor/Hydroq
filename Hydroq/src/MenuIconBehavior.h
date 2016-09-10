@@ -5,14 +5,17 @@
 #include "HydroqPlayerModel.h"
 
 class MenuIconBehavior : public Behavior {
-	OBJECT_PROTOTYPE(MenuIconBehavior)
-
-	
 	spt<TransformEnt> originTrans;
 	spt<TransformEnt> animTrans;
 
+public:
+
+	MenuIconBehavior() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_BUTTON_CLICKED, ACT_TRANSFORM_ENDED);
+		SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_TRANSFORM_ENDED);
 	}
 
 	void OnStart() {
@@ -23,15 +26,15 @@ class MenuIconBehavior : public Behavior {
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_TRANSFORM_ENDED) && msg.GetSourceObject()->GetTag().compare("rightpanel") == 0) {
-			owner->ResetState(StringHash(STATES_LOCKED));
+			owner->ResetState(StrId(STATES_LOCKED));
 		}
 
 		if (msg.HasAction(ACT_BUTTON_CLICKED) && msg.GetSourceObject()->GetId() == owner->GetId()) {
-			if (!owner->HasState(StringHash(STATES_LOCKED))) {
-				owner->SetState(StringHash(STATES_LOCKED));
+			if (!owner->HasState(StrId(STATES_LOCKED))) {
+				owner->SetState(StrId(STATES_LOCKED));
 
-				if (owner->HasState(StringHash(STATES_ENABLED))) {
-					owner->ResetState(StringHash(STATES_ENABLED));
+				if (owner->HasState(StrId(STATES_ENABLED))) {
+					owner->ResetState(StrId(STATES_ENABLED));
 					// roll menu back
 					Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
 					TransformAnim* anim = new TransformAnim(animTrans, originTrans, 250, 0, false, AnimBlend::OVERLAY);
@@ -44,7 +47,7 @@ class MenuIconBehavior : public Behavior {
 					}*/
 				}
 				else {
-					owner->SetState(StringHash(STATES_ENABLED));
+					owner->SetState(StrId(STATES_ENABLED));
 
 					// roll the menu
 					Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");

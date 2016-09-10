@@ -10,20 +10,18 @@
 #include "HydroqGameModel.h"
 
 class HydNetworkReceiver : public Component {
-	OBJECT(HydNetworkReceiver)
-
+	
 public:
 
-
-	void Init() {
-		RegisterGlobalListening(ACT_NET_MESSAGE_RECEIVED);
+	void OnInit() {
+		GlobalSubscribeForMessages(ACT_NET_MESSAGE_RECEIVED);
 	}
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_NET_MESSAGE_RECEIVED)) {
-			NetworkMsgEvent* msgEvent = msg.GetDataS<NetworkMsgEvent>();
+			NetworkMsgEvent* msgEvent = msg.GetData<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
-			StringHash action = netMsg->GetAction();
+			StrId action = netMsg->GetAction();
 			auto type = netMsg->GetMsgType();
 
 			if (type == NetMsgType::DISCOVER_RESPONSE) {
@@ -56,12 +54,16 @@ public:
 	void ProcessMultiplayerInit(spt<NetInputMessage> netMsg) {
 		auto mpInit = netMsg->GetData<HydroqServerInitMsg>();
 		mpInit->SetIpAddress(netMsg->GetSourceIp());
-		SendMessageToListeners(StringHash(ACT_SERVER_FOUND), 0, new CommonEvent<HydroqServerInitMsg>(mpInit), nullptr);
+		SendMessageToListeners(StrId(ACT_SERVER_FOUND), 0, new CommonEvent<HydroqServerInitMsg>(mpInit), nullptr);
 	}
+
+	// todo .... !!!
+	HydroqGameModel* model = nullptr;
+	
 
 	void ProcessCommandMessage(spt<NetInputMessage> netMsg) {
 		auto cmdMsg = netMsg->GetData<HydroqCommandMsg>();
-		auto model = GETCOMPONENT(HydroqGameModel);
+		//model = GETCOMPONENT(HydroqGameModel);
 
 		switch (cmdMsg->GetEventType()) {
 		case SyncEventType::OBJECT_CREATED:

@@ -9,17 +9,20 @@
 
 
 class HydroqBoard : public Behavior {
-	OBJECT_PROTOTYPE(HydroqBoard)
-
+	
 private:
 	ResourceCache* cache;
 	Settings mapConfig;
 
 public:
 
+	HydroqBoard() {
+
+	}
+
 	void OnInit() {
 		cache = GETCOMPONENT(ResourceCache);
-		auto gameModel = GETCOMPONENT(HydroqGameModel);
+		auto gameModel = owner->GetBehavior<HydroqGameModel>();
 		
 		auto xml = CogLoadXMLFile("mapconfig.xml");
 		xml->pushTag("settings");
@@ -27,7 +30,7 @@ public:
 		xml->popTag();
 
 		// 3) load static sprites and assign it to the map_board node
-		auto gameView = GETCOMPONENT(HydroqGameView);
+		auto gameView = owner->GetBehavior<HydroqGameView>();
 		gameView->LoadSprites(mapConfig.GetSetting("sprites"));
 
 		auto staticSprites = gameView->GetStaticSprites();
@@ -65,7 +68,7 @@ public:
 		float shapeHeight = owner->GetShape()->GetHeight();
 		float width = shapeWidth*owner->GetTransform().absScale.x;
 		float height = shapeHeight*owner->GetTransform().absScale.y;
-		auto screenSize = CogGetScreenSize();
+		auto screenSize = CogGetVirtualScreenSize();
 
 		ofVec3f newAbsPos = ofVec3f(-width*positionRelative.x + screenSize.x/2, -height*positionRelative.y + screenSize.y/2,transform.absPos.z);
 		SetNewPosition(transform, newAbsPos);

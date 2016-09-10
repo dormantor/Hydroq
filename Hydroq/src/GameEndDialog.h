@@ -1,18 +1,20 @@
 #pragma once
 
 #include "ofxCogMain.h"
-#include "HydroqGameModel.h"
+#include "HydroqPlayerModel.h"
 
-class GameEndDialog : public Behavior {
-	OBJECT_PROTOTYPE(GameEndDialog)
+class GameEndDialog : public Behavior {	
+	
+	HydroqPlayerModel* model;
 
-	
-	
-	HydroqGameModel* model;
+public:
+	GameEndDialog() {
+
+	}
 
 	void OnInit() {
-		RegisterListening(ACT_BUTTON_CLICKED);
-		model = GETCOMPONENT(HydroqGameModel);
+		SubscribeForMessages(ACT_BUTTON_CLICKED);
+		model = GETCOMPONENT(HydroqPlayerModel);
 	}
 
 	void OnMessage(Msg& msg) {
@@ -32,7 +34,7 @@ public:
 			auto msgNode = owner->GetScene()->FindNodeByTag("gameend_msg");
 			auto player = GETCOMPONENT(HydroqPlayerModel);
 			
-			msgNode->GetShape<spt<Text>>()->SetText(player->GetBuildings() == 0 ? "You lost the game!" : "You win the game!");
+			msgNode->GetShape<spt<Text>>()->SetText(!player->PlayerWin() ? "You lost the game!" : "You win the game!");
 			firstInit = true;
 		}
 	}

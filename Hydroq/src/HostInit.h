@@ -8,7 +8,6 @@
 #include "HydroqNetMsg.h"
 
 class HostInit : public Behavior {
-	OBJECT_PROTOTYPE(HostInit)
 
 private:
 	uint64 msgReceivedTime = 0;
@@ -17,8 +16,12 @@ private:
 	bool keepConnected = false;
 public:
 	
+	HostInit() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_NET_CLIENT_CONNECTED, ACT_SCENE_SWITCHED);
+		SubscribeForMessages(ACT_NET_CLIENT_CONNECTED, ACT_SCENE_SWITCHED);
 		communicator = GETCOMPONENT(NetworkCommunicator);
 	}
 
@@ -58,7 +61,7 @@ public:
 			}
 		}
 		if (msg.HasAction(ACT_NET_CLIENT_CONNECTED)) {
-			auto msgEvent = msg.GetDataS<NetworkMsgEvent>();
+			auto msgEvent = msg.GetData<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
 			string ipAddress = netMsg->GetSourceIp();
 			auto textNode = owner->GetScene()->FindNodeByTag("host_status");
@@ -79,7 +82,7 @@ public:
 		auto factRed = parentScene->FindNodeByTag("faction_red");
 		auto factBlue = parentScene->FindNodeByTag("faction_blue");
 
-		if (factRed->HasState(StringHash(STATES_SELECTED))) {
+		if (factRed->HasState(StrId(STATES_SELECTED))) {
 			return Faction::RED;
 		}
 		else {
@@ -94,7 +97,7 @@ public:
 		auto children = list->GetChildren();
 
 		for (auto& child : children) {
-			if (child->HasAttr(ATTR_MAP) && child->HasState(StringHash(STATES_SELECTED))) {
+			if (child->HasAttr(ATTR_MAP) && child->HasState(StrId(STATES_SELECTED))) {
 				return child->GetAttr<string>(ATTR_MAP);
 			}
 		}
@@ -107,7 +110,7 @@ public:
 
 		// wait 500ms and finish
 		if (msgReceivedTime != 0 && msgReceivedTime != 1 && (absolute - msgReceivedTime) > 500) {
-			auto model = GETCOMPONENT(HydroqGameModel);
+			auto model = GETCOMPONENT(HydroqPlayerModel);
 			// select the other faction than server did
 			model->StartGame(GetSelectedFaction(), GetSelectedMap(), true);
 			// set other properties and switch the scene

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "Behavior.h"
 #include "HydroqDef.h"
 #include "Events.h"
 #include "HydMap.h"
@@ -21,9 +21,7 @@ public:
 /**
 * Hydroq game model
 */
-class HydroqGameModel : public Component {
-
-	OBJECT(HydroqGameModel)
+class HydroqGameModel : public Behavior {
 
 private:
 	// static objects (map, water, platforms)
@@ -63,13 +61,7 @@ public:
 
 	}
 
-	void Init();
-
-	void Init(spt<ofxXml> xml) {
-		Init();
-	}
-
-	void StartGame(Faction faction, string map, bool isMultiplayer);
+	void OnInit();
 
 	Node* GetRootNode() {
 		return rootNode;
@@ -262,9 +254,9 @@ public:
 
 	Node* CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier);
 
-	void SendMessageOutside(StringHash action, int subaction, MsgEvent* data);
+	void SendMessageOutside(StrId action, int subaction, MsgEvent* data);
 
-	void SendMessageToModel(StringHash action, int subaction, MsgEvent* data);
+	void SendMessageToModel(StrId action, int subaction, MsgEvent* data);
 
 	Node* CreateNode(EntityType entityType, ofVec2f position, Faction faction, int identifier);
 

@@ -510,12 +510,14 @@
 		    <item key="scroll_enabled" value="true" />
 		  </setting>
 	    </behavior>
+		<behavior type="HydroqGameModel" />
+		<behavior type="HydroqGameView" />
 		<behavior type="AttractorPlacement" /> <!-- must be declared after FloatingScene -->
 		<behavior type="BrickEventBehavior" />
 		<behavior type="HydroqPlayerController" />
         <behavior type="HitEvent" />
         <behavior type="HydroqBoard" />
-		
+
 		
     	<transform pos_x="0gr" pos_y="0gr"  width="200gr" z_index="4" />
 		
@@ -543,7 +545,7 @@
 	  <node name="desk_board" img="desk_board_dark.png">
 	     <behavior type="ConfirmDialog" />
 		 
-        <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
+        <transform pos="0.5r" z_index="200" anchor="0.5" width="40gr" />
 		<node name="msg">
 		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Do you really want to exit the game?</text>
            <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />

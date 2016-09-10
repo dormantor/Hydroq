@@ -4,10 +4,13 @@
 
 
 class MenuBehavior : public Behavior {
-	OBJECT_PROTOTYPE(MenuBehavior)
+public:
+	MenuBehavior() {
 
-		void OnInit() {
-		RegisterListening(ACT_BUTTON_CLICKED);
+	}
+
+	void OnInit() {
+		SubscribeForMessages(ACT_BUTTON_CLICKED);
 	}
 
 	void OnMessage(Msg& msg) {

@@ -119,7 +119,7 @@ public:
 	}
 
 	vector<HydMapNode*> GetNeighbors() {
-		vector<HydMapNode*> output = vector<HydMapNode*>();
+		vector<HydMapNode*> output;
 		if (top != nullptr) output.push_back(top);
 		if (topRight != nullptr) output.push_back(topRight);
 		if (right != nullptr) output.push_back(right);
@@ -273,7 +273,7 @@ public:
 	}
 
 	vector<Vec2i> GetRigsPositions() {
-		vector<Vec2i> output = vector<Vec2i>();
+		vector<Vec2i> output;
 		
 		for (auto node : this->rigs) {
 			output.push_back(node->pos);

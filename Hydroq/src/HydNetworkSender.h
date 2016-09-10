@@ -11,20 +11,18 @@ enum class HydroqNetworkState {
 };
 
 class HydNetworkSender : public Component {
-	OBJECT(HydNetworkSender)
-
 private:
 	HydroqNetworkState networkState = HydroqNetworkState::NONE;
 public:
 
 
-	void Init() {
-		RegisterGlobalListening(ACT_SYNC_OBJECT_CHANGED);
+	void OnInit() {
+		GlobalSubscribeForMessages(ACT_SYNC_OBJECT_CHANGED);
 	}
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_SYNC_OBJECT_CHANGED)) {
-			auto syncEvent = msg.GetDataS<SyncEvent>();
+			auto syncEvent = msg.GetData<SyncEvent>();
 
 			// send sync message
 			auto communicator = GETCOMPONENT(NetworkCommunicator);
@@ -62,7 +60,8 @@ public:
 				// send delta message regularly
 				spt<DeltaInfo> deltaInf = spt<DeltaInfo>(new DeltaInfo());
 
-				auto model = GETCOMPONENT(HydroqGameModel);
+				// todo ... !!!
+				HydroqGameModel* model = nullptr;
 				auto& dynObjects = model->GetMovingObjects();
 
 				// update transformation of all objects
@@ -81,7 +80,7 @@ public:
 				auto msg = new DeltaMessage(deltaInf);
 				spt<NetOutputMessage> netMsg = spt<NetOutputMessage>(new NetOutputMessage(1));
 				netMsg->SetData(msg);
-				netMsg->SetAction(StringHash(NET_MSG_DELTA_UPDATE));
+				netMsg->SetAction(StrId(NET_MSG_DELTA_UPDATE));
 
 				if (communicator->GetNetworkState() == NetworkComState::COMMUNICATING) {
 					communicator->PushMessageForSending(netMsg);

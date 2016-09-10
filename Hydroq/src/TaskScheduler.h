@@ -3,23 +3,23 @@
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
 #include "State.h"
-#include "StringHash.h"
+#include "StrId.h"
 #include "HydroqGoals.h"
 #include "GameTask.h"
 #include "HydMap.h"
 #include "HydroqGameModel.h"
 
 class TaskScheduler : public Behavior {
-	BEHAVIOR_UNIQUE()
 
 private:
 	HydroqGameModel* gameModel;
 
 public:
 
-	void OnInit(){
-		this->gameModel = GETCOMPONENT(HydroqGameModel);
+	TaskScheduler(HydroqGameModel* gameModel) :gameModel(gameModel) {
+
 	}
+
 
 	map<int, int> CalcAssignedTasks(vector<spt<GameTask>>& tasks);
 

@@ -3,7 +3,7 @@
 #include "ofxCogMain.h"
 #include "HydroqDef.h"
 #include "State.h"
-#include "StringHash.h"
+#include "StrId.h"
 #include "HydroqGoals.h"
 #include "GameTask.h"
 #include "HydMap.h"
@@ -16,8 +16,9 @@ class WorkerIdleState : public State {
 	
 public:
 	ArriveBehavior* movingAround = nullptr;
+	HydroqGameModel* gameModel;
 
-	WorkerIdleState() : State(StringHash(STATE_WORKER_IDLE)) {
+	WorkerIdleState(HydroqGameModel* gameModel) : State(StrId(STATE_WORKER_IDLE)), gameModel(gameModel) {
 
 	}
 
@@ -42,15 +43,16 @@ class WorkerBridgeBuildState : public State {
 public:
 	spt<GameTask> task;
 	HydMapNode* nodeToBuildfrom;
+	HydroqGameModel* gameModel;
 
 	// composite of goals to build the bridge
 	Goal* buildGoal;
-	WorkerBridgeBuildState() :State(StringHash(STATE_WORKER_BUILD)) {
+	WorkerBridgeBuildState(HydroqGameModel* gameModel) :State(StrId(STATE_WORKER_BUILD)), gameModel(gameModel) {
 
 	}
 
 	void OnInit() {
-		RegisterListening(ACT_TASK_ABORTED);
+		SubscribeForMessages(ACT_TASK_ABORTED);
 	}
 
 	void OnFinish();
@@ -81,15 +83,15 @@ class WorkerAttractorFollowState : public State {
 public:
 	spt<GameTask> task;
 	HydMapNode* nodeToFollow;
-
+	HydroqGameModel* gameModel;
 	// composite of goals to build the bridge
 	Goal* followGoal;
-	WorkerAttractorFollowState() :State(StringHash(STATE_WORKER_ATTRACTOR_FOLLOW)) {
+	WorkerAttractorFollowState(HydroqGameModel* gameModel) :State(StrId(STATE_WORKER_ATTRACTOR_FOLLOW)), gameModel(gameModel) {
 
 	}
 
 	void OnInit() {
-		RegisterListening(ACT_TASK_ABORTED);
+		SubscribeForMessages(ACT_TASK_ABORTED);
 	}
 
 	void OnFinish();

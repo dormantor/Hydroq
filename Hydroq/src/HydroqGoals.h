@@ -6,6 +6,7 @@
 
 using namespace Cog;
 
+class HydroqGameModel;
 /**
 * Goal that moves target unit to the selected position
 */
@@ -22,8 +23,10 @@ public:
 	// precise end position
 	ofVec2f targetPosition;
 
-	GotoPositionGoal(spt<GameTask> task, Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) : Goal(StringHash(GOAL_GOTO_POSITION)),
-		task(task), startCell(startCell), endCell(endCell), startPosition(startPr), targetPosition(targetPr) {
+	HydroqGameModel* gameModel;
+
+	GotoPositionGoal(HydroqGameModel* gameModel, spt<GameTask> task, Vec2i startCell, Vec2i endCell, ofVec2f startPr, ofVec2f targetPr) : Goal(StrId(GOAL_GOTO_POSITION)),
+		task(task), startCell(startCell), endCell(endCell), startPosition(startPr), targetPosition(targetPr), gameModel(gameModel) {
 
 	}
 
@@ -43,8 +46,9 @@ public:
 	spt<GameTask> task;
 	// the time the goal started
 	uint64 goalStarted = 0;
+	HydroqGameModel* gameModel;
 
-	BuildBridgeGoal(spt<GameTask> task) : Goal(StringHash(GOAL_BUILD_BRIDGE)), task(task) {
+	BuildBridgeGoal(HydroqGameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_BUILD_BRIDGE)), gameModel(gameModel), task(task) {
 
 	}
 
@@ -61,8 +65,9 @@ public:
 	spt<GameTask> task;
 	// the time the goal started
 	uint64 goalStarted = 0;
+	HydroqGameModel* gameModel;
 
-	DestroyBridgeGoal(spt<GameTask> task) : Goal(StringHash(GOAL_DESTROY_BRIDGE)), task(task) {
+	DestroyBridgeGoal(HydroqGameModel* gameModel, spt<GameTask> task) : Goal(StrId(GOAL_DESTROY_BRIDGE)), task(task), gameModel(gameModel) {
 
 	}
 

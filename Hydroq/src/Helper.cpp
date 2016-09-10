@@ -33,13 +33,13 @@ using namespace Cog;
 	 throw IllegalArgumentException("Unknown map node type");
  }
 
- void Helper::SetPanelItem(Node* owner, Node* listNode, int index, StringHash selectionGroup, StringHash idAttr, string idValue, bool select) {
+ void Helper::SetPanelItem(Node* owner, Node* listNode, int index, StrId selectionGroup, StrId idAttr, string idValue, bool select) {
 
 	 Node* plane = new Node("plane");
 	 plane->AddBehavior(new HitEvent());
 
 	 plane->AddBehavior(new MultiSelection(StringToColor("0x00000000"), StringToColor("0xFFFFFF88"), selectionGroup));
-	 if (select) plane->SetState(StringHash(STATES_SELECTED));
+	 if (select) plane->SetState(StrId(STATES_SELECTED));
 	 plane->AddAttr(idAttr, idValue);
 	 auto shape = spt<Plane>(new Plane(1, 1));
 	 shape->SetColor(StringToColor("0x00000000"));

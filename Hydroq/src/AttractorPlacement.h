@@ -8,7 +8,6 @@
 #include "HydroqGameModel.h"
 
 class AttractorPlacement : public Behavior {
-	OBJECT_PROTOTYPE(AttractorPlacement)
 
 
 public:
@@ -23,11 +22,15 @@ public:
 
 	vector<Node*> attractors;
 
+	AttractorPlacement() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_FUNC_SELECTED, ACT_OBJECT_HIT_OVER, ACT_OBJECT_HIT_ENDED, ACT_OBJECT_HIT_LOST, ACT_OBJECT_HIT_STARTED);
+		SubscribeForMessages(ACT_FUNC_SELECTED, ACT_OBJECT_HIT_OVER, ACT_OBJECT_HIT_ENDED, ACT_OBJECT_HIT_LOST, ACT_OBJECT_HIT_STARTED);
 		floatingGameScene = owner->GetBehavior<FloatingScene>();
-		gameView = GETCOMPONENT(HydroqGameView);
-		gameModel = GETCOMPONENT(HydroqGameModel);
+		gameView = owner->GetBehavior<HydroqGameView>();
+		gameModel = owner->GetBehavior<HydroqGameModel>();
 	}
 
 	Vec2i GetBrickPosition(ofVec2f objectAbsPos) {
@@ -48,8 +51,8 @@ public:
 
 
 	void OnMessage(Msg& msg) {
-		if (msg.HasAction(StringHash(ACT_FUNC_SELECTED))) {
-			auto which = msg.GetDataS<ValueChangeEvent<HydroqAction>>();
+		if (msg.HasAction(StrId(ACT_FUNC_SELECTED))) {
+			auto which = msg.GetData<ValueChangeEvent<HydroqAction>>();
 
 			selectedAction = which->after;
 
@@ -66,18 +69,22 @@ public:
 				if (msg.GetSourceObject()->GetId() == owner->GetId()) {
 
 					if (msg.HasAction(ACT_OBJECT_HIT_STARTED)) {
-						InputEvent* touch = msg.GetDataS<InputEvent>();
+						InputEvent* touch = msg.GetData<InputEvent>();
 						ofVec2f endPos = touch->input->position;
 						Vec2i brickPos = GetBrickPosition(endPos);
 
 						auto clickedNode = gameModel->GetMap()->GetNode(brickPos.x,brickPos.y);
+
+						// don't place attractor nearby another
+						for (auto& attr : attractors) {
+							if (Vec2i::Distance(attr->GetAttr<Vec2i>(ATTR_BRICK_POS), brickPos) < 4) return;
+						}
 
 						if (attrPlaced >= 3) {
 							// remove first attractor
 							auto firstAttr = attractors[0];
 							attractors.erase(attractors.begin());
 							Vec2i brickPosition = firstAttr->GetAttr<Vec2i>(ATTR_BRICK_POS);
-							auto gameModel = GETCOMPONENT(HydroqGameModel);
 							gameModel->DestroyAttractor(brickPosition, gameModel->GetFaction());
 							owner->RemoveChild(firstAttr, true);
 							attrPlaced--;
@@ -87,7 +94,7 @@ public:
 					}
 					else if (msg.HasAction(ACT_OBJECT_HIT_OVER)) {
 						if (attractorPlaced) {
-							InputEvent* touch = msg.GetDataS<InputEvent>();
+							InputEvent* touch = msg.GetData<InputEvent>();
 							ofVec2f endPos = touch->input->position;
 							auto& trans = placedAttractor->GetTransform();
 							auto shape = placedAttractor->GetShape<spt<Image>>();
@@ -102,7 +109,6 @@ public:
 							if (newScale.x >= 1.0f && newScale.x <= 3.0f) {
 								
 								Vec2i brickPosition = placedAttractor->GetAttr<Vec2i>(ATTR_BRICK_POS);
-								auto gameModel = GETCOMPONENT(HydroqGameModel);
 								gameModel->ChangeAttractorCardinality(brickPosition, gameModel->GetFaction(), newScale.x / 3.0f);
 
 								trans.scale = newScale;
@@ -127,14 +133,14 @@ public:
 			else {
 				if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
 					if (msg.GetSourceObject()->GetId() == owner->GetId()) {
-						InputEvent* touch = msg.GetDataS<InputEvent>();
+						InputEvent* touch = msg.GetData<InputEvent>();
 						ofVec2f endPos = touch->input->position;
 
 						// remove on double-click
 						Node* clicked = GetClickedAttractor(endPos);
 
 						if (clickedAttractor != nullptr && clicked != nullptr && clicked->GetId() == clickedAttractor->GetId() && 
-							clickedAttrPos.distance(endPos) <= SCREEN_TOLERANCE) {
+							clickedAttrPos.distance(endPos) <= TOUCHPOINT_TOLERANCE) {
 							touch->input->SetIsProcessed(true);
 							RemoveAttractor(endPos);
 						}
@@ -191,7 +197,6 @@ public:
 				Vec2i brickPosition = node->GetAttr<Vec2i>(ATTR_BRICK_POS);
 				attractors.erase(it);
 
-				auto gameModel = GETCOMPONENT(HydroqGameModel);
 				gameModel->DestroyAttractor(brickPosition, gameModel->GetFaction());
 				owner->RemoveChild(node, true);
 				attrPlaced--;
@@ -213,7 +218,6 @@ public:
 		attrPlaced++;
 
 		placedAttractor->AddAttr(ATTR_BRICK_POS, brickPos);
-		auto gameModel = GETCOMPONENT(HydroqGameModel);
 		gameModel->AddAttractor(brickPos, gameModel->GetFaction(), 1);
 
 		attractors.push_back(placedAttractor);

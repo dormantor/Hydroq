@@ -8,10 +8,9 @@
 using namespace Cog;
 
 void GotoPositionGoal::OnStart() {
-	auto model = GETCOMPONENT(HydroqGameModel);
 	
 	// find path
-	vector<Vec2i> map = model->GetMap()->FindPath(startCell, endCell, true, 0);
+	vector<Vec2i> map = gameModel->GetMap()->FindPath(startCell, endCell, true, 0);
 
 	if (!map.empty()) {
 		ofVec2f firstPoint = map.size() >= 2 ? ofVec2f(map[1].x, map[1].y) + 0.5f : targetPosition;
@@ -67,9 +66,8 @@ void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 			CogLogDebug("Hydroq", "Building bridge");
 			
 			// build bridge each 3.5s
-			auto model = GETCOMPONENT(HydroqGameModel);
 			auto position = Vec2i(task->taskNode->GetTransform().localPos);
-			model->BuildPlatform(position);
+			gameModel->BuildPlatform(position);
 			task->isEnded = true;
 			this->Complete();
 		}
@@ -85,12 +83,11 @@ void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 		if ((absolute - goalStarted) > 3500) {
 			
 			if (CogGetFrameCounter() % 10 == 0) {
-				auto model = GETCOMPONENT(HydroqGameModel);
-
+				
 				// check if nobody is inside the square
 				auto position = ofVec2f(task->taskNode->GetTransform().localPos + 0.5f);
-				vector<Node*> neighbours = vector<Node*>();
-				model->GetCellSpace()->CalcNeighbors(position, 0.5f, neighbours);
+				vector<Node*> neighbours;
+				gameModel->GetCellSpace()->CalcNeighbors(position, 0.5f, neighbours);
 
 				if (neighbours.empty() || (neighbours.size() == 1 && neighbours[0]->GetId() == owner->GetId())) {
 
@@ -98,7 +95,7 @@ void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 
 					// destroy bridge at 3.5s
 					auto position = Vec2i(task->taskNode->GetTransform().localPos);
-					model->DestroyPlatform(position);
+					gameModel->DestroyPlatform(position);
 					task->isEnded = true;
 					this->Complete();
 				}

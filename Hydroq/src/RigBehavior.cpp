@@ -2,9 +2,11 @@
 #include "RigBehavior.h"
 #include "HydroqGameModel.h"
 
+
+
 void RigBehavior::OnStart() {
-	frequencySh = StringHash(ATTR_SEEDBED_FREQUENCY);
-	lastSpawnSh = StringHash(ATTR_SEEDBED_LASTSPAWN);
+	frequencySh = StrId(ATTR_SEEDBED_FREQUENCY);
+	lastSpawnSh = StrId(ATTR_SEEDBED_LASTSPAWN);
 
 	// set spawn frequency
 	if (!owner->HasAttr(frequencySh)) {
@@ -34,7 +36,6 @@ void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 		if (spawnDelayRat > 1.0f/frequency) {
 			// spawn a worker
 			owner->ChangeAttr(lastSpawnSh, absolute);
-			auto gameModel = GETCOMPONENT(HydroqGameModel);
 
 			float circuitPosition = ofRandom(0, 8);
 			float posX = 0;

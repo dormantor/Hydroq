@@ -4,17 +4,20 @@
 #include "HydroqDef.h"
 
 class SelectedFuncBehavior : public Behavior {
-	OBJECT_PROTOTYPE(SelectedFuncBehavior)
-
 	
 	int selectedFuncSeedBed;
 	int selectedFunc;
 
 	unsigned actFuncSelected;
 
+public:
+	SelectedFuncBehavior() {
+
+	}
+
 	void OnInit() {
-		actFuncSelected = StringHash(ACT_FUNC_SELECTED);
-		RegisterListening(ACT_FUNC_SELECTED);
+		actFuncSelected = StrId(ACT_FUNC_SELECTED);
+		SubscribeForMessages(ACT_FUNC_SELECTED);
 	}
 
 	void OnStart() {
@@ -22,9 +25,9 @@ class SelectedFuncBehavior : public Behavior {
 	}
 
 	void OnMessage(Msg& msg) {
-		if (msg.HasAction(StringHash(actFuncSelected))) {
+		if (msg.HasAction(StrId(actFuncSelected))) {
 			// function selected
-			auto which = msg.GetDataS<ValueChangeEvent<HydroqAction>>();
+			auto which = msg.GetData<ValueChangeEvent<HydroqAction>>();
 
 			owner->SetRunningMode(RunningMode::RUNNING);
 

@@ -61,11 +61,11 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 				float absCardinality = gameModel->CalcAttractorAbsCardinality(faction, task->taskNode->GetId());
 				int neededDistance = absCardinality * 4;
 
-				vector<HydMapNode*> nearestNodes = vector<HydMapNode*>();
+				vector<HydMapNode*> nearestNodes;
 				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);
 
 				if (!nearestNodes.empty()) {
-					vector<Node*> freeWorkers = vector<Node*>();
+					vector<Node*> freeWorkers;
 					// calculate number of free workers
 					for (auto& worker : allWorkers) {
 						if (assignedTasks.find(worker->GetId()) == assignedTasks.end()) {

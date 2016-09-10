@@ -38,14 +38,17 @@ struct RigInfo {
 };
 
 class HydroqAI : public Behavior {
-	OBJECT_PROTOTYPE(HydroqAI)
 
 	HydroqGameModel* gameModel;
 	Faction faction = Faction::NONE;
 
+public:
+	HydroqAI(HydroqGameModel* gameModel) :gameModel(gameModel) {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_GAMESTATE_CHANGED);
-		gameModel = GETCOMPONENT(HydroqGameModel);
+		SubscribeForMessages(ACT_GAMESTATE_CHANGED);
 	}
 
 	void OnStart() {
@@ -55,7 +58,7 @@ class HydroqAI : public Behavior {
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(ACT_GAMESTATE_CHANGED)) {
-			auto evt = msg.GetDataS<GameStateChangedEvent>();
+			auto evt = msg.GetData<GameStateChangedEvent>();
 			if (evt->changeType == GameChangeType::EMPTY_RIG_CAPTURED) {
 				if (evt->ownerFaction == faction) this->actualTask = AITask(); // restart task
 				gameModel->DestroyAllAttractors(faction);
@@ -192,11 +195,10 @@ private:
 		auto redRigs = gameModel->GetRigsByFaction(Faction::RED);
 		auto emptyRigs = gameModel->GetRigsByFaction(Faction::NONE);
 
-		vector<Vec2i> redPos = vector<Vec2i>();
-		vector<Vec2i> bluePos = vector<Vec2i>();
-		vector<Vec2i> emptyPos = vector<Vec2i>();
+		vector<Vec2i> redPos;
+		vector<Vec2i> bluePos;
+		vector<Vec2i> emptyPos;
 
-		auto gameModel = GETCOMPONENT(HydroqGameModel);
 		auto map = gameModel->GetMap();
 
 

@@ -11,8 +11,6 @@
 * Informs other nodes that user clicked on brick
 */
 class BrickEventBehavior : public Behavior {
-	OBJECT_PROTOTYPE(BrickEventBehavior)
-
 
 	Node* objectBoard;
 	ResourceCache* cache;
@@ -21,11 +19,17 @@ class BrickEventBehavior : public Behavior {
 	int mapHeight = 0;
 	HydroqGameView* gameView;
 
+public:
+
+	BrickEventBehavior() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_OBJECT_HIT_STARTED, ACT_OBJECT_HIT_ENDED);
+		SubscribeForMessages(ACT_OBJECT_HIT_STARTED, ACT_OBJECT_HIT_ENDED);
 
 		cache = GETCOMPONENT(ResourceCache);
-		gameView = GETCOMPONENT(HydroqGameView);
+		gameView = owner->GetBehavior<HydroqGameView>();
 	}
 
 
@@ -40,7 +44,7 @@ class BrickEventBehavior : public Behavior {
 			else if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
 
 				if (mapWidth == 0 || mapHeight == 0) {
-					auto gameModel = GETCOMPONENT(HydroqGameModel);
+					auto gameModel = owner->GetBehavior<HydroqGameModel>();
 					mapWidth = gameModel->GetMap()->GetWidth();
 					mapHeight = gameModel->GetMap()->GetHeight();
 				}
@@ -49,7 +53,7 @@ class BrickEventBehavior : public Behavior {
 
 				if (touch->input->IsProcessed()) return;
 
-				bool isPointerOver = isPointerOver = endPos.distance(hitPos) < CogGetScreenWidth() / SCREEN_TOLERANCE;
+				bool isPointerOver = isPointerOver = endPos.distance(hitPos) < CogGetScreenWidth() / TOUCHMOVE_TOLERANCE;
 
 				if (isPointerOver) {
 					auto shape = owner->GetShape();

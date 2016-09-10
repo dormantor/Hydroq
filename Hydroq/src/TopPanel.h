@@ -6,13 +6,17 @@
 #define SCORE_WIDTH 14
 
 class TopPanel : public Behavior {
-	OBJECT_PROTOTYPE(TopPanel)
-
 	
+public:
+	TopPanel() {
+
+	}
+
 	Node* blueBar;
 	Node* redBar;
 	int gridWidth;
 	int gridHeight;
+	HydroqGameModel* gameModel;
 
 	void OnInit() {
 		blueBar = owner->GetScene()->FindNodeByTag("scorebar_blue");
@@ -20,6 +24,9 @@ class TopPanel : public Behavior {
 
 		gridWidth = owner->GetScene()->GetSettings().GetSettingValInt("transform", "grid_width");
 		gridHeight = owner->GetScene()->GetSettings().GetSettingValInt("transform", "grid_height");
+
+		auto gameBoard = owner->GetScene()->FindNodeByTag("gameboard");
+		gameModel = gameBoard->GetBehavior<HydroqGameModel>();
 	}
 
 	void OnMessage(Msg& msg) {
@@ -30,8 +37,7 @@ public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 
 		if (CogGetFrameCounter() % 10 == 0) {
-			auto gameModel = GETCOMPONENT(HydroqGameModel);
-
+			
 			int blue = 0;
 			int red = 0;
 

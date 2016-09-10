@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "Behavior.h"
 #include "HydroqDef.h"
 #include "Events.h"
 #include "HydMap.h"
@@ -10,15 +10,13 @@
 /**
 * Hydroq game view
 */
-class HydroqGameView : public Component {
-
-	OBJECT(HydroqGameView)
+class HydroqGameView : public Behavior {
 
 private:
 	// link to default sprite set
 	spt<SpriteSet> defaultSpriteSet;
 	// collection of all sprite types, mapped by its name
-	map<string, vector<spt<Sprite>>> spriteTypes;
+	map<string, vector<Sprite>> spriteTypes;
 
 	// collection of static sprites
 	spt<SpritesShape> staticSprites;
@@ -33,17 +31,17 @@ private:
 	map<int, spt<SpriteEntity>> dynamicSpriteEntities;
 	
 	vector<Node*> rigsToAnimate;
+
+	map<int, Sprite> spriteBuffer;
+
+	HydroqGameModel* gameModel;
 public:
 
 	~HydroqGameView() {
 
 	}
 
-	void Init();
-
-	void Init(spt<ofxXml> xml) {
-		Init();
-	}
+	void OnInit();
 
 	void OnMessage(Msg& msg);
 
@@ -64,6 +62,8 @@ public:
 	}
 
 	void SaveMapImageToFile(string file);
+
+	Sprite& GetSprite(int frame);
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };

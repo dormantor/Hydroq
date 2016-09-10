@@ -2,7 +2,7 @@
 
 #include "ofxCogMain.h"
 #include <string>
-#include "StringHash.h"
+#include "StrId.h"
 
 using namespace std;
 
@@ -14,6 +14,6 @@ public:
 
 	static string GetMapNameByNodeType(MapNodeType type);
 
-	static void SetPanelItem(Node* owner, Node* listNode, int index, StringHash selectionGroup, StringHash idAttr, string idValue, bool select = false);
+	static void SetPanelItem(Node* owner, Node* listNode, int index, StrId selectionGroup, StrId idAttr, string idValue, bool select = false);
 
 };

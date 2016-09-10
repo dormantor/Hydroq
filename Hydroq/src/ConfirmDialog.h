@@ -3,11 +3,14 @@
 #include "ofxCogMain.h"
 
 class ConfirmDialog : public Behavior {
-	OBJECT_PROTOTYPE(ConfirmDialog)
-
 	
+public:
+	ConfirmDialog() {
+
+	}
+
 	void OnInit() {
-		RegisterListening(ACT_BUTTON_CLICKED);
+		SubscribeForMessages(ACT_BUTTON_CLICKED);
 	}
 
 	void OnMessage(Msg& msg) {
