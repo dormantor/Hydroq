@@ -46,7 +46,8 @@ public:
 
 enum class SyncEventType {
 	OBJECT_CREATED,
-	OBJECT_REMOVED
+	OBJECT_REMOVED,
+	MAP_CHANGED
 };
 
 enum class Faction;

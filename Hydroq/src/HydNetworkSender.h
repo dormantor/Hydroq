@@ -36,6 +36,10 @@ public:
 			msg->SetPosition(syncEvent->positionf);
 			auto netMsg = msg->CreateMessage();
 
+			if (syncEvent->eventType == SyncEventType::MAP_CHANGED) {
+				cout << "sending info that bridge has changed " << endl;
+			}
+
 			communicator->PushMessageForSending(netMsg);
 		}
 	}
@@ -51,7 +55,7 @@ public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 
 		if (networkState == HydroqNetworkState::CLIENT || networkState == HydroqNetworkState::SERVER) {
-			if (CogGetFrameCounter() % 20 == 0) {
+			if (CogGetFrameCounter() % 10 == 0) {
 				auto communicator = GETCOMPONENT(NetworkCommunicator);
 
 				// send delta message regularly
@@ -79,7 +83,6 @@ public:
 				netMsg->SetAction(StringHash(NET_MSG_DELTA_UPDATE));
 
 				if (communicator->GetNetworkState() == NetworkComState::COMMUNICATING) {
-					COGLOGDEBUG("DeltaMessage", "Sending delta message");
 					communicator->PushMessageForSending(netMsg);
 				}
 			}

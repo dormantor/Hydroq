@@ -172,7 +172,12 @@ void HydroqGameModel::CreateSeedBed(Vec2i position, Faction faction, int identif
 }
 
 void HydroqGameModel::BuildPlatform(Vec2i position) {
-	CogLogInfo("Hydroq", "Creating platform at [%d, %d]", position.x, position.y);
+	BuildPlatform(position, this->faction, 0);
+
+}
+
+void HydroqGameModel::BuildPlatform(Vec2i position, Faction faction, int identifier) {
+	CogLogInfo("Hydroq", "Creating platform for %s faction at [%d, %d]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	// destroy bridge mark
 	DestroyDynamicObject(position);
 	// change node to ground
@@ -182,8 +187,12 @@ void HydroqGameModel::BuildPlatform(Vec2i position) {
 	hydroqMap->RefreshNode(node);
 	// send a message that the static object has been changed
 	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0, new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr));
-}
 
+	if (multiplayer && identifier == 0) {
+		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
+			new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::BRIDGE, faction, position, 0, 0));
+	}
+}
 
 vector<spt<GameTask>> HydroqGameModel::GetGameTaskCopy() {
 	vector<spt<GameTask>> output = vector<spt<GameTask>>();

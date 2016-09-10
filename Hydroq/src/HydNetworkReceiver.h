@@ -43,7 +43,6 @@ public:
 	}
 
 	void ProcessDeltaUpdate(spt<NetInputMessage> netMsg) {
-		COGLOGDEBUG("DeltaMessage", "Accepting delta message");
 		spt<DeltaMessage> deltaMsg = netMsg->GetData<DeltaMessage>();
 		spt<DeltaInfo> deltaInfo = spt<DeltaInfo>(new DeltaInfo());
 		deltaInfo->deltas = deltaMsg->deltas;
@@ -77,6 +76,14 @@ public:
 			}
 			break;
 		case SyncEventType::OBJECT_REMOVED:
+			break;
+		case SyncEventType::MAP_CHANGED:
+			switch (cmdMsg->GetEntityType()) {
+			case EntityType::BRIDGE:
+				cout << "creating platform as it says message " << (int)netMsg->GetSyncId() << " send by " << netMsg->GetSourceIp() << " from port " << netMsg->GetSourcePort() << endl;
+				model->BuildPlatform(cmdMsg->GetPosition(), cmdMsg->GetFaction(), 1); // there is no identifier for bridge
+				break;
+			}
 			break;
 		}
 	}
