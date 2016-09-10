@@ -47,7 +47,13 @@ class BrickEventBehavior : public Behavior {
 
 				ofVec2f endPos = touch->input->position;
 
-				if (endPos.distance(hitPos) < 10) {
+				bool isPointerOver = true;
+				// android tolerance
+#ifdef ANDROID
+				isPointerOver = endPos.distance(hitPos) < CogGetScreenWidth() / SCREEN_TOLERANCE;
+#endif
+
+				if (isPointerOver) {
 					auto shape = owner->GetShape();
 					
 					// get pressed brick

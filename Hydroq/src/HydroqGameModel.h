@@ -6,7 +6,6 @@
 #include "Events.h"
 #include "HydMap.h"
 #include "HydEntity.h"
-
 #include "MapObjectChangedEvent.h"
 
 /**
@@ -20,8 +19,9 @@ private:
 	// static objects (excluding buildings)
 	HydMap* hydroqMap;
 	// dynamic objects (including buildings)
-	map<Vec2i, spt<HydEntity>> dynObjects;
-
+	map<Vec2i, Node*> dynObjects;
+	Scene* gameScene;
+	Node* rootNode;
 public:
 
 	~HydroqGameModel() {
@@ -30,10 +30,13 @@ public:
 
 	void Init() {
 		hydroqMap = new HydMap();
+		gameScene = new Scene("gamescene", false);
+		rootNode = gameScene->GetSceneNode();
+
 	}
 
 	void Init(spt<ofxXml> xml) {
-		hydroqMap = new HydMap();
+		Init();
 	}
 
 	HydMap* GetMap() {
@@ -45,12 +48,13 @@ public:
 		return node->mapNodeType == MapNodeType::GROUND && !node->occupied;
 	}
 
-	void CreateBuilding(Vec2i position, spt<HydEntity> building) {
-		auto node = hydroqMap->GetNode(position.x, position.y);
-		node->occupied = true;
-		dynObjects[position] = building;
+	void CreateDynamicObject(Vec2i position, EntityType entityType) {
+		auto hydMapNode = hydroqMap->GetNode(position.x, position.y);
+		hydMapNode->occupied = true;
+		auto gameNode = CreateNode(entityType, position);
+
 		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0, 
-			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node,building), nullptr);
+			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, hydMapNode, gameNode), nullptr);
 	}
 
 	bool IsPositionFreeForBridge(Vec2i position) {
@@ -62,7 +66,7 @@ public:
 			for (auto neighbor : node->GetNeighbors()) {
 				if (neighbor->mapNodeType != MapNodeType::WATER || 
 					(dynObjects.find(neighbor->pos) != dynObjects.end() && 
-						dynObjects[neighbor->pos]->entityType == EntityType::BRIDGE_MARK))
+						dynObjects[neighbor->pos]->GetAttr<EntityType>(ATTR_GAME_ENTITY_TYPE) == EntityType::BRIDGE_MARK))
 					return true;
 			}
 		}
@@ -71,14 +75,11 @@ public:
 	}
 
 	bool PositionContainsBridgeMark(Vec2i position) {
-		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK);
+		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->GetAttr<EntityType>(ATTR_GAME_ENTITY_TYPE) == EntityType::BRIDGE_MARK);
 	}
 
 	void MarkPositionForBridge(Vec2i position) {
-		auto node = hydroqMap->GetNode(position.x, position.y);
-		dynObjects[position] = spt<HydEntity>(new HydBridge());
-		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node, dynObjects[position]), nullptr);
+		CreateDynamicObject(position, EntityType::BRIDGE_MARK);
 	}
 
 	bool IsPositionFreeForForbid(Vec2i position) {
@@ -88,14 +89,12 @@ public:
 	}
 
 	bool PositionContainsForbidMark(Vec2i position) {
-		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::FORBID_MARK);
+		return (dynObjects.find(position) != dynObjects.end() && 
+			dynObjects.find(position)->second->GetAttr<EntityType>(ATTR_GAME_ENTITY_TYPE) == EntityType::FORBID_MARK);
 	}
 
 	void MarkPositionForForbid(Vec2i position) {
-		auto node = hydroqMap->GetNode(position.x, position.y);
-		dynObjects[position] = spt<HydEntity>(new ForbidMark());
-		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node, dynObjects[position]), nullptr);
+		CreateDynamicObject(position, EntityType::FORBID_MARK);
 	}
 
 	bool IsPositionFreeForGuard(Vec2i position) {
@@ -105,14 +104,12 @@ public:
 	}
 
 	bool PositionContainsGuardMark(Vec2i position) {
-		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::GUARD_MARK);
+		return (dynObjects.find(position) != dynObjects.end() && 
+			dynObjects.find(position)->second->GetAttr<EntityType>(ATTR_GAME_ENTITY_TYPE) == EntityType::GUARD_MARK);
 	}
 
 	void MarkPositionForGuard(Vec2i position) {
-		auto node = hydroqMap->GetNode(position.x, position.y);
-		dynObjects[position] = spt<HydEntity>(new GuardMark());
-		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node, dynObjects[position]), nullptr);
+		CreateDynamicObject(position, EntityType::GUARD_MARK);
 	}
 
 	bool IsPositionFreeForDestroy(Vec2i position) {
@@ -122,28 +119,56 @@ public:
 	}
 
 	bool PositionContainsDestroyMark(Vec2i position) {
-		return (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK);
+		return (dynObjects.find(position) != dynObjects.end() && 
+			dynObjects.find(position)->second->GetAttr<EntityType>(ATTR_GAME_ENTITY_TYPE) == EntityType::DESTROY_MARK);
 	}
 
 	void MarkPositionForDestroy(Vec2i position) {
-		auto node = hydroqMap->GetNode(position.x, position.y);
-
-		if (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK) {
-			// delete bridge mark
-			DestroyDynamicObject(position);
-		}
-		else {
-			dynObjects[position] = spt<HydEntity>(new DestroyMark());
-			SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
-				new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node, dynObjects[position]), nullptr);
-		}
+		CreateDynamicObject(position, EntityType::DESTROY_MARK);
 	}
 
 	void DestroyDynamicObject(Vec2i position) {
 		auto node = hydroqMap->GetNode(position.x, position.y);
+		node->occupied = false;
+		node->forbidden = false;
 		auto obj = dynObjects[position];
 		dynObjects.erase(position);
+		rootNode->RemoveChild(obj, true);
+
 		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj), nullptr);
+	}
+
+	Node* CreateNode(EntityType entityType, Vec2i position) {
+
+		string name;
+
+		if (entityType == EntityType::BRIDGE_MARK) {
+			name = "bridgemark";
+		}
+		else if (entityType == EntityType::DESTROY_MARK) {
+			name = "destroymark";
+		}
+		else if (entityType == EntityType::FORBID_MARK) {
+			name = "forbidmark";
+		}
+		else if (entityType == EntityType::GUARD_MARK) {
+			name = "guardmark";
+		}
+		else if (entityType == EntityType::SEEDBED) {
+			name = "seedbed";
+		}
+
+		Node* nd = new Node(name);
+		nd->AddAttr(ATTR_GAME_ENTITY_TYPE, entityType);
+		nd->AddAttr(ATTR_ENTITY_POSITION, position);
+		dynObjects[position] = nd;
+		rootNode->AddChild(nd);
+
+		return nd;
+	}
+
+	virtual void Update(const uint64 delta, const uint64 absolute) {
+		rootNode->Update(delta, absolute);
 	}
 };

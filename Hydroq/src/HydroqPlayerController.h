@@ -34,7 +34,7 @@ class HydroqPlayerController : public Behavior {
 				// if user selected a function, apply it
 				if (playerModel->GetHydroqAction() == HydroqAction::SEEDBED && 
 					gameModel->IsPositionFreeForBuilding(pos)) {
-					gameModel->CreateBuilding(pos, spt<HydEntity>(new SeebedBuilding()));
+					gameModel->CreateDynamicObject(pos, EntityType::SEEDBED);
 				}
 				else if (playerModel->GetHydroqAction() == HydroqAction::BUILD){ 
 					if (gameModel->IsPositionFreeForBridge(pos)) {
@@ -64,8 +64,7 @@ class HydroqPlayerController : public Behavior {
 					if (gameModel->IsPositionFreeForDestroy(pos)) {
 						gameModel->MarkPositionForDestroy(pos);
 					}
-					else if (gameModel->PositionContainsDestroyMark(pos) ||
-						gameModel->PositionContainsBridgeMark(pos)) {
+					else if (gameModel->PositionContainsDestroyMark(pos) || gameModel->PositionContainsBridgeMark(pos)) {
 						gameModel->DestroyDynamicObject(pos);
 					}
 				}

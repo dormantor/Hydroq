@@ -13,17 +13,17 @@ enum class ObjectChangeType {
 class MapObjectChangedEvent : public MsgEvent {
 public:
 	ObjectChangeType changeType;
-	HydMapNode* changedNode;
-	spt<HydEntity> changedEntity;
+	HydMapNode* changedMapNode;
+	Node* changedNode = nullptr;
 
-	MapObjectChangedEvent(ObjectChangeType changeType, HydMapNode* changedNode) :
-		changedNode(changedNode), changeType(changeType)
+	MapObjectChangedEvent(ObjectChangeType changeType, HydMapNode* changedMapNode) :
+		changedMapNode(changedMapNode), changeType(changeType)
 	{
-		changedEntity = spt<HydEntity>();
+
 	}
 
-	MapObjectChangedEvent(ObjectChangeType changeType, HydMapNode* changedNode, spt<HydEntity> changedEntity) :
-		changedNode(changedNode), changeType(changeType), changedEntity(changedEntity)
+	MapObjectChangedEvent(ObjectChangeType changeType, HydMapNode* changedMapNode, Node* changedNode) :
+		changedMapNode(changedMapNode), changeType(changeType), changedNode(changedNode)
 	{
 
 	}

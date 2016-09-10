@@ -43,20 +43,21 @@ public:
 	void OnMessage(Msg& msg) {
 		if (msg.GetAction() == StringHash(ACT_MAP_OBJECT_CHANGED)) {
 			MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
+			Vec2i position = evt->changedNode->GetAttr<Vec2i>(ATTR_ENTITY_POSITION);
 
 			if (evt->changeType == ObjectChangeType::DYNAMIC_CHANGED) {
 				// create new sprite
-				auto sprite = spriteManager->GetSprite(evt->changedEntity->GetName());
+				auto sprite = spriteManager->GetSprite(evt->changedNode->GetTag());
 				Trans transform = Trans();
-				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * evt->changedNode->pos.x;
-				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * evt->changedNode->pos.y;
+				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * position.x;
+				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * position.y;
 				auto newEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
 				dynamicSprites->GetSprites().push_back(newEntity);
-				dynamicSpriteMap[evt->changedNode->pos] = newEntity;
+				dynamicSpriteMap[position] = newEntity;
 			}
 			else if (evt->changeType == ObjectChangeType::DYNAMIC_REMOVED) {
-				auto oldEntity = dynamicSpriteMap[evt->changedNode->pos];
-				dynamicSpriteMap.erase(evt->changedNode->pos);
+				auto oldEntity = dynamicSpriteMap[position];
+				dynamicSpriteMap.erase(position);
 				
 				// todo: performance!
 				for (auto it = dynamicSprites->GetSprites().begin(); it != dynamicSprites->GetSprites().end(); ++it) {
@@ -104,5 +105,8 @@ public:
 
 	spt<SpritesShape> GetDynamicSprites() {
 		return dynamicSprites;
+	}
+
+	virtual void Update(const uint64 delta, const uint64 absolute) {
 	}
 };

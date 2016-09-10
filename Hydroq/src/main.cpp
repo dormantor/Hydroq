@@ -49,7 +49,7 @@ public:
 
 	}
 
-	void InitComponents() {
+	void RegisterComponents() {
 		REGISTER_BEHAVIOR(MenuBehavior);
 		REGISTER_BEHAVIOR(MenuIconBehavior);
 		REGISTER_BEHAVIOR(HydroqBoard);
@@ -69,10 +69,9 @@ public:
 		REGISTER_COMPONENT(spriteManager);
 		REGISTER_COMPONENT(view);
 
-		playerModel->Init();
-		gameModel->Init();
-		spriteManager->Init();
-		view->Init();
+	}
+
+	void InitComponents() {
 	}
 
 	void InitStage(Stage* stage) {
