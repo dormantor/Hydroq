@@ -9,13 +9,14 @@
         <item key="pos_y" value="0.0" />
         <item key="anchor_x" value="0.0" />
         <item key="anchor_y" value="0.0" />
-        <item key="width" value="1" />
-        <item key="height" value="1" />
-        <item key="size" value="1" />
+        <item key="width" value="0" />
+        <item key="height" value="0" />
         <item key="sizing_per" value="width" />
         <!-- sizing according to width -->
         <item key="ptype" value="per" />
         <item key="stype" value="per" />
+		<item key="ref_width" value="1775" />
+		<item key="ref_height" value="993" />
       </setting>
     </default_settings>
 
@@ -25,7 +26,15 @@
       <setting name="logger">
         <item key="level" value="DEBUG" />
         <item key="channel" value="console" />
+		<item key="module_exclude">
+		  <value>Messaging</value>
+		  <value>Scene</value>
+		</item>
       </setting>
+	  
+	  <setting name="display">
+	    <item key="aspect_ratio" value="16/9" />
+	  </setting>
     </global_settings>
 
     <!-- project settings (game logic etc) -->
@@ -43,6 +52,14 @@
 	<font name="MotionControl-Bold.otf" size="50" />
   </fonts>
 
+  
+  <spritesheets>
+    <spritesheet name="game_board" img="bricks/brickmap.png">
+	  <spriteset frames="64" sprite_width="128" sprite_height="128"  />
+	</spritesheet>
+  </spritesheets>
+
+  
   <!-- collection of scenes -->
   <scenes initial="main_menu" loading="loading">
 
@@ -56,12 +73,11 @@
         </setting>
       </scene_settings>
 
-      <node type="background" img="blue_background.png" />
-      <!-- blue background-->
-
+      <node img="blue_background.png" />
+     	  
       <node name="desk_board" img="desk_board.png">
         
-		<behavior name="MenuBehavior" />	  
+		<behavior type="MenuBehavior" />	  
 		
 		<!-- percentage positioning and sizing, anchor at center (default), 90% of screen width-->
         <transform pos_x="10" pos_y="4" z_index="2" ptype="grid" anchor="0" width="80" stype="grid" />
@@ -114,15 +130,16 @@
           <!-- grid sizing -->
           <item key="grid_width" value="100" />
           <item key="grid_height" value="53" />
+		  
         </setting>
       </scene_settings>
 
-      <node type="background" img="blue_background.png" />
+      <node  img="blue_background.png" />
 
       <node name="desk_board" img="desk_board.png">
         
         <transform pos_x="10" pos_y="4" z_index="2" ptype="grid" anchor="0" width="80" stype="grid" />
-		<behavior name="MenuBehavior" />	  
+		<behavior type="MenuBehavior" />	  
 		
         <node name="desk_left" img="desk.png">
           <transform pos_x="8" pos_y="2" z_index="1" ptype="grid" anchor="0" stype="loc" />
@@ -156,7 +173,7 @@
 		<node name="board_3" img="menu_selectboard.png" >
 		  <transform pos_x="0.75" pos_y="0.3" ptype="per" stype="loc" anchor_x="0.5" />
 		
-		  <node name="faction_red" img="menu_selection.png" img_select="menu_selection_selected.png" select_group="faction_select">
+		  <node name="faction_red" img="menu_selection.png" img_multiselect="menu_selection_selected.png" select_group="faction_select">
 		    <transform pos_x="0.5" pos_y="0.1" ptype="per" stype="loc" anchor_x="0.5" />
 			
 			<node name="icon_red" img="menu_faction_red.png">
@@ -164,7 +181,7 @@
 			</node>
 		  </node>
 		  
-		  <node name="faction_blue" img="menu_selection.png" img_select="menu_selection_selected.png" select_group="faction_select" >
+		  <node name="faction_blue" img="menu_selection.png" img_multiselect="menu_selection_selected.png" select_group="faction_select" >
 		    <transform pos_x="0.5" pos_y="0.1" ptype="per" stype="loc" anchor_x="0.5" anchor_y="-1.2" />
 			<state>SELECTED</state>
 			 
@@ -193,7 +210,7 @@
         </setting>
       </scene_settings>
 	  
-	  <node name="parent" type="background" img="loading_background.png">
+	  <node name="parent" img="loading_background.png">
 	    <node name="worker" img="loading_worker.png">
 		  <transform pos_x="50" pos_y="20" anchor="0.5" ptype="grid" stype="loc" />
 		</node>
@@ -211,17 +228,22 @@
           <!-- grid sizing -->
           <item key="grid_width" value="100" />
           <item key="grid_height" value="53" />
+		  <item key="ref_width" value="2222" />
+		<item key="ref_height" value="1250" />
         </setting>
       </scene_settings>
-	
-	<!-- parent must have background with the same DPI as rest of images -->
-	<node name="parent" type="background" img="game/border.png">
+	  <scene_layers>
+	    <layer name="map_board" spritesheet="game_board" buffer_size="10000" z_index="1" />
+		<layer name="object_board" spritesheet="game_board" buffer_size="10000" z_index="2" />
+	  </scene_layers>
+	  
+	<node name="parent">
 
    	  
       <node name="leftpanel" img="game/gm_leftpanel.png">
         <transform pos="0" ptype="grid" stype="loc" z_index="10" />
 
-		<behavior name="HitEvent" />
+		<behavior type="HitEvent" />
         <node name="playertext">
           <transform pos_x="1" pos_y="2" ptype="grid" stype="loc" />
 		  <text font="MotionControl-Bold.otf" size="54" color="0xFFFFFF">Player Mojo</text>
@@ -293,36 +315,69 @@
 
       <node name="rightpanel" img="game/gm_rightpanel.png">
         <transform pos_x="100" pos_y="6" anchor_x="0" ptype="grid" stype="loc"  z_index="10" />
-		<behavior name="HitEvent" />
+		<behavior type="HitEvent" />
+		<behavior type="RightPanel" />
+		<behavior type="RightPanelSections" />
 		 
-		<node name="icon_build" img="game/gm_setbuild.png" img_click="game/gm_setbuild_act.png">
-		  <transform pos_x="0.15" pos_y="0.2" anchor_y="1"  ptype="rel" stype="loc" />
+		<node name="icon_build" img="game/gm_setbuild.png" img_multiselect="game/gm_setbuild_act.png">
+		  <transform pos_x="0.15" pos_y="0.2" anchor_y="1"  ptype="per" stype="loc" />
 		</node>
 		
-		<node name="icon_flag" img="game/gm_setflag.png" img_click="game/gm_setflag_act.png">
-		  <transform pos_x="0.45" pos_y="0.2" anchor_y="1"  ptype="rel" stype="loc" />
+		<node name="icon_flag" img="game/gm_setflag.png" img_multiselect="game/gm_setflag_act.png">
+		  <transform pos_x="0.45" pos_y="0.2" anchor_y="1"  ptype="per" stype="loc" />
 		</node>
 		
-		<node name="icon_oth" img="game/gm_setoth.png" img_click="game/gm_setoth_act.png">
-		  <transform pos_x="0.75" pos_y="0.2" anchor_y="1" ptype="rel" stype="loc" />
+		<node name="icon_oth" img="game/gm_setoth.png" img_multiselect="game/gm_setoth_act.png">
+		  <transform pos_x="0.75" pos_y="0.2" anchor_y="1" ptype="per" stype="loc" />
+		</node>
+		
+		<node name="section_build">
+		  <transform pos_x="0.1" pos_y="0.25" anchor="0" ptype="per" width="0.7" stype="rel"/>
+		  <behavior type="HitEvent" />
+		  
+		  <node img="game/rightpanel_seedbed.png">
+		    <transform pos_x="0.85" pos_y="0" ptype="per" stype="loc" />
+		  </node>
+		  <node>
+            <transform pos_x="0.15" pos_y="0.15" ptype="per" stype="loc" />
+		    <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Seedbed</text>
+          </node>
+		  <node img="game/rightpanel_divider.png">
+		    <transform pos_x="0.15" pos_y="0.5" ptype="per" stype="loc" />
+		  </node>
 		</node>
       </node>
 
       <node name="menuicon" img="game/gm_menuicon.png" img_click="game/gm_menuicon_clicked.png" >
         <transform pos_x="100" pos_y="0" anchor_x="1" ptype="grid" stype="loc" z_index="10" />
-		
-		<behavior name="MenuIconBehavior" />
+		<behavior type="MenuIconBehavior" />
       </node>
 
+	  <node name="selected_func" img="game/rightpanel_seedbed.png">
+	   <transform pos_x="100" pos_y="53" anchor="1" ptype="grid" stype="loc" z_index="10" />
+	  </node>
+	  
       <!-- floating scene -->
-      <node name="gameboard" img="maptest.jpg">
-	    <behavior name="FloatingScene">
-	      <touch_enabled>true</touch_enabled>
+      <node name="gameboard">
+	    <behavior type="FloatingScene">
+		  <setting>
+		    <item key="scroll_enabled" value="true" />
+			<item key="scroll_prevention" value="100" />
+		  </setting>
 	    </behavior>
-	    <behavior name="HitEvent" />
-		<behavior name="HydroqBoard" />
-	<!--	<transform pos_x="0" pos_y="0" ptype="grid" width="512" stype="grid" z_index="4" /> -->
-    	<transform pos_x="0" pos_y="0" ptype="grid" width="200" height="106" stype="grid" z_index="4" />
+		<behavior type="BrickEventBehavior" />
+        <behavior type="HitEvent" />
+
+    	<transform pos_x="0" pos_y="0" ptype="grid" width="200" stype="grid" z_index="4" />
+		
+		<node name="map_board">
+		  <behavior type="HitEvent" />
+		  <behavior type="HydroqBoard" />
+		</node>
+		
+		<node name="object_board">
+		
+		</node>
       </node>
 	</node>
     </scene>

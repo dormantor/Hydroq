@@ -1,0 +1,19 @@
+<settings>
+	<setting name="names">
+		<item key="0x000000" value="sea" />
+		<item key="0xffffff" value="ground" />
+		<item key="0x333300" value="rig_topleft" />
+		<item key="0x333301" value="rig_topright" />
+		<item key="0x333302" value="rig_botleft" />
+		<item key="0x333303" value="rig_botright" />
+	</setting>
+	
+	<setting name="sprites">
+	  <item key="sea" value="0" />
+	  <item key="ground" value="1" />
+	  <item key="rig_topleft" value="2" />
+	  <item key="rig_topright" value="3" />
+	  <item key="rig_botleft" value="4" />
+	  <item key="rig_botright" value="5" />
+	</setting>
+</settings>

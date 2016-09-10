@@ -8,7 +8,7 @@ GOTO:EOF
 
 :Deploy
 if not exist bin\data mkdir bin\data
-copy data bin\data /y
+copy data\**.* bin\data /y
 copy msys_libs\**.* bin /y
 
 pause

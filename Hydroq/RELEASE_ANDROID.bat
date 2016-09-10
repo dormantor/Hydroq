@@ -12,6 +12,6 @@ pause
 GOTO:EOF
 
 :Deploy
-ant clean && ant debug && adb -s 02157df2a405393a install -r bin/Hydroq.apk && adb shell am start -a android.intent.action.MAIN -n cc.openframeworks.Hydroq/cc.openframeworks.Hydroq.OFActivity  && adb logcat test:* *:S
+ant clean && ant debug && adb -s 02157df2a405393a install -r bin/Hydroq.apk && adb shell am start -a android.intent.action.MAIN -n cc.openframeworks.Hydroq/cc.openframeworks.Hydroq.OFActivity  && adb logcat OpenFrameworks:* *:S
 
 pause
