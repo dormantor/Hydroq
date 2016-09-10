@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "HydroqDef.h"
 #include "State.h"
 #include "StrId.h"
@@ -8,20 +7,25 @@
 #include "GameTask.h"
 #include "GameMap.h"
 #include "GameModel.h"
+#include "PlayerModel.h"
+#include "ComponentStorage.h"
 
 class TaskScheduler : public Behavior {
 
 private:
 	GameModel* gameModel;
-
+	PlayerModel* playerModel;
 public:
 
 	TaskScheduler(GameModel* gameModel) :gameModel(gameModel) {
 
 	}
 
+	virtual void OnInit() {
+		playerModel = GETCOMPONENT(PlayerModel);
+	}
 
-	map<int, int> CalcAssignedTasks(vector<spt<GameTask>>& tasks);
+	void CalcAssignedTasks(vector<spt<GameTask>>& tasks, map<int, int>& output);
 
 	void ScheduleTasks(uint64 absolute);
 

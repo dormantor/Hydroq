@@ -2,13 +2,16 @@
 #include "PlayerModel.h"
 #include "GameModel.h"
 #include "NetworkCommunicator.h"
-
+#include "ComponentStorage.h"
+#include "Node.h"
+#include "Behavior.h"
+#include "Utils.h"
 
 void HydNetworkSender::OnInit() {
 	auto playerModel = GETCOMPONENT(PlayerModel);
 	this->networkState = playerModel->GetNetworkState();
 
-	// remove if this is not a multiplayer
+	// remove sender from the scene node if the game is not a multiplayer game
 	if (networkState == HydroqNetworkState::NONE) {
 		owner->RemoveBehavior(this, true);
 	}
@@ -21,7 +24,7 @@ void HydNetworkSender::OnMessage(Msg& msg) {
 	if (msg.HasAction(ACT_SYNC_OBJECT_CHANGED)) {
 		auto syncEvent = msg.GetData<SyncEvent>();
 
-		// send sync message
+		// send synchronization message
 		auto communicator = GETCOMPONENT(NetworkCommunicator);
 		auto msg = new HydroqCommandMsg();
 		msg->SetEntityType(syncEvent->entityType);
@@ -31,11 +34,6 @@ void HydNetworkSender::OnMessage(Msg& msg) {
 		msg->SetIdentifier(syncEvent->internalId);
 		msg->SetPosition(syncEvent->positionf);
 		auto netMsg = msg->CreateMessage();
-
-		if (syncEvent->eventType == SyncEventType::MAP_CHANGED) {
-			cout << "sending info that bridge has changed " << endl;
-		}
-
 		communicator->PushMessageForSending(netMsg);
 	}
 }
@@ -43,7 +41,9 @@ void HydNetworkSender::OnMessage(Msg& msg) {
 void HydNetworkSender::Update(const uint64 delta, const uint64 absolute) {
 
 	if (networkState == HydroqNetworkState::CLIENT || networkState == HydroqNetworkState::SERVER) {
-		if (CogGetFrameCounter() % 10 == 0) {
+		if (IsProperTime(lastUpdateMsgTime, absolute, this->updateFrequency)) {
+
+			lastUpdateMsgTime = absolute;
 			auto communicator = GETCOMPONENT(NetworkCommunicator);
 
 			// send delta message regularly

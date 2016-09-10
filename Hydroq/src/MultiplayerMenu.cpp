@@ -3,6 +3,9 @@
 #include "MultiSelection.h"
 #include "TransformMath.h"
 #include "Scene.h"
+#include "ComponentStorage.h"
+#include "Stage.h"
+#include "Tween.h"
 
 void MultiplayerMenu::OnInit() {
 	SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED, ACT_SCENE_SWITCHED, ACT_NET_MESSAGE_RECEIVED);
@@ -13,7 +16,7 @@ void MultiplayerMenu::OnInit() {
 	xml->pushTag("settings");
 	mapConfig.LoadFromXml(xml);
 
-
+	// load all maps into view
 	LoadMaps();
 }
 
@@ -52,38 +55,40 @@ void MultiplayerMenu::OnMessage(Msg& msg) {
 				sceneContext->SwitchToScene(scene, TweenDirection::NONE);
 			}
 			else if (msg.GetContextNode()->GetTag().compare("connect_but") == 0) {
-				// connect to server
+				// click on CONNECT button
 				if (!selectedIp.empty()) {
-					auto selectedServer = serverMessages[selectedIp];
-					if (selectedServer) {
-						ConnectToServer(selectedServer);
+					auto selectedHost = hostMessages[selectedIp];
+					if (selectedHost) {
+						// connect to host and start the game
+						ConnectToHost(selectedHost);
 					}
 				}
 			}
 		}
 		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetContextNode()->IsInGroup(StrId("SELECTION_MAP"))) {
-			// if user selects a map, enable host button
+			// if user has selected a map, enable host button
 			EnableHostButton();
 			DisableConnectButton();
-			DeselectServer();
+			DeselectHost();
 		}
 		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetContextNode()->IsInGroup(StrId("SELECTION_SERVER"))) {
-			// if user selects a server, enable connect button
+			// if user has selected a host, enable connect button
 			EnableConnectButton();
 			DisableHostButton();
 			selectedIp = msg.GetContextNode()->GetAttr<string>(ATTR_SERVER_IP);
-			auto netMsg = serverMessages[selectedIp];
+			auto netMsg = hostMessages[selectedIp];
 			SelectFaction(netMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
 			SelectMap(netMsg->GetMap());
 		}
 		else if (msg.HasAction(ACT_OBJECT_SELECTED) && msg.GetContextNode()->IsInGroup(StrId("faction_select"))) {
-			// user selected faction
+			// user has selected faction
 			EnableHostButton();
 			DisableConnectButton();
-			DeselectServer();
+			DeselectHost();
 		}
 		else if (msg.HasAction(ACT_NET_MESSAGE_RECEIVED)) {
 
+			// received message from host -> update list of all hosts
 			auto msgEvent = msg.GetData<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
 			StrId action = netMsg->GetAction();
@@ -94,12 +99,12 @@ void MultiplayerMenu::OnMessage(Msg& msg) {
 			mpInit->SetIpAddress(netMsg->GetSourceIp());
 
 			// store message
-			serverMessages[ipAddress] = mpInit;
+			hostMessages[ipAddress] = mpInit;
 
 			if (find(foundIps.begin(), foundIps.end(), ipAddress) == foundIps.end()) {
 				// add new ip address
 				foundIps.push_back(ipAddress);
-				AddServer(ipAddress, foundIps.size() - 1);
+				AddHost(ipAddress, foundIps.size() - 1);
 			}
 		}
 
@@ -108,8 +113,27 @@ void MultiplayerMenu::OnMessage(Msg& msg) {
 }
 
 
-void MultiplayerMenu::AddServer(string ip, int index) {
+void MultiplayerMenu::Update(const uint64 delta, const uint64 absolute) {
 
+	// each 100th frame, check discovered hosts (some hosts could disconnect)
+	if (CogGetFrameCounter() % 100 == 0) {
+		auto discoveredHosts = communicator->GetDiscoveredPeers();
+
+		for (auto& key : discoveredHosts) {
+			auto found = find(foundIps.begin(), foundIps.end(), key.first);
+			if (found != foundIps.end()) {
+				// if no response from host for 4 seconds, remove its ip address from the view
+				if ((absolute - key.second) > 4000) {
+					foundIps.erase(found);
+					RefreshHosts();
+				}
+			}
+		}
+	}
+}
+
+
+void MultiplayerMenu::AddHost(string ip, int index) {
 	Node* hosts_list = owner->GetScene()->FindNodeByTag("hosts_list");
 	Helper::SetPanelItem(owner, hosts_list, index, StrId("SELECTION_SERVER"), ATTR_SERVER_IP, ip);
 }
@@ -129,14 +153,14 @@ void MultiplayerMenu::LoadMaps() {
 	}
 }
 
-void MultiplayerMenu::DeselectServer() {
-	RefreshServers();
+void MultiplayerMenu::DeselectHost() {
+	RefreshHosts();
 	this->selectedIp = "";
 }
 
-void MultiplayerMenu::ConnectToServer(spt<HydroqServerInitMsg> serverMsg) {
+void MultiplayerMenu::ConnectToHost(spt<HydroqServerInitMsg> serverMsg) {
 	auto model = GETCOMPONENT(PlayerModel);
-	// select the other faction than server did
+	// select the other faction than host
 	Faction selectedFaction = (serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
 	model->StartGame(selectedFaction, serverMsg->GetMap(), HydroqNetworkState::CLIENT);
 	communicator->ConnectToPeer(serverMsg->GetIpAddress());
@@ -147,17 +171,17 @@ void MultiplayerMenu::ConnectToServer(spt<HydroqServerInitMsg> serverMsg) {
 	stage->SwitchToScene(scene, TweenDirection::LEFT);
 }
 
-void MultiplayerMenu::RefreshServers() {
+void MultiplayerMenu::RefreshHosts() {
 	Node* hosts_list = owner->GetScene()->FindNodeByTag("hosts_list");
 
-	// remove all textboxes and refresh them
+	// remove all textboxes and create them again
 	for (auto& child : hosts_list->GetChildren()) {
 		hosts_list->RemoveChild(child, true);
 	}
 
 	int counter = 0;
 	for (auto& ip : foundIps) {
-		AddServer(ip, counter++);
+		AddHost(ip, counter++);
 	}
 
 	// disable CONNECT button
@@ -180,22 +204,4 @@ void MultiplayerMenu::SelectMap(string map) {
 		}
 	}
 
-}
-
-void MultiplayerMenu::Update(const uint64 delta, const uint64 absolute) {
-	if (CogGetFrameCounter() % 100 == 0) {
-		// check discovered servers
-		auto discoveredServers = communicator->GetDiscoveredPeers();
-
-		for (auto& key : discoveredServers) {
-			auto found = find(foundIps.begin(), foundIps.end(), key.first);
-			if (found != foundIps.end()) {
-				if ((absolute - key.second) > 4000) {
-					// server lost
-					foundIps.erase(found);
-					RefreshServers();
-				}
-			}
-		}
-	}
 }

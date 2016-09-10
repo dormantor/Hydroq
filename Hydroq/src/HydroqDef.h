@@ -1,17 +1,43 @@
 #pragma once
 
+/**
+* Type of game entity
+*/
+enum class EntityType {
+	BRIDGE_MARK,	/** mark for building the bridge */
+	FORBID_MARK,	/** mark for forbidden area */
+	DESTROY_MARK,	/** mark for destroying the bridge */
+	WORKER,			/** worker unit */
+	BRIDGE,			/** bridge */
+	WATER,			/** water */
+	PLATFORM,		/** platform (nearest area around the rig) */
+	RIG,			/** drilling rig */
+	ATTRACTOR		/** attractor */
+};
+
+/** Type of faction */
 enum class Faction {
 	NONE = 1,
 	RED = 2,
 	BLUE = 3
 };
 
+/** Type of network connection */
 enum class HydroqNetworkState {
-	NONE, SERVER, CLIENT
+	NONE,	/** undefined */
+	SERVER,	/** listening peer */
+	CLIENT	/** connected peer*/
 };
 
+/** 
+* Type of user action
+*/
 enum class HydroqAction {
-	NONE, BUILD, DESTROY, FORBID, ATTRACT
+	NONE,		/** undefined */
+	BUILD,		/** build bridge */
+	DESTROY,	/** destroy bridge*/
+	FORBID,		/** forbid area */
+	ATTRACT		/** attract to area*/
 };
 
 // actions
@@ -46,8 +72,11 @@ enum class HydroqAction {
 #define GOAL_BUILD_BRIDGE "BUILD_BRIDGE"
 #define GOAL_DESTROY_BRIDGE "DESTROY_BRIDGE"
 
+// application id for communication
 #define HYDROQ_APPID 1006
+// port of the connected peer
 #define HYDROQ_CLIENTPORT 16895
+// port of the listening peer
 #define HYDROQ_SERVERPORT 16896
 
 // net messages

@@ -1,5 +1,8 @@
 #include "LeftPanel.h"
 #include "GameModel.h"
+#include "ComponentStorage.h"
+#include "TransformAnim.h"
+#include "TransformMath.h"
 
 void LeftPanel::OnInit() {
 	SubscribeForMessages(ACT_OBJECT_HIT_ENDED, ACT_OBJECT_HIT_OVER, ACT_TRANSFORM_ENDED, ACT_COUNTER_CHANGED);
@@ -12,6 +15,7 @@ void LeftPanel::OnStart() {
 	owner->SetState(StrId(STATES_ENABLED));
 	playerModel = GETCOMPONENT(PlayerModel);
 
+	// load all nodes by their names
 	counterUnits = owner->GetScene()->FindNodeByTag("counter_units");
 	counterBuildings = owner->GetScene()->FindNodeByTag("counter_buildings");
 
@@ -40,6 +44,7 @@ void LeftPanel::OnMessage(Msg& msg) {
 		}
 	}
 	else if (msg.HasAction(ACT_COUNTER_CHANGED)) {
+		// refresh number of objects and rigs
 		RefreshCounters();
 	}
 	else if (msg.HasAction(ACT_OBJECT_HIT_OVER) && msg.GetContextNode()->GetId() == mapIcon->GetId()) {
@@ -59,6 +64,7 @@ void LeftPanel::ReloadMapIcon(string pathToFile) {
 	auto shape = this->mapIcon->GetMesh<Image>();
 	shape->SetImage(image);
 
+	// calculate size of the map icon
 	ofVec2f size = shape->GetWidth() > shape->GetHeight() ? ofVec2f(0.55f, 0) : ofVec2f(0, 0.55f);
 
 	// reload transform
@@ -98,11 +104,13 @@ void LeftPanel::ReloadMapBorder() {
 
 	float mapRatio = mapIconWidth / mapIconHeight;
 
+	// set width and height of the border shape so that it will match the visible part of game board
 	if (neededScaleX > 0.1f || neededScaleY > 0.1f) {
 		borderShape->SetWidth(borderShape->GetWidth()*neededScaleX);
 		borderShape->SetHeight(borderShape->GetHeight()*neededScaleY);
 	}
 
+	// calculate desired absolute position
 	ofVec2f neededAbsPos = ofVec2f(mapIconPos.x + mapIconWidth*leftCornerX, mapIconPos.y + mapIconHeight*leftCornerY);
 
 	TransformMath math = TransformMath();
@@ -121,23 +129,26 @@ void LeftPanel::HandleMapDetailHit(spt<InputEvent> evt) {
 
 	auto clickPos = evt->input->position;
 
+	// calculate relative position on the game board
 	auto relativeClickX = (clickPos.x - mapIconPos.x) / mapIconWidth;
 	auto relativeClickY = (clickPos.y - mapIconPos.y) / mapIconHeight;
 
+	// zoom to game board
 	auto hydroqBoard = gameBoard->GetBehavior<GameBoard>();
 	hydroqBoard->ZoomIntoPositionCenter(ofVec2f(relativeClickX, relativeClickY));
 }
 
 void LeftPanel::Update(const uint64 delta, const uint64 absolute) {
 	if (this->gameModel == nullptr) {
+		// first update -> load map icon
 		gameModel = gameBoard->GetBehavior<GameModel>();
 		auto& mapConfig = gameModel->GetMap()->GetMapConfig();
 		string mapIconPath = mapConfig.GetSettingVal("maps_icons", gameModel->GetMapName());
 		ReloadMapIcon(mapIconPath);
 		ReloadMapBorder();
-
 		RefreshCounters();
 	}
 
+	// reload map border according to the visible part of game board
 	ReloadMapBorder();
 }

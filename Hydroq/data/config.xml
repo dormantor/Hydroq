@@ -505,16 +505,16 @@
 	    
 		<behavior type="FloatingScene">
 		  <setting>
-		    <item key="scroll_enabled" value="true" />
+		    <item key="drag_enabled" value="true" />
 		  </setting>
 	    </behavior>
-		<behavior type="HydroqGameModel" />
-		<behavior type="HydroqGameView" />
+		<behavior type="GameModel" />
+		<behavior type="GameView" />
 		<behavior type="AttractorPlacement" /> <!-- must be declared after FloatingScene -->
 		<behavior type="TileEventBehavior" />
-		<behavior type="HydroqPlayerController" />
+		<behavior type="PlayerController" />
         <behavior type="HitEvent" />
-        <behavior type="HydroqBoard" />
+        <behavior type="GameBoard" />
 		<behavior type="HydNetworkSender" />
 		<behavior type="HydNetworkReceiver" />
 		

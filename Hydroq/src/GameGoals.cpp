@@ -49,13 +49,13 @@ void GotoPositionGoal::OnGoalAbort() {
 		movement.Stop();
 	}
 
-	task->isProcessing = false;
-	task->isReserved = false;
+	task->SetIsProcessing(false);
+	task->SetIsReserved(false);
 	task->RemoveReserverNode(owner->GetId());
 }
 
 void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {
-	if (innerBehavior != nullptr && this->task->needRecalculation) {
+	if (innerBehavior != nullptr && this->task->NeedRecalculation()) {
 		innerBehavior->Finish();
 		RecalcPath();
 	}
@@ -77,9 +77,9 @@ void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 			CogLogDebug("Hydroq", "Building bridge");
 			
 			// build bridge each 3.5s
-			auto position = Vec2i(task->taskNode->GetTransform().localPos);
+			auto position = Vec2i(task->GetTaskNode()->GetTransform().localPos);
 			gameModel->BuildPlatform(position);
-			task->isEnded = true;
+			task->SetIsEnded(true);
 			this->Complete();
 		}
 	}
@@ -96,7 +96,7 @@ void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 			if (CogGetFrameCounter() % 10 == 0) {
 				
 				// check if nobody is inside the square
-				auto position = ofVec2f(task->taskNode->GetTransform().localPos + 0.5f);
+				auto position = ofVec2f(task->GetTaskNode()->GetTransform().localPos + 0.5f);
 				vector<NodeCellObject*> neighbours;
 				gameModel->GetCellSpace()->CalcNeighbors(position, 0.5f, neighbours);
 
@@ -105,9 +105,9 @@ void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 					CogLogDebug("Hydroq", "Destroying bridge");
 
 					// destroy bridge at 3.5s
-					auto position = Vec2i(task->taskNode->GetTransform().localPos);
+					auto position = Vec2i(task->GetTaskNode()->GetTransform().localPos);
 					gameModel->DestroyPlatform(position);
-					task->isEnded = true;
+					task->SetIsEnded(true);
 					this->Complete();
 				}
 			}

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "HydroqDef.h"
+#include "StrId.h"
+#include "Behavior.h"
 
+using namespace Cog;
 class GameModel;
 
 class RigBehavior : public Behavior {

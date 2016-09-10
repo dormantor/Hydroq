@@ -1,11 +1,26 @@
 #pragma once
 
-#include "ofxCogMain.h"
+#include "Behavior.h"
+#include "Definitions.h"
 
+namespace Cog {
+	class Scene;
+}
+
+using namespace Cog;
+
+/**
+* Right panel section
+*/
 enum class Section {
-	NONE, BUILD, COMMAND, OTHER
+	NONE, 
+	BUILD,		/** building actions */
+	COMMAND		/** commands (attractor) */
 };
 
+/**
+* Behavior that controls the right panel on the game board
+*/
 class RightPanel : public Behavior {
 	
 	Section selectedSection = Section::NONE;
@@ -29,9 +44,15 @@ public:
 
 	void OnMessage(Msg& msg);
 
+	/**
+	* Selects the section for building
+	*/
 	void SelectBuildSection();
 
-	void SelectFlagSection();
+	/**
+	* Selects the section for commands
+	*/
+	void SelectCommandSection();
 
 	void UnSelectNodes();
 

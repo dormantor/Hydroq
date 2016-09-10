@@ -4,7 +4,6 @@
 #include "HydroqDef.h"
 #include "MsgPayloads.h"
 #include "GameMap.h"
-#include "GameEntity.h"
 #include "MsgEvents.h"
 #include "StateMachine.h"
 #include "GameTask.h"
@@ -46,10 +45,8 @@ private:
 	Scene* gameScene;
 	Node* rootNode;
 
-	Faction faction;
+	
 	string mapName;
-	bool multiplayer = false;
-	bool gameEnded = false;
 	// list of waiting tasks
 	vector<spt<GameTask>> gameTasks;
 	
@@ -75,20 +72,8 @@ public:
 		return cellSpace;
 	}
 
-	Faction GetFaction() {
-		return faction;
-	}
-
 	string GetMapName() {
 		return mapName;
-	}
-
-	bool IsMultiplayer() {
-		return multiplayer;
-	}
-
-	bool GameEnded() {
-		return gameEnded;
 	}
 
 	map<Faction, map<Vec2i, Node*>>& GetAttractors() {

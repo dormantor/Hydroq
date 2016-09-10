@@ -3,7 +3,6 @@
 #include "HydroqDef.h"
 #include "MsgPayloads.h"
 #include "GameMap.h"
-#include "GameEntity.h"
 #include "MsgEvents.h"
 #include "RigBehavior.h"
 #include "StateMachine.h"
@@ -16,6 +15,7 @@
 #include "PlayerModel.h"
 #include "GameAI.h"
 #include "CompositeBehavior.h"
+#include "ComponentStorage.h"
 
 void GameModel::OnInit() {	
 	
@@ -25,16 +25,10 @@ void GameModel::OnInit() {
 	rootNode = gameScene->GetSceneNode();
 	rootNode->AddBehavior(new TaskScheduler(this));
 
-
-	this->faction = playerModel->GetFaction();
 	this->mapName = playerModel->GetMap();
-	this->multiplayer = playerModel->IsMultiplayer();
-	this->gameEnded = false;
 
-
-	if (!multiplayer) {
-		//rootNode->AddBehavior(new CompositeBehavior(new GameAI(this, Faction::BLUE, AIType::SCRIPTED), new GameAI(this, Faction::RED, AIType::MONTE_CARLO)));
-		rootNode->AddBehavior(new GameAI(this, faction == Faction::RED ? Faction::BLUE : Faction::RED, AIType::MONTE_CARLO));
+	if (!playerModel->IsMultiplayer()) {
+		rootNode->AddBehavior(new GameAI(this, playerModel->GetFaction() == Faction::RED ? Faction::BLUE : Faction::RED));
 	}
 
 	Settings mapConfig = Settings();
@@ -79,9 +73,9 @@ bool GameModel::PositionContainsBridgeMark(Vec2i position) {
 
 void GameModel::MarkPositionForBridge(Vec2i position, Faction faction) {
 	COGLOGDEBUG("Hydroq", "Placing bridge mark at [%d, %d]", position.x, position.y);
-	auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK, this->faction, 0);
+	auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK, playerModel->GetFaction(), 0);
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_BUILD, faction));
-	newTask->taskNode = node;
+	newTask->SetTaskNode(node);
 	gameTasks.push_back(newTask);
 }
 
@@ -90,10 +84,10 @@ void GameModel::DeleteBridgeMark(Vec2i position) {
 	auto obj = dynObjects[position];
 
 	for (auto task : gameTasks) {
-		if (task->taskNode->GetId() == obj->GetId()) {
+		if (task->GetTaskNode()->GetId() == obj->GetId()) {
 			COGLOGDEBUG("Hydroq", "Aborting building task because of deleted bridge mark");
 			SendMessageToModel(StrId(ACT_TASK_ABORTED), 0, spt<TaskAbortEvent>(new TaskAbortEvent(task)));
-			task->isEnded = true; // for sure
+			task->SetIsEnded(true); // for sure
 			RemoveGameTask(task);
 			break;
 		}
@@ -118,7 +112,7 @@ bool GameModel::PositionContainsForbidMark(Vec2i position) {
 
 void GameModel::MarkPositionForForbid(Vec2i position) {
 	COGLOGDEBUG("Hydroq", "Forbidden position at [%d, %d]", position.x, position.y);
-	CreateDynamicObject(position, EntityType::FORBID_MARK, this->faction, 0);
+	CreateDynamicObject(position, EntityType::FORBID_MARK, playerModel->GetFaction(), 0);
 	this->hydroqMap->GetNode(position)->forbidden = true;
 	this->hydroqMap->RefreshNode(position);
 }
@@ -140,9 +134,9 @@ bool GameModel::PositionContainsDestroyMark(Vec2i position) {
 
 void GameModel::MarkPositionForDestroy(Vec2i position, Faction faction) {
 	COGLOGDEBUG("Hydroq", "Marked for destroy: at [%d, %d]", position.x, position.y);
-	auto node = CreateDynamicObject(position, EntityType::DESTROY_MARK, this->faction, 0);
+	auto node = CreateDynamicObject(position, EntityType::DESTROY_MARK, playerModel->GetFaction(), 0);
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_DESTROY, faction));
-	newTask->taskNode = node;
+	newTask->SetTaskNode(node);
 	gameTasks.push_back(newTask);
 	this->hydroqMap->GetNode(position)->forbidden = true;
 	this->hydroqMap->RefreshNode(position);
@@ -150,7 +144,7 @@ void GameModel::MarkPositionForDestroy(Vec2i position, Faction faction) {
 
 
 void GameModel::SpawnWorker(ofVec2f position, Vec2i rigPosition) {
-	SpawnWorker(position, this->faction, 0, rigPosition);
+	SpawnWorker(position, playerModel->GetFaction(), 0, rigPosition);
 }
 
 void GameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, Vec2i rigPosition) {
@@ -161,11 +155,11 @@ void GameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, V
 
 	this->workers[rigPosition].push_back(node);
 
-	if (faction == this->faction) {
+	if (faction == playerModel->GetFaction()) {
 		playerModel->AddUnit(1);
 	}
 
-	if (multiplayer && identifier == 0) {
+	if (playerModel->IsMultiplayer() && identifier == 0) {
 		SendMessageOutside(StrId(ACT_SYNC_OBJECT_CHANGED), 0,
 			spt<SyncEvent>(new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, node->GetId(), 0, rigPosition)));
 	}
@@ -173,7 +167,7 @@ void GameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, V
 
 
 void GameModel::BuildPlatform(Vec2i position) {
-	BuildPlatform(position, this->faction, 0);
+	BuildPlatform(position, playerModel->GetFaction(), 0);
 
 }
 
@@ -192,17 +186,17 @@ void GameModel::BuildPlatform(Vec2i position, Faction faction, int identifier) {
 	// for all tasks, update their DELAY status; this is because some building tasks are not reachable yet but if some new platform is built,
 	// the situation may be different
 	for (auto& task : gameTasks) {
-		task->isDelayed = false;
+		task->SetIsDelayed(false);
 	}
 
-	if (multiplayer && identifier == 0) {
+	if (playerModel->IsMultiplayer() && identifier == 0) {
 		SendMessageOutside(StrId(ACT_SYNC_OBJECT_CHANGED), 0,
 			spt<SyncEvent>(new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::BRIDGE, faction, position, 0, 0, Vec2i(0))));
 	}
 }
 
 void GameModel::DestroyPlatform(Vec2i position) {
-	DestroyPlatform(position, this->faction, 0);
+	DestroyPlatform(position, playerModel->GetFaction(), 0);
 }
 
 void GameModel::DestroyPlatform(Vec2i position, Faction faction, int identifier) {
@@ -217,13 +211,13 @@ void GameModel::DestroyPlatform(Vec2i position, Faction faction, int identifier)
 
 	// when a platform is destroyed, all path-finding tasks must be recalculated
 	for (auto task : gameTasks) {
-		task->needRecalculation = true;
+		task->SetNeedRecalculation(true);
 	}
 
 	// send a message that the static object has been changed
 	SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0, spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr)));
 
-	if (multiplayer && identifier == 0) {
+	if (playerModel->IsMultiplayer() && identifier == 0) {
 		SendMessageOutside(StrId(ACT_SYNC_OBJECT_CHANGED), 0,
 			spt<SyncEvent>(new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::WATER, faction, position, 0, 0, Vec2i(0))));
 	}
@@ -240,7 +234,7 @@ void GameModel::AddAttractor(Vec2i position, Faction faction, float cardinality)
 	SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0,
 		spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::ATTRACTOR_CREATED, nullptr, gameNode)));
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::ATTRACT, faction));
-	newTask->taskNode = gameNode;
+	newTask->SetTaskNode(gameNode);
 	gameTasks.push_back(newTask);
 }
 
@@ -257,10 +251,10 @@ void GameModel::DestroyAttractor(Vec2i position, Faction faction) {
 			spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::ATTRACTOR_REMOVED, nullptr, gameNode)));
 
 		for (auto task : gameTasks) {
-			if (task->taskNode->GetId() == gameNode->GetId()) {
+			if (task->GetTaskNode()->GetId() == gameNode->GetId()) {
 				COGLOGDEBUG("Hydroq", "Aborting attractor task because of deleted attractor");
 				SendMessageToModel(StrId(ACT_TASK_ABORTED), 0, spt<TaskAbortEvent>(new TaskAbortEvent(task)));
-				task->isEnded = true; // for sure
+				task->SetIsEnded(true); // for sure
 				RemoveGameTask(task);
 				break;
 			}
@@ -302,9 +296,9 @@ float GameModel::CalcAttractorAbsCardinality(Faction faction, int attractorId) {
 void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 	auto oldFaction = rig->GetAttr<Faction>(ATTR_FACTION);
 	if (oldFaction == Faction::NONE) {
-		if(faction == this->faction) playerModel->AddBuildings(1);
+		if(faction == playerModel->GetFaction()) playerModel->AddBuildings(1);
 		rig->ChangeAttr(ATTR_FACTION, faction);
-		if(!multiplayer) rig->AddBehavior(new RigBehavior(this));
+		if(!playerModel->IsMultiplayer()) rig->AddBehavior(new RigBehavior(this));
 		SendMessageOutside(StrId(ACT_MAP_OBJECT_CHANGED), 0,
 			spt<MapObjectChangedEvent>(new MapObjectChangedEvent(ObjectChangeType::RIG_TAKEN, nullptr, rig)));
 
@@ -313,7 +307,7 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 			spt<GameStateChangedEvent>(new GameStateChangedEvent(GameChangeType::EMPTY_RIG_CAPTURED, faction)));
 	}
 	else {
-		if (oldFaction == this->faction) playerModel->RemoveBuilding(1);
+		if (oldFaction == playerModel->GetFaction()) playerModel->RemoveBuilding(1);
 		else playerModel->AddBuildings(1);
 
 		rig->ChangeAttr(ATTR_FACTION, faction);
@@ -323,7 +317,7 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 			// change workers faction according to the new rig owner
 			worker->ChangeAttr(ATTR_FACTION, faction);
 			worker->SetTag(faction == Faction::RED ? "worker_red" : "worker_blue");
-			if (oldFaction == this->faction) playerModel->RemoveUnit(1);
+			if (oldFaction == playerModel->GetFaction()) playerModel->RemoveUnit(1);
 			else playerModel->AddUnit(1);
 		}
 
@@ -336,9 +330,7 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 
 		if (GetRigsByFaction(oldFaction).size() == 0) {
 			playerModel->SetGameEnded(true);
-			playerModel->SetPlayerWin(oldFaction != this->faction);
-			// game over
-			this->gameEnded = true;
+			playerModel->SetPlayerWin(oldFaction != playerModel->GetFaction());
 		}
 	}
 }
@@ -347,7 +339,7 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 vector<spt<GameTask>> GameModel::GetGameTasksByFaction(Faction faction) {
 	vector<spt<GameTask>> output;
 	for (auto task : gameTasks) {
-		if (task->faction == faction) {
+		if (task->GetFaction() == faction) {
 			output.push_back(task);
 		}
 	}
@@ -430,16 +422,16 @@ vector<Node*> GameModel::GetAttractorsByFaction(Faction fact) {
 
 void GameModel::Update(const uint64 delta, const uint64 absolute) {
 
-	if (gameEnded) return;
+	if (playerModel->GameEnded()) return;
 
 	vector<spt<GameTask>> tasksForRecalc;
 
 	// push tasks for recalculation so that when update is finished, the indicator will be restarted
 	for (auto task : gameTasks) {
-		if (task->needRecalculation) tasksForRecalc.push_back(task);
+		if (task->NeedRecalculation()) tasksForRecalc.push_back(task);
 	}
 
-	if (multiplayer) {
+	if (playerModel->IsMultiplayer()) {
 		// update deltas
 		auto deltaUpdate = GETCOMPONENT(DeltaUpdate);
 		auto actual = deltaUpdate->GetActualDelta();
@@ -510,7 +502,7 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 
 	// restart recalc indicator
 	for (auto task : tasksForRecalc) {
-		task->needRecalculation = false;
+		task->SetNeedRecalculation(false);
 	}
 }
 
@@ -592,7 +584,7 @@ Node* GameModel::CreateNode(EntityType entityType, ofVec2f position, Faction fac
 	else if (entityType == EntityType::RIG) {
 		nd->SetTag("rig");
 		
-		if (faction == this->faction || (!multiplayer && faction != Faction::NONE)) {
+		if (faction == playerModel->GetFaction() || (!playerModel->IsMultiplayer() && faction != Faction::NONE)) {
 			nd->AddBehavior(new RigBehavior(this));
 		}
 	}
@@ -658,7 +650,7 @@ void GameModel::DivideRigsIntoFactions() {
 
 	int randomIndex = allRigs.size() >= 4 ? ((int)(ofRandom(0, 1)*allRigs.size() / 2)) : ((int)(ofRandom(0, 1)*allRigs.size()));
 	// for multiplayer, the selected rig should be deterministic
-	int rigIndex = this->multiplayer ? 0 : randomIndex;
+	int rigIndex = playerModel->IsMultiplayer() ? 0 : randomIndex;
 
 	Vec2i blueRig = allRigs[rigIndex];
 	

@@ -205,7 +205,7 @@ public:
 #endif
 };
 
-#define TESTING
+//#define TESTING
 
 #ifdef WIN32
 #ifdef TESTING

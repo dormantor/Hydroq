@@ -4,8 +4,8 @@
 #include "HydroqDef.h"
 #include "MsgPayloads.h"
 #include "GameMap.h"
-#include "GameEntity.h"
 #include "GameModel.h"
+#include "PlayerModel.h"
 
 /**
 * Hydroq game view
@@ -33,7 +33,8 @@ private:
 	vector<Node*> rigsToAnimate;
 
 	map<int, Sprite> spriteBuffer;
-
+	
+	PlayerModel* playerModel;
 	GameModel* gameModel;
 	bool firstUpdate = false;
 	// the time the game has ended

@@ -1,5 +1,5 @@
 #include "RightPanel.h"
-
+#include "Scene.h"
 
 void RightPanel::OnInit() {
 	SubscribeForMessages(ACT_STATE_CHANGED);
@@ -22,7 +22,7 @@ void RightPanel::OnMessage(Msg& msg) {
 			SelectBuildSection();
 		}
 		else if (msg.GetContextNode()->GetId() == flagIconId) {
-			SelectFlagSection();
+			SelectCommandSection();
 		}
 	}
 }
@@ -33,7 +33,7 @@ void RightPanel::SelectBuildSection() {
 	scene->FindNodeById(buildSectionId)->SetRunningMode(RunningMode::RUNNING);
 }
 
-void RightPanel::SelectFlagSection() {
+void RightPanel::SelectCommandSection() {
 	UnSelectNodes();
 	selectedSection = Section::COMMAND;
 	scene->FindNodeById(flagSectionId)->SetRunningMode(RunningMode::RUNNING);

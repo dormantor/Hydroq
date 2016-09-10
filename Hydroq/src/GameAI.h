@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "HydroqDef.h"
 #include "GameBoard.h"
 #include "GameModel.h"
@@ -37,16 +36,11 @@ struct RigInfo {
 	int distance;
 };
 
-enum class AIType {
-	SCRIPTED, MONTE_CARLO
-};
 
 class GameAI : public Behavior {
 
 	GameModel* gameModel;
 	Faction faction = Faction::NONE;
-	AIType aiType;
-
 
 	AITask actualTask;
 	int actualTaskIndex = 0;
@@ -59,8 +53,7 @@ class GameAI : public Behavior {
 	uint64 lastTaskTime = 0;
 
 public:
-	GameAI(GameModel* gameModel, Faction faction, AIType aiType) :gameModel(gameModel), faction(faction),
-	aiType(aiType){
+	GameAI(GameModel* gameModel, Faction faction) :gameModel(gameModel), faction(faction){
 
 	}
 
@@ -78,8 +71,6 @@ public:
 protected:
 
 	void UpdateMonteCarlo(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute);
-
-	void UpdateScripted(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute);
 
 	void CalcRigsDistance();
 

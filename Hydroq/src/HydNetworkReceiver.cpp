@@ -1,4 +1,5 @@
 #include "HydNetworkReceiver.h"
+#include "ComponentStorage.h"
 
 void HydNetworkReceiver::OnInit() {
 	auto playerModel = GETCOMPONENT(PlayerModel);
@@ -12,6 +13,8 @@ void HydNetworkReceiver::OnInit() {
 
 void HydNetworkReceiver::OnMessage(Msg& msg) {
 	if (msg.HasAction(ACT_NET_MESSAGE_RECEIVED)) {
+
+		// distinguish the type of this message and call proper method
 		auto msgEvent = msg.GetData<NetworkMsgEvent>();
 		auto netMsg = msgEvent->msg;
 		StrId action = netMsg->GetAction();
@@ -19,14 +22,17 @@ void HydNetworkReceiver::OnMessage(Msg& msg) {
 
 		if (type == NetMsgType::DISCOVER_RESPONSE) {
 			if (action == NET_MULTIPLAYER_INIT) {
+				// initialization message
 				ProcessMultiplayerInit(netMsg);
 			}
 		}
 		else if (type == NetMsgType::UPDATE) {
 			if (action == NET_MSG_DELTA_UPDATE) {
+				// update message
 				ProcessDeltaUpdate(netMsg);
 			}
 			else if (action == NET_MULTIPLAYER_COMMAND) {
+				// command message
 				ProcessCommandMessage(netMsg);
 			}
 		}
@@ -34,6 +40,7 @@ void HydNetworkReceiver::OnMessage(Msg& msg) {
 }
 
 void HydNetworkReceiver::ProcessDeltaUpdate(spt<NetInputMessage> netMsg) {
+	// just transform message and resend it to the DeltaUpdate component
 	spt<DeltaMessage> deltaMsg = netMsg->GetData<DeltaMessage>();
 	spt<DeltaInfo> deltaInfo = spt<DeltaInfo>(new DeltaInfo(netMsg->GetMsgTime(), deltaMsg->GetDeltas(), deltaMsg->GetTeleports()));
 
@@ -42,6 +49,7 @@ void HydNetworkReceiver::ProcessDeltaUpdate(spt<NetInputMessage> netMsg) {
 }
 
 void HydNetworkReceiver::ProcessMultiplayerInit(spt<NetInputMessage> netMsg) {
+	// send message that a host has been found
 	auto mpInit = netMsg->GetData<HydroqServerInitMsg>();
 	mpInit->SetIpAddress(netMsg->GetSourceIp());
 	SendMessage(StrId(ACT_SERVER_FOUND), spt<CommonEvent<HydroqServerInitMsg>>(new CommonEvent<HydroqServerInitMsg>(mpInit)));
@@ -59,11 +67,11 @@ void HydNetworkReceiver::ProcessCommandMessage(spt<NetInputMessage> netMsg) {
 		}
 		break;
 	case SyncEventType::OBJECT_REMOVED:
+		// nothing to do here
 		break;
 	case SyncEventType::MAP_CHANGED:
 		switch (cmdMsg->GetEntityType()) {
 		case EntityType::BRIDGE:
-			cout << "creating platform as it says message " << (int)netMsg->GetSyncId() << " send by " << netMsg->GetSourceIp() << " from port " << netMsg->GetSourcePort() << endl;
 			model->BuildPlatform(cmdMsg->GetPosition(), cmdMsg->GetFaction(), 1); // there is no identifier required for such an action
 			break;
 		case EntityType::WATER:

@@ -1,10 +1,13 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "HydroqDef.h"
 #include "Helper.h"
 #include "AStarSearch.h"
+#include "Settings.h"
+#include "Vec2i.h"
+#include "Tile.h"
 
+using namespace Cog;
 
 enum class MapNodeType {
 	NONE, WATER, GROUND, RIG, RIG_PLATFORM

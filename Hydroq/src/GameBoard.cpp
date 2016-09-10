@@ -3,10 +3,12 @@
 #include "GameModel.h"
 #include "GameView.h"
 #include "Mesh.h"
-
+#include "TransformMath.h"
+#include "ComponentStorage.h"
 
 void GameBoard::OnInit() {
 	cache = GETCOMPONENT(ResourceCache);
+	auto playerModel = GETCOMPONENT(PlayerModel);
 	auto gameModel = owner->GetBehavior<GameModel>();
 
 	auto xml = CogLoadXMLFile("mapconfig.xml");
@@ -14,25 +16,26 @@ void GameBoard::OnInit() {
 	mapConfig.LoadFromXml(xml);
 	xml->popTag();
 
-	// 3) load static sprites and assign it to the map_board node
+	// load static sprites and assign it to the map_board node
 	auto gameView = owner->GetBehavior<GameView>();
 	gameView->LoadSprites(mapConfig.GetSetting("sprites"));
 
 	auto staticSprites = gameView->GetStaticSprites();
 	owner->GetScene()->FindNodeByTag("map_board")->SetMesh(staticSprites);
 
-	// 4) load dynamic sprites and assign it to the object_board node
+	// load dynamic sprites and assign it to the object_board node
 	auto dynamicSprites = gameView->GetDynamicSprites();
 	owner->GetScene()->FindNodeByTag("object_board")->SetMesh(dynamicSprites);
 
-	// ZOOM THE BOARD LITTLE BIT OUT
+	// zoom the board little bit out
 	owner->GetTransform().scale /= 2.5f;
 
 	auto boardShape = owner->GetMesh<Cog::Rectangle>();
 	boardShape->SetWidth(staticSprites->GetWidth());
 	boardShape->SetHeight(staticSprites->GetHeight());
 
-	Faction fact = gameModel->GetFaction();
+	// find a player's rig and zoom to it so the rig will be at the center of the game board
+	Faction fact = playerModel->GetFaction();
 	auto ownerRig = gameModel->GetRigsByFaction(fact)[0];
 	auto ownerRigPos = ownerRig->GetTransform().localPos;
 	auto mapWidth = gameModel->GetMap()->GetWidth();
@@ -55,7 +58,8 @@ void GameBoard::ZoomIntoPositionCenter(ofVec2f positionRelative) {
 	float height = shapeHeight*owner->GetTransform().absScale.y;
 	auto screenSize = CogGetVirtualScreenSize();
 
-	ofVec3f newAbsPos = ofVec3f(-width*positionRelative.x + screenSize.x / 2, -height*positionRelative.y + screenSize.y / 2, transform.absPos.z);
+	ofVec3f newAbsPos = ofVec3f(-width*positionRelative.x + screenSize.x / 2, 
+		-height*positionRelative.y + screenSize.y / 2, transform.absPos.z);
 	SetNewPosition(transform, newAbsPos);
 }
 
@@ -63,7 +67,7 @@ void GameBoard::SetNewPosition(Trans& transform, ofVec3f& newAbsPos) {
 
 	CheckNewPosition(transform, newAbsPos);
 	TransformMath math = TransformMath();
-	// calc new local position from absolute position
+	// calc local position from absolute position
 	auto newLocalPos = math.CalcPosition(owner, owner->GetParent(), newAbsPos, CalcType::ABS, 0, 0);
 
 	// set new local position
@@ -79,7 +83,7 @@ void GameBoard::CheckNewPosition(Trans& transform, ofVec3f& newPos) {
 	float width = shapeWidth*transform.absScale.x;
 	float height = shapeHeight*transform.absScale.y;
 
-	// check bounds
+	// check bounds (if position of the game board is outside the boundaries of the display)
 	if (newPos.x > 0) newPos.x = 0;
 	if (newPos.y > 0) newPos.y = 0;
 	if (-newPos.x + CogGetScreenWidth() > (width)) newPos.x = CogGetScreenWidth() - width;

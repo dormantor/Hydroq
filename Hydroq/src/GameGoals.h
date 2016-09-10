@@ -3,11 +3,12 @@
 #include "Goal.h"
 #include "HydroqDef.h"
 #include "GameTask.h"
-#include "ofxCogMain.h"
+#include "Vec2i.h"
 
 using namespace Cog;
 
 class GameModel;
+
 /**
 * Goal that moves target unit to the selected position
 */
@@ -15,9 +16,9 @@ class GotoPositionGoal : public Goal {
 	Behavior* innerBehavior = nullptr;
 	spt<GameTask> task;
 public:
-	// first cell (in integer)
+	// location of the first cell
 	Vec2i startCell;
-	// last cell
+	// location of the last cell
 	Vec2i endCell;
 	// precise starting position
 	ofVec2f startPosition;

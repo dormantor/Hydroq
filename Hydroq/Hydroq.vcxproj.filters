@@ -17,9 +17,6 @@
     <ClCompile Include="src\TaskScheduler.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="src\AttractorPlacement.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="src\RigBehavior.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -39,9 +36,6 @@
       <Filter>MainMenu</Filter>
     </ClCompile>
     <ClCompile Include="src\MenuBehavior.cpp">
-      <Filter>MainMenu</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MenuIconBehavior.cpp">
       <Filter>MainMenu</Filter>
     </ClCompile>
     <ClCompile Include="src\SingleGameMenu.cpp">
@@ -98,6 +92,12 @@
     <ClCompile Include="src\TileEventBehavior.cpp">
       <Filter>GameGUI</Filter>
     </ClCompile>
+    <ClCompile Include="src\AttractorPlacement.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MenuIconBehavior.cpp">
+      <Filter>GameGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Worker.h">
@@ -121,9 +121,6 @@
     <ClInclude Include="src\MenuBehavior.h">
       <Filter>MainMenu</Filter>
     </ClInclude>
-    <ClInclude Include="src\MenuIconBehavior.h">
-      <Filter>MainMenu</Filter>
-    </ClInclude>
     <ClInclude Include="src\MultiplayerMenu.h">
       <Filter>MainMenu</Filter>
     </ClInclude>
@@ -140,9 +137,6 @@
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="src\TaskScheduler.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AttractorPlacement.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="src\HydAIAction.h">
@@ -162,9 +156,6 @@
     </ClInclude>
     <ClInclude Include="src\GameMap.h">
       <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameEntity.h">
-      <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="src\GameAI.h">
       <Filter>Game</Filter>
@@ -206,6 +197,12 @@
       <Filter>GameGUI</Filter>
     </ClInclude>
     <ClInclude Include="src\TileEventBehavior.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AttractorPlacement.h">
+      <Filter>GameGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuIconBehavior.h">
       <Filter>GameGUI</Filter>
     </ClInclude>
   </ItemGroup>

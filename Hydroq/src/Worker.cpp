@@ -2,7 +2,8 @@
 #include "GameModel.h"
 #include "SteeringBehavior.h"
 #include "MsgEvents.h"
-
+#include "PlayerModel.h"
+#include "ComponentStorage.h"
 // ======================= WORKER IDLE STATE ==============================
 
 
@@ -12,6 +13,7 @@ bool WorkerIdleState::FindTaskToDo() {
 	// position the worker stays
 	auto start = owner->GetTransform().localPos;
 
+	auto playerModel = GETCOMPONENT(PlayerModel);
 	auto faction = owner->GetAttr<Faction>(ATTR_FACTION);
 	auto allTasks = gameModel->GetGameTasksByFaction(faction);
 
@@ -19,7 +21,7 @@ bool WorkerIdleState::FindTaskToDo() {
 	sort(allTasks.begin(), allTasks.end(),
 		[start](const spt<GameTask>  a, const spt<GameTask> b) -> bool
 	{
-		return a->taskNode->GetTransform().localPos.distance(start) < b->taskNode->GetTransform().localPos.distance(start);
+		return a->GetTaskNode()->GetTransform().localPos.distance(start) < b->GetTaskNode()->GetTransform().localPos.distance(start);
 	});
 
 
@@ -27,25 +29,25 @@ bool WorkerIdleState::FindTaskToDo() {
 
 	// get the nearest task
 	for (auto& task : allTasks) {
-		if (task->isReserved && task->IsNodeReserved(owner->GetId())) {
+		if (task->IsReserved() && task->IsNodeReserved(owner->GetId())) {
 			// position of the place the bridge will stay
-			auto position = task->taskNode->GetTransform().localPos;
+			auto position = task->GetTaskNode()->GetTransform().localPos;
 			// node at position the bridge will stay
 			auto mapNode = map->GetNode((int)position.x, (int)position.y);
 			// position the worker stays
 			auto start = owner->GetTransform().localPos;
 
-			if (task->type == GameTaskType::BRIDGE_BUILD || task->type == GameTaskType::BRIDGE_DESTROY) {
+			if (task->GetType() == GameTaskType::BRIDGE_BUILD || task->GetType() == GameTaskType::BRIDGE_DESTROY) {
 
 				GameMapNode* nodeToWorkFrom;
 
-				if (task->type == GameTaskType::BRIDGE_BUILD) {
+				if (task->GetType() == GameTaskType::BRIDGE_BUILD) {
 					// find first safe platform the worker can stay on
 					nodeToWorkFrom = mapNode->FindWalkableNeighbor(Vec2i(start.x, start.y));
 				}
 				else {
 					// find platform the worker can return to base from
-					auto nearestBase = gameModel->FindNearestRigByFaction(gameModel->GetFaction(), start);
+					auto nearestBase = gameModel->FindNearestRigByFaction(playerModel->GetFaction(), start);
 					ofVec2f preferredPosition = (nearestBase != nullptr) ? nearestBase->GetTransform().localPos : start;
 					nodeToWorkFrom = mapNode->FindWalkableNeighbor(Vec2i(preferredPosition.x, preferredPosition.y));
 					if (nodeToWorkFrom == nullptr) nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::RIG_PLATFORM, Vec2i(preferredPosition.x, preferredPosition.y));
@@ -66,8 +68,8 @@ bool WorkerIdleState::FindTaskToDo() {
 					return true;
 				}
 			}
-			else if (task->type == GameTaskType::ATTRACT) {
-				float cardinality = gameModel->CalcAttractorAbsCardinality(faction, task->taskNode->GetId());
+			else if (task->GetType() == GameTaskType::ATTRACT) {
+				float cardinality = gameModel->CalcAttractorAbsCardinality(faction, task->GetTaskNode()->GetId());
 				int neededDistance = cardinality * 4;
 				vector<GameMapNode*> nearestNodes;
 				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);
@@ -183,13 +185,13 @@ void WorkerBridgeBuildState::OnStart() {
 
 	owner->SetState(StrId(STATE_WORKER_BUILD));
 
-	task->handlerNode = owner;
-	task->isProcessing = true;
+	task->SetHandlerNode(owner);
+	task->SetIsProcessing(true);
 
 	// worker position
 	auto workerPos = owner->GetTransform().localPos;
 	// position where the bridge will stay
-	auto position = task->taskNode->GetTransform().localPos;
+	auto position = task->GetTaskNode()->GetTransform().localPos;
 	// safe position the worker can stay during the building
 	auto targetSafePos = nodeToBuildfrom->pos;
 	// precise position will be little bit close to the edge of the existing platform
@@ -201,7 +203,7 @@ void WorkerBridgeBuildState::OnStart() {
 	auto composite = new GoalComposite(StrId(), GoalCompositeType::SERIALIZER);
 	composite->AddSubgoal(new GotoPositionGoal(gameModel, task, Vec2i(workerPos.x, workerPos.y), targetSafePos,workerPos, precisePosition));
 	
-	if (task->type == GameTaskType::BRIDGE_BUILD) {
+	if (task->GetType() == GameTaskType::BRIDGE_BUILD) {
 		composite->AddSubgoal(new BuildBridgeGoal(gameModel, task));
 	}
 	else {

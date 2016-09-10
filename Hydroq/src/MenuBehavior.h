@@ -1,8 +1,12 @@
 #pragma once
 
-#include "ofxCogMain.h"
-#include "MultiAnim.h"
+#include "Behavior.h"
 
+using namespace Cog;
+
+/**
+* Behavior for main menu
+*/
 class MenuBehavior : public Behavior {
 public:
 	MenuBehavior() {

@@ -1,7 +1,7 @@
 
 #include "RigBehavior.h"
 #include "GameModel.h"
-
+#include "Node.h"
 
 
 void RigBehavior::OnStart() {

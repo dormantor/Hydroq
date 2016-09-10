@@ -1,12 +1,11 @@
 #include "TaskScheduler.h"
 
 
-map<int, int> TaskScheduler::CalcAssignedTasks(vector<spt<GameTask>>& tasks) {
-	map<int, int> output = map<int, int>();
-
+void TaskScheduler::CalcAssignedTasks(vector<spt<GameTask>>& tasks, map<int, int>& output) {
+	
 	for (auto& task : tasks) {
-		if (task->isReserved) {
-			for (auto node : task->reserverNodes) {
+		if (task->IsReserved()) {
+			for (auto node : task->GetReservedNodes()) {
 				if (output.find(node->GetId()) == output.end()) {
 					output[node->GetId()] = 0;
 				}
@@ -16,13 +15,11 @@ map<int, int> TaskScheduler::CalcAssignedTasks(vector<spt<GameTask>>& tasks) {
 			}
 		}
 	}
-
-	return output;
 }
 
 void TaskScheduler::ScheduleTasks(uint64 absolute) {
-	if (gameModel->IsMultiplayer()) {
-		ScheduleTasksForFaction(absolute, gameModel->GetFaction());
+	if (playerModel->IsMultiplayer()) {
+		ScheduleTasksForFaction(absolute, playerModel->GetFaction());
 	}
 	else {
 		ScheduleTasksForFaction(absolute, Faction::BLUE);
@@ -35,17 +32,19 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 	auto allWorkers = gameModel->GetMovingObjectsByType(EntityType::WORKER, faction);
 	auto map = gameModel->GetMap();
 
-	auto assignedTasks = CalcAssignedTasks(allTasks);
+	std::map<int, int> assignedTasks;
+	CalcAssignedTasks(allTasks, assignedTasks);
 
 	COGMEASURE_BEGIN("HYDROQ_SCHEDULER");
 
 	for (auto& task : allTasks) {
 
-		if (!task->isDelayed && !task->isEnded && !task->isProcessing &&
-			(!task->isReserved || (task->isReserved && (absolute - task->reserverTime) > 10000))
-			&& (task->type == GameTaskType::BRIDGE_BUILD || task->type == GameTaskType::BRIDGE_DESTROY || task->type == GameTaskType::ATTRACT)) {
+		if (!task->IsDelayed() && !task->IsEnded() && !task->IsProcessing() &&
+			(!task->IsReserved() || (task->IsReserved() && (absolute - task->GetReservedTime()) > 10000))
+			&& (task->GetType() == GameTaskType::BRIDGE_BUILD || task->GetType() == GameTaskType::BRIDGE_DESTROY 
+				|| task->GetType() == GameTaskType::ATTRACT)) {
 
-			auto taskLocation = task->taskNode->GetTransform().localPos;
+			auto taskLocation = task->GetTaskNode()->GetTransform().localPos;
 
 			// node at position the bridge will stay
 			auto mapNode = map->GetNode((int)taskLocation.x, (int)taskLocation.y);
@@ -57,8 +56,8 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 				return a->GetTransform().localPos.distance(taskLocation) < b->GetTransform().localPos.distance(taskLocation);
 			});
 
-			if (task->type == GameTaskType::ATTRACT) {
-				float absCardinality = gameModel->CalcAttractorAbsCardinality(faction, task->taskNode->GetId());
+			if (task->GetType() == GameTaskType::ATTRACT) {
+				float absCardinality = gameModel->CalcAttractorAbsCardinality(faction, task->GetTaskNode()->GetId());
 				int neededDistance = absCardinality * 4;
 
 				vector<GameMapNode*> nearestNodes;
@@ -72,7 +71,7 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 							// if this worker is close to another attractor, skip him
 							bool skip = false;
 							for (auto& attr : gameModel->GetAttractorsByFaction(faction)) {
-								if (attr->GetId() != task->taskNode->GetId()) {
+								if (attr->GetId() != task->GetTaskNode()->GetId()) {
 									ofVec2f attrLoc = (attr->GetTransform().localPos) + 0.5f;
 									if (attrLoc.distance(worker->GetTransform().localPos) < 5) {
 										skip = true;
@@ -86,7 +85,7 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 						}
 					}
 
-					int workersToAssign = allWorkers.size()*absCardinality - task->reserverNodes.size();
+					int workersToAssign = allWorkers.size()*absCardinality - task->GetReservedNodes().size();
 					workersToAssign = max((int)(workersToAssign / 1.8f), 1); // assign continuously :
 
 					int workersAvailableToAsign = min(workersToAssign, (int)freeWorkers.size());
@@ -95,8 +94,8 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 						// prevent from other task to assign
 						assignedTasks[freeWorkers[i]->GetId()]++;
 
-						task->reserverNodes.push_back(freeWorkers[i]);
-						task->isReserved = true;
+						task->GetReservedNodes().push_back(freeWorkers[i]);
+						task->SetIsReserved(true);
 						//task->reserverTime = absolute; NOT SET !
 					}
 				}
@@ -114,7 +113,7 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 						// position the worker stays
 						auto nodeLocation = worker->GetTransform().localPos;
 
-						if (task->type == GameTaskType::BRIDGE_BUILD || task->type == GameTaskType::BRIDGE_DESTROY) {
+						if (task->GetType() == GameTaskType::BRIDGE_BUILD || task->GetType() == GameTaskType::BRIDGE_DESTROY) {
 							// find nearest node the worker will stay during the building (worker cannot go to the water)
 							auto nodeToBuildfrom = mapNode->FindWalkableNeighbor(Vec2i(nodeLocation.x, nodeLocation.y));
 
@@ -123,9 +122,9 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 
 								if (!path.empty()) {
 									// assign
-									task->isReserved = true;
-									task->reserverNodes.push_back(worker);
-									task->reserverTime = absolute;
+									task->SetIsReserved(true);
+									task->GetReservedNodes().push_back(worker);
+									task->SetReservedTime(absolute);
 									workerFound = true;
 									break;
 								}
@@ -149,15 +148,15 @@ void TaskScheduler::ScheduleTasksForFaction(uint64 absolute, Faction faction) {
 
 								if (!path.empty()) {
 									// assign
-									task->isReserved = true;
-									task->reserverNodes.push_back(worker);
-									task->reserverTime = absolute;
+									task->SetIsReserved(true);
+									task->GetReservedNodes().push_back(worker);
+									task->SetReservedTime(absolute);
 									workerFound = true;
 									break;
 								}
 								else {
 									// no path could be found as well -> set delay property
-									task->isDelayed = true;
+									task->SetIsDelayed(true);
 									break;
 								}
 							}

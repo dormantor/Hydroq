@@ -1,4 +1,7 @@
 #include "RightPanelSections.h"
+#include "Node.h"
+#include "Scene.h"
+#include "ComponentStorage.h"
 
 void RightPanelSections::OnInit() {
 	SubscribeForMessages(ACT_OBJECT_HIT_ENDED, ACT_FUNC_SELECTED);
@@ -12,7 +15,6 @@ void RightPanelSections::OnInit() {
 void RightPanelSections::OnMessage(Msg& msg) {
 	if (!locked) {
 		locked = true;
-
 		// if someone else has unselected the node
 		if (msg.HasAction(ACT_FUNC_SELECTED) && selectedNodeId != -1) {
 			if (playerModel->GetHydroqAction() == HydroqAction::NONE) {
@@ -22,6 +24,7 @@ void RightPanelSections::OnMessage(Msg& msg) {
 		}
 
 		if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
+
 			int targetId = msg.GetContextNode()->GetId();
 
 			if (targetId == selectedNodeId) {
@@ -54,10 +57,6 @@ void RightPanelSections::OnMessage(Msg& msg) {
 	}
 }
 
-void RightPanelSections::UnselectNode(int nodeId) {
-	owner->GetScene()->FindNodeById(nodeId)->GetMesh<BoundingBox>()->SetIsRenderable(false);
-}
-
 void RightPanelSections::SelectNode(int nodeId) {
 	if (selectedNodeId != -1) {
 		UnselectNode(selectedNodeId);
@@ -65,3 +64,8 @@ void RightPanelSections::SelectNode(int nodeId) {
 	selectedNodeId = nodeId;
 	owner->GetScene()->FindNodeById(nodeId)->GetMesh<BoundingBox>()->SetIsRenderable(true);
 }
+
+void RightPanelSections::UnselectNode(int nodeId) {
+	owner->GetScene()->FindNodeById(nodeId)->GetMesh<BoundingBox>()->SetIsRenderable(false);
+}
+

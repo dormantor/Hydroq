@@ -1,8 +1,14 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "HydroqDef.h"
+#include "Behavior.h"
 
+using namespace Cog;
+
+/**
+* Behavior that just sets icon of currently selected action 
+* in the lower left corner of the game board
+*/
 class SelectedFuncBehavior : public Behavior {
 	
 	int selectedFuncSeedBed;

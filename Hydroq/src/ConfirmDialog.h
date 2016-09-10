@@ -1,7 +1,11 @@
 #pragma once
 
-#include "ofxCogMain.h"
+#include "Behavior.h"
+using namespace Cog;
 
+/**
+* Behavior for yes-no confirmation dialog
+*/
 class ConfirmDialog : public Behavior {
 	
 public:

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "HydroqDef.h"
 #include "State.h"
 #include "StrId.h"

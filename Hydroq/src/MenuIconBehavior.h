@@ -1,9 +1,13 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "Scene.h"
 #include "PlayerModel.h"
+#include "TransformEnt.h"
 
+/**
+* Behavior for right panel icon that just rolls the 
+* panel in front of the screen
+*/
 class MenuIconBehavior : public Behavior {
 	spt<TransformEnt> originTrans;
 	spt<TransformEnt> animTrans;

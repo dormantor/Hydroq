@@ -3,6 +3,10 @@
 #include "GameMap.h"
 #include "MultiSelection.h"
 #include "EnumConverter.h"
+#include "TransformEnt.h"
+#include "HitEvent.h"
+#include "Scene.h"
+#include "TransformMath.h"
 
 using namespace Cog;
 
@@ -39,6 +43,7 @@ using namespace Cog;
 	 Node* plane = new Node("plane");
 	 plane->AddBehavior(new HitEvent());
 
+	 // add checkbox behavior
 	 plane->AddBehavior(new MultiSelection(EnumConverter::StrToColor("0x00000000"), EnumConverter::StrToColor("0xFFFFFF88"), selectionGroup));
 	 if (select) plane->SetState(StrId(STATES_SELECTED));
 	 plane->AddAttr(idAttr, idValue);
@@ -60,7 +65,7 @@ using namespace Cog;
 
 	 listNode->AddChild(plane);
 
-
+	 // set text
 	 Node* text = new Node("text");
 	 auto shape2 = spt<Text>(new Text(CogGetFont("MotionControl-Bold.otf", 35), idValue));
 	 shape2->SetColor(EnumConverter::StrToColor("0xFFFFFF"));

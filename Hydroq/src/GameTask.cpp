@@ -2,16 +2,16 @@
 #include "Node.h"
 
 bool GameTask::IsNodeReserved(int nodeId) {
-	for (auto nd : reserverNodes) {
+	for (auto nd : reservedNodes) {
 		if (nd->GetId() == nodeId) return true;
 	}
 	return false;
 }
 
 void GameTask::RemoveReserverNode(int nodeId) {
-	for (auto it = reserverNodes.begin(); it != reserverNodes.end(); ++it) {
+	for (auto it = reservedNodes.begin(); it != reservedNodes.end(); ++it) {
 		if ((*it)->GetId() == nodeId) {
-			reserverNodes.erase(it);
+			reservedNodes.erase(it);
 			break;
 		}
 	}

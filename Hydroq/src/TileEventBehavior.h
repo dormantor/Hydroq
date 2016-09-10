@@ -1,14 +1,19 @@
 #pragma once
 
-#include "ofxCogMain.h"
+#include "Behavior.h"
 #include "HydroqDef.h"
 #include "SpriteInst.h"
 #include "GameView.h"
 #include "GameModel.h"
 
+namespace Cog {
+	class ResourceCache;
+}
+
+using namespace Cog;
 
 /**
-* Informs other nodes that user clicked on brick
+* Informs other nodes that user clicked on a game tile
 */
 class TileEventBehavior : public Behavior {
 

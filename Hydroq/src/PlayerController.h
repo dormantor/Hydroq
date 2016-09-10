@@ -1,12 +1,15 @@
 #pragma once
 
-#include "ofxCogMain.h"
+#include "Behavior.h"
 #include "HydroqDef.h"
 #include "SpriteInst.h"
 #include "PlayerModel.h"
 #include "GameModel.h"
 
-
+/**
+* Behavior that responds to messages on click on the game board and
+* transforms them to the desired actions
+*/
 class PlayerController : public Behavior {
 	
 	GameModel* gameModel;

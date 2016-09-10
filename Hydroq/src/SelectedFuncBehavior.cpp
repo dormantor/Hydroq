@@ -1,4 +1,5 @@
 #include "SelectedFuncBehavior.h"
+#include "Node.h"
 
 void SelectedFuncBehavior::OnInit() {
 	actFuncSelected = StrId(ACT_FUNC_SELECTED);

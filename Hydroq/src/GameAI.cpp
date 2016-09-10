@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameAI.h"
+#include "ComponentStorage.h"
 
 void GameAI::OnMessage(Msg& msg) {
 	if (msg.HasAction(ACT_GAMESTATE_CHANGED)) {
@@ -20,14 +21,16 @@ void GameAI::Update(const uint64 delta, const uint64 absolute) {
 
 	if (CogGetFrameCounter() % 100 == 0) {
 
+		auto playerModel = GETCOMPONENT(PlayerModel);
+
 		auto map = gameModel->GetMap();
 		blueRedDist.clear();
 		redBlueDist.clear();
 		blueEmptyDist.clear();
 		redEmptyDist.clear();
 
-		vector<RigInfo>& myOpponentDist = gameModel->GetFaction() == Faction::BLUE ? redBlueDist : blueRedDist;
-		vector<RigInfo>& myEmptyDist = gameModel->GetFaction() == Faction::BLUE ? redEmptyDist : blueEmptyDist;
+		vector<RigInfo>& myOpponentDist = playerModel->GetFaction() == Faction::BLUE ? redBlueDist : blueRedDist;
+		vector<RigInfo>& myEmptyDist = playerModel->GetFaction() == Faction::BLUE ? redEmptyDist : blueEmptyDist;
 
 		CalcRigsDistance();
 
@@ -48,16 +51,7 @@ void GameAI::Update(const uint64 delta, const uint64 absolute) {
 			}
 		}
 
-		if (actualTask.type == AITaskType::NONE) {
-			switch (aiType) {
-			case AIType::SCRIPTED:
-				UpdateScripted(myOpponentDist, myEmptyDist, delta, absolute);
-				break;
-			case AIType::MONTE_CARLO:
-				UpdateMonteCarlo(myOpponentDist, myEmptyDist, delta, absolute);
-				break;
-			}
-		}
+		UpdateMonteCarlo(myOpponentDist, myEmptyDist, delta, absolute);
 	}
 }
 
@@ -82,43 +76,6 @@ void GameAI::UpdateMonteCarlo(vector<RigInfo>& myOpponentDist, vector<RigInfo>& 
 	}
 }
 
-void GameAI::UpdateScripted(vector<RigInfo>& myOpponentDist, vector<RigInfo>& myEmptyDist, uint64 delta, uint64 absolute) {
-	// capture some empty
-	for (auto dist : myEmptyDist) {
-		if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
-			Task_CaptureEmpty(dist, absolute);
-		}
-	}
-
-	// capture some opponents'
-	for (auto dist : myOpponentDist) {
-		if (dist.distance == 0 && actualTask.type == AITaskType::NONE) {
-			Task_CaptureEnemy(dist, absolute);
-		}
-	}
-
-	// build platform and go to empty rig
-	if (actualTask.type == AITaskType::NONE && !myEmptyDist.empty()) {
-		// get nearest empty
-		sort(myEmptyDist.begin(), myEmptyDist.end(), [](const RigInfo& a, const RigInfo&b) {
-			return a.distance < b.distance;
-		});
-
-		auto nearestRig = myEmptyDist[0];
-		Task_Goto(nearestRig, absolute);
-	}
-
-	// build platform and go to enemy rig
-	if (actualTask.type == AITaskType::NONE && !myOpponentDist.empty()) {
-		// get nearest empty
-		sort(myOpponentDist.begin(), myOpponentDist.end(), [](const RigInfo& a, const RigInfo&b) {
-			return a.distance < b.distance;
-		});
-
-		auto nearestRig = myOpponentDist[0];
-		Task_Goto(nearestRig, absolute);
-	}
-}
 
 void GameAI::CalcRigsDistance() {
 

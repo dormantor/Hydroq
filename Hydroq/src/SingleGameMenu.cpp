@@ -1,4 +1,14 @@
 #include "SingleGameMenu.h"
+#include "Facade.h"
+#include "ofxXmlSettings.h"
+#include "PlayerModel.h"
+#include "Tween.h"
+#include "Stage.h"
+#include "Node.h"
+#include "ComponentStorage.h"
+#include "Scene.h"
+#include "TransformEnt.h"
+#include "TransformMath.h"
 
 void SingleGameMenu::OnInit() {
 	SubscribeForMessages(ACT_BUTTON_CLICKED, ACT_OBJECT_SELECTED);
@@ -40,7 +50,8 @@ void SingleGameMenu::LoadMaps() {
 	for (auto& key : items) {
 		auto val = key.second;
 		string mapName = val.key;
-		Helper::SetPanelItem(owner, maps_list, index, StrId("SELECTION_MAP"), ATTR_MAP, mapName, index == 0); // select first map
+		Helper::SetPanelItem(owner, maps_list, index, StrId("SELECTION_MAP"), 
+			ATTR_MAP, mapName, index == 0); // select first map
 
 		if (index == 0) {
 			selectedMap = mapName;
@@ -56,6 +67,7 @@ void SingleGameMenu::ShowMapPreview(string map) {
 	auto mapIconNode = owner->GetScene()->FindNodeByTag("map_icon");
 	mapIconNode->GetMesh<Image>()->SetImage(image);
 
+	// correct the size and position
 	TransformEnt ent = TransformEnt(ofVec2f(0.5f), 10, CalcType::PER, ofVec2f(0.5f), ofVec2f(1), CalcType::LOC);
 	TransformMath math = TransformMath();
 	math.SetTransform(mapIconNode, mapIconNode->GetParent(), ent);

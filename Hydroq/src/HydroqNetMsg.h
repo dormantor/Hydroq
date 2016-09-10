@@ -1,19 +1,20 @@
 #pragma once
 
-#include "ofxCogMain.h"
 #include "NetMessage.h"
 #include "DeltaMessage.h"
 #include "HydroqDef.h"
+#include "Vec2i.h"
 
 using namespace Cog;
 
-
-
+/** 
+* Initialization network message
+*/
 class HydroqServerInitMsg  : public NetData{
-	string ipAddress; // external attribute
+	string ipAddress; // external attribute, not sent by the network
 
-	string map;
-	Faction faction;
+	string map; // name of selected map
+	Faction faction; // name of selected faction
 
 public:
 	HydroqServerInitMsg() {
@@ -24,24 +25,16 @@ public:
 
 	}
 
-	void LoadFromStream(NetReader* reader) {
-		this->faction = (Faction)reader->ReadByte();
-		this->map = reader->ReadString();
-	}
+	void LoadFromStream(NetReader* reader);
 
-	void SaveToStream(NetWriter* writer) {
-		writer->WriteByte((tBYTE)faction);
-		writer->WriteString(map);
-	}
-
+	void SaveToStream(NetWriter* writer);
 
 	int GetDataLength() {
-		return
-			sizeof(tBYTE) + // faction
+		return sizeof(tBYTE) + // faction
 			SIZE_STR(map);
 	}
 
-	Faction GetFaction() {
+	Faction GetFaction() const {
 		return faction;
 	}
 
@@ -49,7 +42,7 @@ public:
 		this->faction = faction;
 	}
 
-	string GetMap() {
+	string GetMap() const {
 		return map;
 	}
 
@@ -57,33 +50,44 @@ public:
 		this->map = map;
 	}
 
-	string GetIpAddress() {
+	/**
+	* Gets ip address of the sender
+	*/
+	string GetIpAddress() const {
 		return ipAddress;
 	}
 
+	/**
+	* Sets ip address of the sender
+	*/
 	void SetIpAddress(string address) {
 		this->ipAddress = address;
 	}
 
-	spt<NetOutputMessage> CreateMessage() {
-		auto outputMsg = spt<NetOutputMessage>(new NetOutputMessage(0));
-		outputMsg->SetAction(NET_MULTIPLAYER_INIT);
-		outputMsg->SetData(this);
-		return outputMsg;
-	}
+	/**
+	* Transforms this object to the general network output message
+	*/
+	spt<NetOutputMessage> CreateMessage();
 };
 
 enum class SyncEventType;
 enum class EntityType;
 
+/**
+* Network message carrying command
+*/
 class HydroqCommandMsg : public NetData {
+	// type of event
 	SyncEventType eventType;
+	// type of entity involved
 	EntityType entityType;
+	// position where it happened (if defined)
 	ofVec2f position;
+	// faction involved
 	Faction faction;
+	// identifier (when an entity is created)
 	int identifier;
-
-	// position of owner that invoked the event
+	// position of a node that invoked the event
 	Vec2i ownerPosition;
 
 public:
@@ -91,89 +95,101 @@ public:
 
 	}
 
-	void LoadFromStream(NetReader* reader) {
-		this->eventType = (SyncEventType)reader->ReadByte();
-		this->entityType = (EntityType)reader->ReadByte();
-		
-		float x = reader->ReadFloat();
-		float y = reader->ReadFloat();
-		this->position = ofVec2f(x, y);
-		this->faction = (Faction)reader->ReadByte();
-		this->identifier = reader->ReadDWord();
-		
-		int px = reader->ReadDWord();
-		int py = reader->ReadDWord();
-		this->ownerPosition = Vec2i(px, py);
-	}
+	void LoadFromStream(NetReader* reader);
 
-	void SaveToStream(NetWriter* writer) {
-		writer->WriteByte((tBYTE)eventType);
-		writer->WriteByte((tBYTE)entityType);
-		writer->WriteFloat(position.x);
-		writer->WriteFloat(position.y);
-		writer->WriteByte((tBYTE)faction);
-		writer->WriteDWord(identifier);
-		writer->WriteDWord(ownerPosition.x);
-		writer->WriteDWord(ownerPosition.y);
-	}
+	void SaveToStream(NetWriter* writer);
 
 	int GetDataLength() {
 		return sizeof(tBYTE) * 3 + sizeof(tDWORD) * 1 + sizeof(float)*2 + sizeof(tDWORD)*2;
 	}
 
-	SyncEventType GetEventType() {
+	/**
+	* Gets type of the event that occurred
+	*/
+	SyncEventType GetEventType() const {
 		return eventType;
 	}
 
+	/**
+	* Sets type of the event that occurred
+	*/
 	void SetEventType(SyncEventType eventType) {
 		this->eventType = eventType;
 	}
 
-	EntityType GetEntityType() {
+	/**
+	* Gets type of the entity involved
+	*/
+	EntityType GetEntityType() const {
 		return entityType;
 	}
 
+	/**
+	* Sets type of the entity involved
+	*/
 	void SetEntityType(EntityType entityType) {
 		this->entityType = entityType;
 	}
 
-	ofVec2f GetPosition() {
+	/**
+	* Gets position where the action happened (if defined)
+	*/
+	ofVec2f GetPosition() const {
 		return position;
 	}
 
+	/**
+	* Sets position where the action happened (if defined)
+	*/
 	void SetPosition(ofVec2f position) {
 		this->position = position;
 	}
 
-	Faction GetFaction() {
+	/**
+	* Gets type of faction involved
+	*/
+	Faction GetFaction() const {
 		return faction;
 	}
 
+	/**
+	* Sets type of faction involved
+	*/
 	void SetFaction(Faction faction) {
 		this->faction = faction;
 	}
 
-	int GetIdentifier() {
+	/**
+	* Gets identifier of created entity (if any)
+	*/
+	int GetIdentifier() const {
 		return identifier;
 	}
 
+	/**
+	* Sets identifier of created entity (if any)
+	*/
 	void SetIdentifier(int identifier) {
 		this->identifier = identifier;
 	}
 
-	Vec2i GetOwnerPosition() {
+	/**
+	* Gets position of a node that invoked the event
+	*/
+	Vec2i GetOwnerPosition() const {
 		return ownerPosition;
 	}
 
+	/**
+	* Sets position of a node that invoked the event
+	*/
 	void SetOwnerPosition(Vec2i ownerPosition) {
 		this->ownerPosition = ownerPosition;
 	}
 
-	spt<NetOutputMessage> CreateMessage() {
-		auto outputMsg = spt<NetOutputMessage>(new NetOutputMessage(0));
-		outputMsg->SetAction(NET_MULTIPLAYER_COMMAND);
-		outputMsg->SetData(this);
-		return outputMsg;
-	}
+	/**
+	* Transforms this object to the general network output message
+	*/
+	spt<NetOutputMessage> CreateMessage();
 };
 

@@ -3,19 +3,39 @@
 #include "HydroqDef.h"
 #include "MsgPayloads.h"
 #include "GameMap.h"
-#include "GameEntity.h"
 #include "GameModel.h"
 #include "MultiAnim.h"
 #include "SpriteSheet.h"
+#include "ComponentStorage.h"
+#include "Stage.h"
+#include "Tween.h"
+#include "TransformEnt.h"
+#include "TransformMath.h"
+#include "MapLoader.h"
+#include "TransformAnim.h"
+#include "ResourceCache.h"
 
 void GameView::OnInit() {
-	SubscribeForMessages(ACT_MAP_OBJECT_CHANGED);
+	SubscribeForMessages(ACT_MAP_OBJECT_CHANGED, ACT_SCENE_SWITCHED);
 
 	gameModel = owner->GetBehavior<GameModel>();
+	playerModel = GETCOMPONENT(PlayerModel);
 }
 
 
 void GameView::OnMessage(Msg& msg) {
+	if (msg.HasAction(ACT_SCENE_SWITCHED)) {
+		bool mojo = false;
+	}
+	if (msg.HasAction(ACT_SCENE_SWITCHED) 
+		&& msg.GetContextNode()->GetScene()->GetSceneType() != SceneType::DIALOG
+		&& msg.GetContextNode()->GetId() != owner->GetSceneRoot()->GetId()) {
+		// scene switched back -> stop all sounds
+		auto sounds = CogGetPlayedSounds();
+		for (auto sound : sounds) {
+			sound->Stop();
+		}
+	}
 	if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {		
 		auto evt = msg.GetData<MapObjectChangedEvent>();
 
@@ -79,10 +99,10 @@ void GameView::OnMessage(Msg& msg) {
 			Vec2i pos = Vec2i(node->GetTransform().localPos.x, node->GetTransform().localPos.y);
 			auto fact = node->GetAttr<Faction>(ATTR_FACTION);
 
-			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact == gameModel->GetFaction()) this->CreateAnimationText("You captured empty rig!");
-			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact != gameModel->GetFaction()) this->CreateAnimationText("Enemy captured empty rig!");
-			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact == gameModel->GetFaction()) this->CreateAnimationText("You captured enemy rig!");
-			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact != gameModel->GetFaction()) this->CreateAnimationText("Enemy captured your riiiiiig !!!!");
+			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact == playerModel->GetFaction()) this->CreateAnimationText("You captured empty rig!");
+			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact != playerModel->GetFaction()) this->CreateAnimationText("Enemy captured empty rig!");
+			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact == playerModel->GetFaction()) this->CreateAnimationText("You captured enemy rig!");
+			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact != playerModel->GetFaction()) this->CreateAnimationText("Enemy captured your riiiiiig !!!!");
 
 			if (evt->changeType == ObjectChangeType::RIG_TAKEN) {
 				rigsToAnimate.push_back(evt->changedNode);
@@ -215,7 +235,7 @@ Sprite& GameView::GetSprite(int frame) {
 
 void GameView::Update(const uint64 delta, const uint64 absolute) {
 
-	if (gameModel->GameEnded()) {
+	if (playerModel->GameEnded()) {
 		if (gameEndedTime == 0) gameEndedTime = absolute;
 		else if ((absolute - gameEndedTime) > 3000) {
 			// after 3s, finish game
