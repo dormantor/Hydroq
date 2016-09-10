@@ -190,6 +190,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClCompile Include="src\Helper.cpp" />
     <ClCompile Include="src\HydroqGoals.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MultiplayerMenu.cpp" />
     <ClCompile Include="src\Seedbed.cpp" />
     <ClCompile Include="src\Worker.cpp" />
   </ItemGroup>

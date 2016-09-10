@@ -12,39 +12,65 @@ class HostInit : public Behavior {
 
 	
 	void Init() {
-		RegisterListening(owner->GetScene(), ACT_NET_MESSAGE_RECEIVED);
-
-		auto communicator = GETCOMPONENT(NetworkCommunicator);
-		communicator->Init(HYDROQ_APPID, HYDROQ_SERVERPORT, true);
-		communicator->SetMode(NetworkComMode::CHECKING);
+		RegisterListening(owner->GetScene(), ACT_NET_CLIENT_CONNECTED);
 	}
 
-	bool received = false;
+	// todo: REFACTOR EVERYTHING
+
+	bool firstRun = true;
 
 	void OnMessage(Msg& msg) {
-		if (!received && msg.GetAction() == ACT_NET_MESSAGE_RECEIVED) {
-			received = true;
+		if (msg.GetAction() == ACT_NET_CLIENT_CONNECTED) {
 			auto msgEvent = msg.GetDataS<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
 			string ipAddress = netMsg->GetSourceIp();
 			auto textNode = owner->GetScene()->FindNodeByTag("host_status");
 			textNode->GetShape<spt<Text>>()->SetText(string_format("Connected client %s", ipAddress.c_str()));
+
+			TransformEnt ent = TransformEnt();
+			TransformMath math = TransformMath();
+			ent.pos = ofVec2f(0.5f);
+			ent.pType = CalcType::PER;
+			ent.anchor = ofVec2f(0.5f);
+			math.SetTransform(textNode, textNode->GetParent(), ent);
+
+			msgReceivedTime = 0;
 		}
 	}
 
-	uint64 msgReceivedTime = 0;
+	uint64 msgReceivedTime = 1;
 
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
-		if (received && msgReceivedTime == 0) {
+
+		auto communicator = GETCOMPONENT(NetworkCommunicator);
+
+		if (firstRun || !communicator->IsServer()) {
+			firstRun = false;
+
+			auto textNode = owner->GetScene()->FindNodeByTag("host_status");
+			textNode->GetShape<spt<Text>>()->SetText("Listening...");
+			TransformEnt ent = TransformEnt();
+			TransformMath math = TransformMath();
+			ent.pos = ofVec2f(0.5f);
+			ent.pType = CalcType::PER;
+			ent.anchor = ofVec2f(0.5f);
+			math.SetTransform(textNode, textNode->GetParent(), ent);
+
+			communicator->Init(HYDROQ_APPID, HYDROQ_PORT, true);
+			communicator->SetMode(NetworkComMode::CHECKING);
+		}
+
+		if (msgReceivedTime == 0) {
 			msgReceivedTime = absolute;
 		}
 
 		// wait 1500ms and finish
-		if (received && (absolute - msgReceivedTime) > 1500) {
-			Finish();
-			auto stage = GETCOMPONENT(Stage);
-			stage->SwitchBackToScene(TweenDirection::UP);
+		if (msgReceivedTime != 0 && msgReceivedTime != 1 && (absolute - msgReceivedTime) > 1500) {
+			msgReceivedTime = 1;
+			//auto stage = GETCOMPONENT(Stage);
+			//auto scene = stage->FindSceneByName("game");
+			//stage->SwitchToScene(scene, TweenDirection::LEFT);
 		}
 	}
 };

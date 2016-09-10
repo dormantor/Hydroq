@@ -3,6 +3,7 @@
 #include "ofxCogMain.h"
 #include "NetworkCommunicator.h"
 #include "NetMessage.h"
+#include "HydroqDef.h"
 
 class MultiplayerMenu : public Behavior {
 	OBJECT_PROTOTYPE(MultiplayerMenu)
@@ -10,14 +11,12 @@ class MultiplayerMenu : public Behavior {
 
 
 		void Init() {
-		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED, ACT_OBJECT_SELECTED, ACT_NET_MESSAGE_RECEIVED);
+		RegisterListening(owner->GetScene(), ACT_OBJECT_HIT_ENDED, ACT_OBJECT_SELECTED, ACT_NET_SERVER_CONNECTED);
 
-		auto communicator = GETCOMPONENT(NetworkCommunicator);
-		communicator->Init(HYDROQ_APPID, HYDROQ_CLIENTPORT, false);
-		communicator->SetMode(NetworkComMode::CHECKING);
 	}
 
 	vector<string> foundIps;
+
 
 	void OnMessage(Msg& msg) {
 		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
@@ -32,21 +31,32 @@ class MultiplayerMenu : public Behavior {
 			// if user selects a map, enable host button
 			owner->GetScene()->FindNodeByTag("host_but")->ResetState(StringHash(STATES_DISABLED));
 		}
-		else if (msg.GetAction() == ACT_NET_MESSAGE_RECEIVED) {
+		else if (msg.GetAction() == ACT_NET_SERVER_CONNECTED) {
 			NetworkMsgEvent* msgEvent = msg.GetDataS<NetworkMsgEvent>();
 			auto netMsg = msgEvent->msg;
 			string ipAddress = netMsg->GetSourceIp();
 
 			if (find(foundIps.begin(), foundIps.end(), ipAddress) == foundIps.end()) {
 				// add new ip address
-
+				foundIps.push_back(ipAddress);
+				AddServer(ipAddress);
 			}
 		}
 	}
 
+	void AddServer(string ip);
+	bool firstRun = true;
+
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
-
+		
+		auto communicator = GETCOMPONENT(NetworkCommunicator);
+		if (firstRun || communicator->IsServer()) {
+			firstRun = false;
+			
+			communicator->Init(HYDROQ_APPID, HYDROQ_PORT, false);
+			communicator->SetMode(NetworkComMode::CHECKING);
+		}
 	}
 };
 

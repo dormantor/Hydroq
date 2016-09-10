@@ -17,6 +17,7 @@
         <item key="channel" value="console" />
 		<item key="module_include">
 		  <value>Hydroq</value>
+		  <value>NETWORK</value>
 		</item>
       </setting>
 	  
@@ -221,7 +222,10 @@
             <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Games:</text>
             <transform pos="0.1r" size="1"   />
           </node>
-
+		  
+		  <node name="hosts_list">
+		  	  <transform size="1r" />
+		  </node>
 		</node>
 		
 		<!-- ========================================== GAME MAPS ======================================== -->
