@@ -32,6 +32,9 @@
     <ClCompile Include="src\RigBehavior.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameTask.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Worker.h">

@@ -205,6 +205,65 @@ void HydroqGameModel::DestroyPlatform(Vec2i position, Faction faction, int ident
 	}
 }
 
+
+void HydroqGameModel::AddAttractor(Vec2i position, float cardinality) {
+	CogLogInfo("Hydroq", "Adding attractor at [%d, %d]", position.x, position.y);
+	
+	auto gameNode = CreateNode(EntityType::ATTRACTOR, position, faction, 0);
+	gameNode->AddAttr(ATTR_CARDINALITY, cardinality);
+	attractors[position] = gameNode;
+
+	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+		new MapObjectChangedEvent(ObjectChangeType::ATTRACTOR_CREATED, nullptr, gameNode));
+	auto newTask = spt<GameTask>(new GameTask(GameTaskType::ATTRACT));
+	newTask->taskNode = gameNode;
+	gameTasks.push_back(newTask);
+}
+
+void HydroqGameModel::DestroyAttractor(Vec2i position) {
+	if (attractors.find(position) != attractors.end()) {
+		auto gameNode = attractors[position];
+		
+		CogLogInfo("Hydroq", "Removing attractor at [%d, %d]", position.x, position.y);
+		attractors.erase(position);
+
+		SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+			new MapObjectChangedEvent(ObjectChangeType::ATTRACTOR_REMOVED, nullptr, gameNode));
+
+		for (auto task : gameTasks) {
+			if (task->taskNode->GetId() == gameNode->GetId()) {
+				COGLOGDEBUG("Hydroq", "Aborting attractor task because of deleted attractor");
+				SendMessageToModel(StringHash(ACT_TASK_ABORTED), 0, new TaskAbortEvent(task));
+				task->isEnded = true; // for sure
+				RemoveGameTask(task);
+				break;
+			}
+		}
+	}
+}
+
+void HydroqGameModel::ChangeAttractorCardinality(Vec2i position, float cardinality) {
+	if (attractors.find(position) != attractors.end()) {
+		auto gameNode = attractors[position];
+		gameNode->ChangeAttr(ATTR_CARDINALITY, cardinality);
+	}
+}
+
+float HydroqGameModel::CalcAttractorAbsCardinality(int attractorId) {
+	
+	float attrCardinality = 0;
+	float cardinalitySum = 0;
+	
+	for (auto& key : attractors) {
+		float card = key.second->GetAttr<float>(ATTR_CARDINALITY);
+		if (key.second->GetId() == attractorId) {
+			attrCardinality = card;
+		}
+		cardinalitySum += card;
+	}
+	return attrCardinality / cardinalitySum;
+}
+
 vector<spt<GameTask>> HydroqGameModel::GetGameTaskCopy() {
 	vector<spt<GameTask>> output = vector<spt<GameTask>>();
 	for (auto task : gameTasks) output.push_back(task);
@@ -404,6 +463,7 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 			auto nodeBeh = new StateMachine();
 			((StateMachine*)nodeBeh)->ChangeState(new WorkerIdleState());
 			((StateMachine*)nodeBeh)->AddLocalState(new WorkerBridgeBuildState());
+			((StateMachine*)nodeBeh)->AddLocalState(new WorkerAttractorFollowState());
 
 			nd->AddBehavior(nodeBeh);
 			// add moving behavior

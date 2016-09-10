@@ -28,7 +28,7 @@ bool WorkerIdleState::FindTaskToDo() {
 
 	// get the nearest task
 	for (auto& task : allTasks) {
-		if (task->isReserved && task->reserverNode->GetId() == owner->GetId()) {
+		if (task->isReserved && task->IsNodeReserved(owner->GetId())) {
 			// position of the place the bridge will stay
 			auto position = task->taskNode->GetTransform().localPos;
 			// node at position the bridge will stay
@@ -63,6 +63,27 @@ bool WorkerIdleState::FindTaskToDo() {
 					buildState->SetGameTask(task);
 					buildState->SetNodeToBuildFrom(nodeToWorkFrom);
 					this->GetParent()->ChangeState(StringHash(STATE_WORKER_BUILD));
+
+					return true;
+				}
+			}
+			else if (task->type == GameTaskType::ATTRACT) {
+				float cardinality = model->CalcAttractorAbsCardinality(task->taskNode->GetId());
+				int neededDistance = cardinality * 4;
+				vector<HydMapNode*> nearestNodes = vector<HydMapNode*>();
+				mapNode->FindWalkableNeighbor(neededDistance, nearestNodes);
+
+				if (!nearestNodes.empty()) {
+					auto randomNodeToFollow = nearestNodes[ofRandom(0, 1)*nearestNodes.size()];
+
+					COGLOGDEBUG("Hydroq", "Got task for attractor following at position [%d,%d]", randomNodeToFollow->pos.x, randomNodeToFollow->pos.y);
+
+					// change state from IDLE to BRIDGE_BUILD
+					auto stateToChange = GetParent()->FindLocalState(StringHash(STATE_WORKER_ATTRACTOR_FOLLOW));
+					auto buildState = static_cast<WorkerAttractorFollowState*>(stateToChange);
+					buildState->SetGameTask(task);
+					buildState->SetNodeToFollow(randomNodeToFollow);
+					this->GetParent()->ChangeState(StringHash(STATE_WORKER_ATTRACTOR_FOLLOW));
 
 					return true;
 				}
@@ -210,3 +231,62 @@ void WorkerBridgeBuildState::Update(const uint64 delta, const uint64 absolute) {
 		model->RemoveGameTask(task);
 	}
 }
+
+
+
+// ========================== WORKER ATTRACTOR FOLLOW STATE ==============================
+
+void WorkerAttractorFollowState::OnMessage(Msg& msg) {
+	if (msg.GetAction() == StringHash(ACT_TASK_ABORTED)) {
+		TaskAbortEvent* msgTask = msg.GetDataS<TaskAbortEvent>();
+		if (msgTask->taskToAbort == task) {
+			if (followGoal != nullptr) {
+				COGLOGDEBUG("Hydroq", "WorkerAttractorFollowState: aborting process");
+				followGoal->Abort();
+			}
+		}
+	}
+}
+
+void WorkerAttractorFollowState::OnStart() {
+
+	owner->SetState(StringHash(STATE_WORKER_ATTRACTOR_FOLLOW));
+
+	//task->handlerNode = owner;
+	//task->isProcessing = true;
+
+	auto model = GETCOMPONENT(HydroqGameModel);
+
+	// worker position
+	auto workerPos = owner->GetTransform().localPos;
+	// position where the bridge will stay
+	auto position = this->nodeToFollow->pos;
+	auto precisePosition = ofVec2f(position.x + ofRandom(0,1), position.y+ofRandom(0,1));
+
+	COGLOGDEBUG("Hydroq", "Going from [%.2f, %.2f] to [%.2f, %.2f]", workerPos.x, workerPos.y, precisePosition.x, precisePosition.y);
+
+	this->followGoal = new GotoPositionGoal(task, Vec2i(workerPos.x, workerPos.y), precisePosition, workerPos, precisePosition);
+	owner->AddBehavior(followGoal);
+}
+
+void WorkerAttractorFollowState::OnFinish() {
+	owner->ResetState(StringHash(STATE_WORKER_IDLE));
+}
+
+
+void WorkerAttractorFollowState::Update(const uint64 delta, const uint64 absolute) {
+	if (followGoal != nullptr && (followGoal->GoalEnded())) {
+
+		// change back to idle state
+		auto stateToChange = GetParent()->FindLocalState(StringHash(STATE_WORKER_IDLE));
+		GetParent()->ChangeState(stateToChange);
+
+		// this will be interesting
+		task->RemoveReserverNode(owner->GetId());
+
+		//auto model = GETCOMPONENT(HydroqGameModel);
+		//model->RemoveGameTask(task);
+	}
+}
+
+

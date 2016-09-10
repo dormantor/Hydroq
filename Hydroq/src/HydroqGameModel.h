@@ -31,6 +31,8 @@ private:
 	vector<Node*> movingObjects;
 	// subset of dynamic objects -> rigs
 	map<Vec2i, Node*> rigs;
+	// attractors
+	map<Vec2i, Node*> attractors;
 
 	// scene and its root node that run separately from the view
 	// part of the game
@@ -83,6 +85,9 @@ public:
 		return multiplayer;
 	}
 
+	map<Vec2i, Node*>& GetAttractors() {
+		return attractors;
+	}
 
 	/**
 	* Returns true, if a building can be built on selected position
@@ -170,6 +175,14 @@ public:
 	* Destroys a platform on selected position
 	*/
 	void DestroyPlatform(Vec2i position, Faction faction, int identifier);
+
+	void AddAttractor(Vec2i position, float cardinality);
+
+	void DestroyAttractor(Vec2i position);
+
+	void ChangeAttractorCardinality(Vec2i position, float cardinality);
+
+	float CalcAttractorAbsCardinality(int attractorId);
 
 	/**
 	* Gets collection of dynamic objects

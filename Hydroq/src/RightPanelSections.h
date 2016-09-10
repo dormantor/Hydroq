@@ -17,7 +17,7 @@ class RightPanelSections : public Behavior {
 	int selectedNodeId = -1;
 
 	void OnInit() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED);
+		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_FUNC_SELECTED);
 		playerModel = GETCOMPONENT(HydroqPlayerModel);
 		nodeCommandBuildId = owner->GetScene()->FindNodeByTag("command_build")->GetId();
 		nodeCommandDestroyId = owner->GetScene()->FindNodeByTag("command_destroy")->GetId();
@@ -26,34 +26,50 @@ class RightPanelSections : public Behavior {
 	}
 
 
-	void OnMessage(Msg& msg) {
-		if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
-			int targetId = msg.GetSourceObject()->GetId();
+	bool locked = false;
 
-			if (targetId == selectedNodeId) {
-				// user clicked twice -> unselect the node
-				UnselectNode(targetId);
-				playerModel->SetHydroqAction(HydroqAction::NONE);
-				selectedNodeId = -1;
-			}
-			else {
-				if (targetId == nodeCommandBuildId) {
-					SelectCommandBuild();
-					SelectNode(nodeCommandBuildId);
-				}
-				else if (targetId == nodeCommandDestroyId) {
-					SelectCommandDestroy();
-					SelectNode(nodeCommandDestroyId);
-				}
-				else if (targetId == nodeCommandForbidId) {
-					SelectCommandForbid();
-					SelectNode(nodeCommandForbidId);
-				}
-				else if (targetId == nodeCommandAttractId) {
-					SelectCommandAttract();
-					SelectNode(nodeCommandAttractId);
+	void OnMessage(Msg& msg) {
+		if (!locked) {
+			locked = true;
+			
+			// if someone else has unselected the node
+			if (msg.HasAction(ACT_FUNC_SELECTED) && selectedNodeId != -1) {
+				if (playerModel->GetHydroqAction() == HydroqAction::NONE) {
+					UnselectNode(selectedNodeId);
+					selectedNodeId = -1;
 				}
 			}
+
+			if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
+				int targetId = msg.GetSourceObject()->GetId();
+
+				if (targetId == selectedNodeId) {
+					// user clicked twice -> unselect the node
+					UnselectNode(targetId);
+					playerModel->SetHydroqAction(HydroqAction::NONE);
+					selectedNodeId = -1;
+				}
+				else {
+					if (targetId == nodeCommandBuildId) {
+						SelectCommandBuild();
+						SelectNode(nodeCommandBuildId);
+					}
+					else if (targetId == nodeCommandDestroyId) {
+						SelectCommandDestroy();
+						SelectNode(nodeCommandDestroyId);
+					}
+					else if (targetId == nodeCommandForbidId) {
+						SelectCommandForbid();
+						SelectNode(nodeCommandForbidId);
+					}
+					else if (targetId == nodeCommandAttractId) {
+						SelectCommandAttract();
+						SelectNode(nodeCommandAttractId);
+					}
+				}
+			}
+
+			locked = false;
 		}
 	}
 

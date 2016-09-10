@@ -30,6 +30,22 @@ public:
 		gameModel = GETCOMPONENT(HydroqGameModel);
 	}
 
+	Vec2i GetBrickPosition(ofVec2f objectAbsPos) {
+		auto shape = owner->GetShape();
+		// get pressed brick
+		float shapeWidth = shape->GetWidth()*owner->GetTransform().absScale.x;
+		float shapeHeight = shape->GetHeight()*owner->GetTransform().absScale.y;
+		float absPosX = owner->GetTransform().absPos.x;
+		float absPosY = owner->GetTransform().absPos.y;
+
+		float distX = (objectAbsPos.x - absPosX);
+		float distY = (objectAbsPos.y - absPosY);
+		int brickX = (int)((distX / shapeWidth)*gameModel->GetMap()->GetWidth());
+		int brickY = (int)((distY / shapeHeight)*gameModel->GetMap()->GetHeight());
+		
+		return Vec2i(brickX, brickY);
+	}
+
 
 	void OnMessage(Msg& msg) {
 		if (msg.HasAction(StringHash(ACT_FUNC_SELECTED))) {
@@ -52,29 +68,22 @@ public:
 					if (msg.HasAction(ACT_OBJECT_HIT_STARTED)) {
 						InputEvent* touch = msg.GetDataS<InputEvent>();
 						ofVec2f endPos = touch->input->position;
-						auto shape = owner->GetShape();
-						touch->input->SetIsProcessed(true);
+						Vec2i brickPos = GetBrickPosition(endPos);
 
-						if (TryRemoveAttractor(endPos)) return;
+						auto clickedNode = gameModel->GetMap()->GetNode(brickPos.x,brickPos.y);
 
-						// get pressed brick
-						float shapeWidth = shape->GetWidth()*owner->GetTransform().absScale.x;
-						float shapeHeight = shape->GetHeight()*owner->GetTransform().absScale.y;
-						float absPosX = owner->GetTransform().absPos.x;
-						float absPosY = owner->GetTransform().absPos.y;
-
-						float distX = (endPos.x - absPosX);
-						float distY = (endPos.y - absPosY);
-
-						// get brick indices
-						int brickX = (int)((distX / shapeWidth)*gameModel->GetMap()->GetWidth());
-						int brickY = (int)((distY / shapeHeight)*gameModel->GetMap()->GetHeight());
-
-						auto clickedNode = gameModel->GetMap()->GetNode(brickX, brickY);
-
-						if (attrPlaced < 3) {
-							InsertAttractor(endPos);
+						if (attrPlaced >= 3) {
+							// remove first attractor
+							auto firstAttr = attractors[0];
+							attractors.erase(attractors.begin());
+							Vec2i brickPosition = firstAttr->GetAttr<Vec2i>(ATTR_BRICK_POS);
+							auto gameModel = GETCOMPONENT(HydroqGameModel);
+							gameModel->DestroyAttractor(brickPosition);
+							owner->RemoveChild(firstAttr, true);
+							attrPlaced--;
 						}
+
+						InsertAttractor(endPos, brickPos);
 					}
 					else if (msg.HasAction(ACT_OBJECT_HIT_OVER)) {
 						if (attractorPlaced) {
@@ -91,6 +100,11 @@ public:
 							auto newScale = trans.scale*radiusRatio;
 
 							if (newScale.x >= 1.0f && newScale.x <= 3.0f) {
+								
+								Vec2i brickPosition = placedAttractor->GetAttr<Vec2i>(ATTR_BRICK_POS);
+								auto gameModel = GETCOMPONENT(HydroqGameModel);
+								gameModel->ChangeAttractorCardinality(brickPosition,newScale.x / 3.0f);
+
 								trans.scale = newScale;
 
 								RefreshAttractorPosition(absPos, trans.scale);
@@ -101,8 +115,33 @@ public:
 						}
 					}
 					else if (msg.HasAction(ACT_OBJECT_HIT_LOST) || msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
+						if (placedAttractor != nullptr) {
+							auto playerModel = GETCOMPONENT(HydroqPlayerModel);
+							playerModel->SetHydroqAction(HydroqAction::NONE);
+						}
 						placedAttractor = nullptr;
 						attractorPlaced = false;
+					}
+				}
+			}
+			else {
+				if (msg.HasAction(ACT_OBJECT_HIT_ENDED)) {
+					if (msg.GetSourceObject()->GetId() == owner->GetId()) {
+						InputEvent* touch = msg.GetDataS<InputEvent>();
+						ofVec2f endPos = touch->input->position;
+
+						// remove on double-click
+						Node* clicked = GetClickedAttractor(endPos);
+
+						if (clickedAttractor != nullptr && clicked != nullptr && clicked->GetId() == clickedAttractor->GetId() && 
+							clickedAttrPos.distance(endPos) <= SCREEN_TOLERANCE) {
+							touch->input->SetIsProcessed(true);
+							RemoveAttractor(endPos);
+						}
+						else {
+							clickedAttractor = clicked;
+							clickedAttrPos = endPos;
+						}
 					}
 				}
 			}
@@ -115,7 +154,10 @@ public:
 		math.SetTransform(placedAttractor, owner, ent, 0, 0);
 	}
 
-	bool TryRemoveAttractor(ofVec2f position) {
+	ofVec2f clickedAttrPos = ofVec2f();
+	Node* clickedAttractor = nullptr;
+
+	Node* GetClickedAttractor(ofVec2f position) {
 		for (auto it = attractors.begin(); it != attractors.end(); ++it) {
 			auto node = (*it);
 			auto shape = node->GetShape<spt<Image>>();
@@ -127,7 +169,30 @@ public:
 			float height = y + absLength;
 
 			if (position.x >= x && position.x <= width &&position.y >= y &&position.y <= height) {
+				return node;
+			}
+		}
+		return nullptr;
+	}
+
+	bool RemoveAttractor(ofVec2f position) {
+		for (auto it = attractors.begin(); it != attractors.end(); ++it) {
+			auto node = (*it);
+			auto shape = node->GetShape<spt<Image>>();
+			float x = node->GetTransform().absPos.x;
+			float y = node->GetTransform().absPos.y;
+
+			auto absLength = owner->GetTransform().absScale.x*node->GetTransform().scale.x*shape->GetWidth();
+			float width = x + absLength;
+			float height = y + absLength;
+
+			if (position.x >= x && position.x <= width &&position.y >= y &&position.y <= height) {
+				
+				Vec2i brickPosition = node->GetAttr<Vec2i>(ATTR_BRICK_POS);
 				attractors.erase(it);
+
+				auto gameModel = GETCOMPONENT(HydroqGameModel);
+				gameModel->DestroyAttractor(brickPosition);
 				owner->RemoveChild(node, true);
 				attrPlaced--;
 				return true;
@@ -138,7 +203,7 @@ public:
 		return false;
 	}
 
-	void InsertAttractor(ofVec2f position) {
+	void InsertAttractor(ofVec2f position, Vec2i brickPos) {
 		
 		placedAttractor = new Node("attractor");
 		if (selectedAction == HydroqAction::ATTRACT) {
@@ -146,6 +211,11 @@ public:
 		}
 
 		attrPlaced++;
+
+		placedAttractor->AddAttr(ATTR_BRICK_POS, brickPos);
+		auto gameModel = GETCOMPONENT(HydroqGameModel);
+		gameModel->AddAttractor(brickPos, 1);
+
 		attractors.push_back(placedAttractor);
 		RefreshAttractorPosition(position, ofVec2f(1));
 		owner->AddChild(placedAttractor);

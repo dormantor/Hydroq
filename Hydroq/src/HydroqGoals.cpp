@@ -47,7 +47,7 @@ void GotoPositionGoal::OnGoalAbort() {
 
 	task->isProcessing = false;
 	task->isReserved = false;
-	task->reserverNode = nullptr;
+	task->RemoveReserverNode(owner->GetId());
 }
 
 void GotoPositionGoal::Update(const uint64 delta, const uint64 absolute) {

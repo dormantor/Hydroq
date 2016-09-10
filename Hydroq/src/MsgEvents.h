@@ -11,7 +11,9 @@ enum class ObjectChangeType {
 	DYNAMIC_CREATED = 1,
 	DYNAMIC_REMOVED = 2,
 	MOVING_CREATED = 3,
-	MOVING_REMOVED = 4
+	MOVING_REMOVED = 4,
+	ATTRACTOR_CREATED = 5,
+	ATTRACTOR_REMOVED = 6
 };
 
 class MapObjectChangedEvent : public MsgEvent {

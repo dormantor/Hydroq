@@ -4,7 +4,6 @@
 #include "HydroqDef.h"
 #include "Events.h"
 
-
 enum class HydroqAction {
 	NONE, BUILD, DESTROY, FORBID, ATTRACT
 };

@@ -76,6 +76,22 @@ public:
 		return nullptr;
 	}
 
+	void FindWalkableNeighbor(int distance, vector<HydMapNode*>& output) {
+
+		if (this->IsWalkable()) output.push_back(this);
+
+		if (distance != 0) {
+			if (top != nullptr) top->FindWalkableNeighbor(distance - 1, output);
+			if (topRight != nullptr) topRight->FindWalkableNeighbor(distance - 1, output);
+			if (right != nullptr) right->FindWalkableNeighbor(distance - 1, output);
+			if (bottomRight != nullptr) bottomRight->FindWalkableNeighbor(distance - 1, output);
+			if (bottom != nullptr) bottom->FindWalkableNeighbor(distance - 1, output);
+			if (left != nullptr) left->FindWalkableNeighbor(distance - 1, output);
+			if (topLeft != nullptr) topLeft->FindWalkableNeighbor(distance - 1, output);
+			if (bottomLeft != nullptr) bottomLeft->FindWalkableNeighbor(distance - 1, output);
+		}
+	}
+
 	HydMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {	
 		if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
 			if (top != nullptr && top->mapNodeType == type) return top;

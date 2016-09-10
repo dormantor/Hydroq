@@ -422,7 +422,7 @@
 		 
 		
 		<node name="menuicon" img="game/gm_menuicon.png" img_click="game/gm_menuicon_clicked.png" >
-          <transform pos_x="100.3gr" pos_y="4gr" anchor_x="1"  z_index="10" />
+          <transform pos_x="101.5gr" pos_y="2.3gr" anchor_x="1"  z_index="10" />
 		  <behavior type="MenuIconBehavior" />
         </node>
  

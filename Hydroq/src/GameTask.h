@@ -6,7 +6,7 @@
 using namespace Cog;
 
 enum class GameTaskType {
-	BRIDGE_BUILD, BRIDGE_DESTROY
+	BRIDGE_BUILD, BRIDGE_DESTROY, ATTRACT
 };
 
 class GameTask {
@@ -25,9 +25,12 @@ public:
 	// indicator, if the task is reserved
 	bool isReserved = false;
 	// node that reserved the task
-	Node* reserverNode = nullptr;
+	vector<Node*> reserverNodes;
 	uint64 reserverTime = 0;
 
+	bool IsNodeReserved(int nodeId);
+
+	void RemoveReserverNode(int nodeId);
 	GameTask(GameTaskType taskType) :type(taskType) {
 
 	}

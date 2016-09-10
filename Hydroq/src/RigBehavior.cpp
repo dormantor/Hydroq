@@ -8,13 +8,15 @@ void RigBehavior::OnStart() {
 
 	// set spawn frequency
 	if (!owner->HasAttr(frequencySh)) {
-		owner->AddAttr(frequencySh, 0.1f);
+		owner->AddAttr(frequencySh, 0.3f);
 	}
 
 	if (!owner->HasAttr(lastSpawnSh)) {
 		owner->AddAttr(lastSpawnSh, (uint64)0);
 	}
 }
+
+int totalWorkers = 0;
 
 void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 	// spawns per second
@@ -56,7 +58,10 @@ void RigBehavior::Update(const uint64 delta, const uint64 absolute) {
 				posY = thisPos.y + (8 - circuitPosition);
 			}
 
+
 			gameModel->SpawnWorker(ofVec2f(posX, posY));
+
+			if (totalWorkers++ > 20) Finish();
 		}
 	}
 }

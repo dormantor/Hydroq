@@ -17,6 +17,7 @@ void HydroqGameView::OnMessage(Msg& msg) {
 		MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
 
 		if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {
+			
 			// new dynamic or moving object
 			auto trans = evt->changedNode->GetTransform();
 			// create new sprite
@@ -145,6 +146,7 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 
 	StringHash stateIdle = StringHash(STATE_WORKER_IDLE);
 	StringHash stateBuild = StringHash(STATE_WORKER_BUILD);
+	StringHash stateAttract = StringHash(STATE_WORKER_ATTRACTOR_FOLLOW);
 
 	// update transformation of all objects
 	for (auto& dynObj : movingObjects) {
@@ -159,7 +161,7 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 			// set image according to state
 			sprite->sprite = spriteTypes[dynObj->GetTag()][0]; 
 		}
-		else if (dynObj->HasState(stateBuild)) {
+		else if (dynObj->HasState(stateBuild) || dynObj->HasState(stateAttract)) {
 			// set animation
 			int startFrame = spriteTypes[dynObj->GetTag()][0]->GetFrame()+1;
 			int actualFrame = sprite->sprite->GetFrame();

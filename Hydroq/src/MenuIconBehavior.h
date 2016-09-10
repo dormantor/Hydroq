@@ -36,12 +36,12 @@ class MenuIconBehavior : public Behavior {
 					Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
 					TransformAnim* anim = new TransformAnim(animTrans, originTrans, 250, 0, false, AnimBlend::OVERLAY);
 					menu->AddBehavior(anim);
-
+					/*
 					// if user selected GATHER action, unselect it 
 					auto playerModel = GETCOMPONENT(HydroqPlayerModel);
 					if (playerModel->GetHydroqAction() == HydroqAction::ATTRACT) {
 						playerModel->SetHydroqAction(HydroqAction::NONE);
-					}
+					}*/
 				}
 				else {
 					owner->SetState(StringHash(STATES_ENABLED));
