@@ -31,7 +31,7 @@ public:
 					ProcessMultiplayerInit(netMsg);
 				}
 			}
-			else if (type == NetMsgType::UPDATE || type == NetMsgType::CALLBACK_UPDATE) {
+			else if (type == NetMsgType::UPDATE) {
 				if (action == NET_MSG_DELTA_UPDATE) {
 					ProcessDeltaUpdate(netMsg);
 				}
@@ -43,6 +43,7 @@ public:
 	}
 
 	void ProcessDeltaUpdate(spt<NetInputMessage> netMsg) {
+		COGLOGDEBUG("DeltaMessage", "Accepting delta message");
 		spt<DeltaMessage> deltaMsg = netMsg->GetData<DeltaMessage>();
 		spt<DeltaInfo> deltaInfo = spt<DeltaInfo>(new DeltaInfo());
 		deltaInfo->deltas = deltaMsg->deltas;

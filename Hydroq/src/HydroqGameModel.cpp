@@ -11,6 +11,7 @@
 #include "GameTask.h"
 #include "Move.h"
 #include "Scene.h"
+#include "DeltaUpdate.h"
 
 void HydroqGameModel::Init() {
 	hydroqMap = new HydMap();
@@ -147,13 +148,12 @@ void HydroqGameModel::SpawnWorker(ofVec2f position) {
 }
 
 void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier) {
-	COGLOGDEBUG("Hydroq", "Creating worker for %s faction with identifier %d at [%.2f, %.2f]", 
-		faction == Faction::BLUE ? "blue" : "red", identifier, position.x, position.y);
-	CreateMovingObject(position, EntityType::WORKER, faction, identifier);
+	CogLogInfo("Hydroq", "Creating worker for %s faction at [%.2f, %.2f]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
+	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
 
-	if (multiplayer) {
+	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
-			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, identifier, 0));
+			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, node->GetId(), 0));
 	}
 }
 
@@ -162,18 +162,17 @@ void HydroqGameModel::CreateSeedBed(Vec2i position) {
 }
 
 void HydroqGameModel::CreateSeedBed(Vec2i position, Faction faction, int identifier) {
-	COGLOGDEBUG("Hydroq", "Creating seedbed for %s faction with identifier %d at [%.2f, %.2f]",
-		faction == Faction::BLUE ? "blue" : "red", identifier, position.x, position.y);
-	CreateDynamicObject(position, EntityType::SEEDBED, faction, identifier);
+	CogLogInfo("Hydroq", "Creating seedbed for %s faction at [%d, %d]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
+	auto node = CreateDynamicObject(position, EntityType::SEEDBED, faction, identifier);
 
-	if (multiplayer) {
+	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
-			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::SEEDBED, faction, position, identifier, 0));
+			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::SEEDBED, faction, position, node->GetId(), 0));
 	}
 }
 
 void HydroqGameModel::BuildPlatform(Vec2i position) {
-	COGLOGDEBUG("Hydroq", "Creating platform at [%d, %d]", position.x, position.y);
+	CogLogInfo("Hydroq", "Creating platform at [%d, %d]", position.x, position.y);
 	// destroy bridge mark
 	DestroyDynamicObject(position);
 	// change node to ground
@@ -204,6 +203,32 @@ bool HydroqGameModel::RemoveGameTask(spt<GameTask> task) {
 }
 
 void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
+
+	if (multiplayer) {
+		// update deltas
+		auto deltaUpdate = GETCOMPONENT(DeltaUpdate);
+		auto actual = deltaUpdate->actual;
+
+		if (actual) {
+			for (auto& node : this->movingObjects) {
+				if (node->GetSubType() != 0) {
+					int subType = node->GetSubType();
+
+					if (actual->deltas.find(subType*3) != actual->deltas.end()) {
+
+						float rotation = actual->deltas[subType * 3 + 0];
+						float posX = actual->deltas[subType * 3 + 1];
+						float posY = actual->deltas[subType * 3 + 2];
+
+						node->GetTransform().localPos.x = posX;
+						node->GetTransform().localPos.y = posY;
+						node->GetTransform().rotation = rotation;
+					}
+				}
+			}
+		}
+	}
+
 	rootNode->SubmitChanges(true);
 	rootNode->Update(delta, absolute);
 }
@@ -247,10 +272,11 @@ void HydroqGameModel::DestroyDynamicObject(Vec2i position) {
 	}
 }
 
-void HydroqGameModel::CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier) {
+Node* HydroqGameModel::CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier) {
 	auto gameNode = CreateNode(EntityType::WORKER, position, faction, identifier);
 	movingObjects.push_back(gameNode);
 	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0, new MapObjectChangedEvent(ObjectChangeType::MOVING_CREATED, nullptr, gameNode));
+	return gameNode;
 }
 
 void HydroqGameModel::SendMessageOutside(StringHash action, int subaction, MsgEvent* data) {
@@ -289,8 +315,10 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 			nd->SetTag("seedbed_red");
 		}
 
-		auto nodeBeh = new Seedbed();
-		nd->AddBehavior(nodeBeh);
+		if (identifier == 0) {
+			auto nodeBeh = new Seedbed();
+			nd->AddBehavior(nodeBeh);
+		}
 	}
 	else if (entityType == EntityType::WORKER) {
 		if (faction == Faction::BLUE) {
@@ -301,14 +329,17 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 		}
 
 		nd->GetTransform().localPos.z = 20;
-		auto nodeBeh = new StateMachine();
 
-		((StateMachine*)nodeBeh)->ChangeState(new WorkerIdleState());
-		((StateMachine*)nodeBeh)->AddLocalState(new WorkerBridgeBuildState());
+		if (identifier == 0) {
+			auto nodeBeh = new StateMachine();
 
-		nd->AddBehavior(nodeBeh);
-		// add moving behavior
-		nd->AddBehavior(new Move());
+			((StateMachine*)nodeBeh)->ChangeState(new WorkerIdleState());
+			((StateMachine*)nodeBeh)->AddLocalState(new WorkerBridgeBuildState());
+
+			nd->AddBehavior(nodeBeh);
+			// add moving behavior
+			nd->AddBehavior(new Move());
+		}
 	}
 
 	nd->AddAttr(ATTR_GAME_ENTITY_TYPE, entityType);

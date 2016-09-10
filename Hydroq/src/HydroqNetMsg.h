@@ -93,7 +93,10 @@ public:
 	void LoadFromStream(NetReader* reader) {
 		this->eventType = (SyncEventType)reader->ReadByte();
 		this->entityType = (EntityType)reader->ReadByte();
-		this->position = ofVec2f(reader->ReadDWord(), reader->ReadDWord());
+		
+		float x = reader->ReadFloat();
+		float y = reader->ReadFloat();
+		this->position = ofVec2f(x, y);
 		this->faction = (Faction)reader->ReadByte();
 		this->identifier = reader->ReadDWord();
 	}
@@ -101,14 +104,14 @@ public:
 	void SaveToStream(NetWriter* writer) {
 		writer->WriteByte((tBYTE)eventType);
 		writer->WriteByte((tBYTE)entityType);
-		writer->WriteDWord(position.x);
-		writer->WriteDWord(position.y);
+		writer->WriteFloat(position.x);
+		writer->WriteFloat(position.y);
 		writer->WriteByte((tBYTE)faction);
 		writer->WriteDWord(identifier);
 	}
 
 	int GetDataLength() {
-		return sizeof(tBYTE) * 3 + sizeof(tDWORD) * 3;
+		return sizeof(tBYTE) * 3 + sizeof(tDWORD) * 1 + sizeof(float)*2;
 	}
 
 	SyncEventType GetEventType() {

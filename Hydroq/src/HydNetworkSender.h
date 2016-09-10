@@ -36,12 +36,7 @@ public:
 			msg->SetPosition(syncEvent->positionf);
 			auto netMsg = msg->CreateMessage();
 
-			if (networkState == HydroqNetworkState::CLIENT) {
-				communicator->GetClient()->PushMessageForSending(netMsg);
-			}
-			else {
-				communicator->GetServer()->PushMessageForSending(netMsg);
-			}
+			communicator->PushMessageForSending(netMsg);
 		}
 	}
 
@@ -56,38 +51,38 @@ public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 
 		if (networkState == HydroqNetworkState::CLIENT || networkState == HydroqNetworkState::SERVER) {
-			/*auto communicator = GETCOMPONENT(NetworkCommunicator);
+			if (CogGetFrameCounter() % 20 == 0) {
+				auto communicator = GETCOMPONENT(NetworkCommunicator);
 
-			// send delta message regularly
-			spt<DeltaInfo> deltaInf = spt<DeltaInfo>(new DeltaInfo());
+				// send delta message regularly
+				spt<DeltaInfo> deltaInf = spt<DeltaInfo>(new DeltaInfo());
 
-			auto model = GETCOMPONENT(HydroqGameModel);
-			auto& dynObjects = model->GetMovingObjects();
+				auto model = GETCOMPONENT(HydroqGameModel);
+				auto& dynObjects = model->GetMovingObjects();
 
-			// update transformation of all objects
-			for (auto& dynObj : dynObjects) {
-				if (dynObj->GetSubType() == 0) {
+				// update transformation of all objects
+				for (auto& dynObj : dynObjects) {
+					if (dynObj->GetSubType() == 0) {
 
-					int id = dynObj->GetId();
-					auto transform = dynObj->GetTransform();
+						int id = dynObj->GetId();
+						auto transform = dynObj->GetTransform();
 
-					deltaInf->deltas[StringHash(id * 3 + 0)] = transform.rotation;
-					deltaInf->deltas[StringHash(id * 3 + 1)] = transform.localPos.x;
-					deltaInf->deltas[StringHash(id * 3 + 2)] = transform.localPos.y;
+						deltaInf->deltas[id*3+0] = transform.rotation;
+						deltaInf->deltas[id*3+1] = transform.localPos.x;
+						deltaInf->deltas[id*3+2] = transform.localPos.y;
+					}
+				}
+
+				auto msg = new DeltaMessage(deltaInf);
+				spt<NetOutputMessage> netMsg = spt<NetOutputMessage>(new NetOutputMessage(1));
+				netMsg->SetData(msg);
+				netMsg->SetAction(StringHash(NET_MSG_DELTA_UPDATE));
+
+				if (communicator->GetNetworkState() == NetworkComState::COMMUNICATING) {
+					COGLOGDEBUG("DeltaMessage", "Sending delta message");
+					communicator->PushMessageForSending(netMsg);
 				}
 			}
-
-			auto msg = spt<DeltaMessage>(new DeltaMessage(deltaInf));
-			spt<NetOutputMessage> netMsg = spt<NetOutputMessage>(new NetOutputMessage(1));
-			netMsg->SetData(msg);
-			netMsg->SetAction(StringHash(NET_MSG_DELTA_UPDATE));
-
-			if (networkState == HydroqNetworkState::CLIENT) {
-				communicator->GetClient()->SetMessageForSending(netMsg);
-			}
-			else {
-				communicator->GetServer()->SetMessageForSending(netMsg);
-			}*/
 		}
 	}
 

@@ -33,12 +33,14 @@ public:
 	}
 
 	void OnResume() {
-		communicator->InitClient(HYDROQ_APPID, HYDROQ_CLIENTPORT, HYDROQ_SERVERPORT);
+		if (!keepConnected) {
+			communicator->InitBroadcast(HYDROQ_APPID, HYDROQ_CLIENTPORT, HYDROQ_SERVERPORT);
+		}
 	}
 
 	void OnStop() {
 		if (!keepConnected) {
-			communicator->CloseClient();
+			communicator->Close();
 		}
 		keepConnected = false;
 	}
@@ -61,7 +63,7 @@ public:
 				if (msg.GetSourceObject()->GetTag().compare("host_but") == 0) {
 					// click on HOST button
 					auto sceneContext = GETCOMPONENT(Stage);
-					communicator->CloseClient();
+					keepConnected = true;
 					auto scene = sceneContext->FindSceneByName("host_init");
 					sceneContext->SwitchToScene(scene, TweenDirection::NONE);
 				}
@@ -127,7 +129,7 @@ public:
 		model->SetFaction(serverMsg->GetFaction() == Faction::BLUE ? Faction::RED : Faction::BLUE);
 		model->SetMapName(serverMsg->GetMap());
 		model->SetIsMultiplayer(true);
-		communicator->GetClient()->ConnectToServer();
+		communicator->ConnectToPeer(serverMsg->GetIpAddress());
 
 		// set other properties and switch the scene
 		auto sender = GETCOMPONENT(HydNetworkSender);
@@ -158,18 +160,16 @@ public:
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 		if (CogGetFrameCounter() % 100 == 0) {
-			if (communicator->GetClient() != nullptr) {
-				// check discovered servers
-				auto discoveredServers = communicator->GetClient()->GetDiscoveredServers();
+			// check discovered servers
+			auto discoveredServers = communicator->GetDiscoveredPeers();
 
-				for (auto& key : discoveredServers) {
-					auto found = find(foundIps.begin(), foundIps.end(), key.first);
-					if (found != foundIps.end()) {
-						if ((absolute - key.second) > 4000) {
-							// server lost
-							foundIps.erase(found);
-							RefreshServers();
-						}
+			for (auto& key : discoveredServers) {
+				auto found = find(foundIps.begin(), foundIps.end(), key.first);
+				if (found != foundIps.end()) {
+					if ((absolute - key.second) > 4000) {
+						// server lost
+						foundIps.erase(found);
+						RefreshServers();
 					}
 				}
 			}

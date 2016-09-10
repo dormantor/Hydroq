@@ -225,7 +225,7 @@ public:
 	*/
 	void DestroyDynamicObject(Vec2i position);
 
-	void CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier);
+	Node* CreateMovingObject(ofVec2f position, EntityType entityType, Faction faction, int identifier);
 
 	void SendMessageOutside(StringHash action, int subaction, MsgEvent* data);
 

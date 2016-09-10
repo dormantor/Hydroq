@@ -56,7 +56,6 @@ class SyncEvent : public MsgEvent {
 public:
 	SyncEventType eventType;
 	EntityType entityType;
-	Vec2i positioni;
 	ofVec2f positionf;
 	Faction faction;
 	int internalId;
@@ -68,6 +67,6 @@ public:
 
 	SyncEvent(SyncEventType eventType, EntityType entityType, Faction faction, ofVec2f position, int internalId, int externalId) :
 		eventType(eventType), entityType(entityType), faction(faction), 
-		positionf(position), positioni(Vec2i(position)), internalId(internalId), externalId(externalId) {
+		positionf(position), internalId(internalId), externalId(externalId) {
 	}
 };

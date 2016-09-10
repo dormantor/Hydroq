@@ -33,17 +33,17 @@ public:
 		ent.anchor = ofVec2f(0.5f);
 		math.SetTransform(textNode, textNode->GetParent(), ent);
 
-		communicator->InitServer(HYDROQ_APPID, HYDROQ_SERVERPORT);
+		communicator->InitListening(HYDROQ_APPID, HYDROQ_SERVERPORT);
 		// set message to be sent
 		auto msg = new HydroqServerInitMsg();
 		msg->SetFaction(GetSelectedFaction());
 		msg->SetMap(GetSelectedMap());
-		communicator->GetServer()->PushMessageForSending(msg->CreateMessage());
+		communicator->PushMessageForSending(msg->CreateMessage());
 	}
 
 	void OnStop() {
 		if (!keepConnected) {
-			communicator->CloseServer();
+			communicator->Close();
 		}
 		keepConnected = false;
 	}
