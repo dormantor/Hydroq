@@ -7,7 +7,10 @@
 #include "HydEntity.h"
 #include "MapObjectChangedEvent.h"
 #include "Seedbed.h"
+#include "StateMachine.h"
 #include "Worker.h"
+#include "GameTask.h"
+#include "Move.h"
 
 /**
 * Hydroq game model
@@ -24,6 +27,8 @@ private:
 	vector<Node*> movingObjects;
 	Scene* gameScene;
 	Node* rootNode;
+	vector<spt<GameTask>> gameTasks;
+	
 public:
 
 	~HydroqGameModel() {
@@ -50,7 +55,7 @@ public:
 		return node->mapNodeType == MapNodeType::GROUND && !node->occupied;
 	}
 
-	void CreateDynamicObject(Vec2i position, EntityType entityType) {
+	Node* CreateDynamicObject(Vec2i position, EntityType entityType) {
 		auto hydMapNode = hydroqMap->GetNode(position.x, position.y);
 		hydMapNode->occupied = true;
 		auto gameNode = CreateNode(entityType, position);
@@ -58,6 +63,7 @@ public:
 
 		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0, 
 			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CREATED, hydMapNode, gameNode), nullptr);
+		return gameNode;
 	}
 
 	void CreateMovingObject(ofVec2f position, EntityType entityType) {
@@ -89,7 +95,10 @@ public:
 	}
 
 	void MarkPositionForBridge(Vec2i position) {
-		CreateDynamicObject(position, EntityType::BRIDGE_MARK);
+		auto node = CreateDynamicObject(position, EntityType::BRIDGE_MARK);
+		auto newTask = spt<GameTask>(new GameTask(StringHash(TASK_BRIDGE_BUILD)));
+		newTask->taskNode = node;
+		gameTasks.push_back(newTask);
 	}
 
 	bool IsPositionFreeForForbid(Vec2i position) {
@@ -156,38 +165,41 @@ public:
 	Node* CreateNode(EntityType entityType, ofVec2f position) {
 
 		string name;
-		Behavior* nodeBeh = nullptr;
+		Node* nd = new Node("");
 
 		if (entityType == EntityType::BRIDGE_MARK) {
-			name = "bridgemark";
+			nd->SetTag("bridgemark");
 		}
 		else if (entityType == EntityType::DESTROY_MARK) {
-			name = "destroymark";
+			nd->SetTag("destroymark");
 		}
 		else if (entityType == EntityType::FORBID_MARK) {
-			name = "forbidmark";
+			nd->SetTag("forbidmark");
 		}
 		else if (entityType == EntityType::GUARD_MARK) {
-			name = "guardmark";
+			nd->SetTag("guardmark");
 		}
 		else if (entityType == EntityType::SEEDBED) {
-			name = "seedbed";
-			nodeBeh = new Seedbed();
+			nd->SetTag("seedbed");
+			auto nodeBeh = new Seedbed();
+			nd->AddBehavior(nodeBeh);
 		}
 		else if (entityType == EntityType::WORKER) {
-			name = "worker";
-			nodeBeh = new Worker();
+			nd->SetTag("worker");
+			auto nodeBeh = new StateMachine();
+			
+			((StateMachine*)nodeBeh)->ChangeState(new WorkerIdleState());
+			((StateMachine*)nodeBeh)->AddLocalState(new WorkerBridgeBuildState());
+
+			nd->AddBehavior(nodeBeh);
+			// add moving behavior
+			nd->AddBehavior(new Move());
 		}
 
-		Node* nd = new Node(name);
 		nd->AddAttr(ATTR_GAME_ENTITY_TYPE, entityType);
 		nd->GetTransform().localPos.x = position.x;
 		nd->GetTransform().localPos.y = position.y;
 		
-		// add behavior into node
-		if (nodeBeh != nullptr) {
-			nd->AddBehavior(nodeBeh);
-		}
 
 		rootNode->AddChild(nd);
 		return nd;
@@ -201,7 +213,12 @@ public:
 		return this->movingObjects;
 	}
 
+	vector<spt<GameTask>>& GetGameTasks() {
+		return this->gameTasks;
+	}
+
 	virtual void Update(const uint64 delta, const uint64 absolute) {
+		rootNode->SubmitChanges(true);
 		rootNode->Update(delta, absolute);
 	}
 };

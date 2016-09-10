@@ -4,6 +4,7 @@
 #include "BrickClickEvent.h"
 #include "HydroqDef.h"
 #include "Helper.h"
+#include "AStarSearch.h"
 
 enum class MapNodeType {
 	NONE, WATER, GROUND, RIG, 
@@ -27,6 +28,19 @@ public:
 	bool forbidden = false; // true, if it is forbidden
 	Vec2i pos;
 
+	HydMapNode* FindNeighborByType(MapNodeType type) {
+		if (top->mapNodeType == type) return top;
+		if (right->mapNodeType == type) return right;
+		if (bottom->mapNodeType == type) return bottom;
+		if (left->mapNodeType == type) return left;
+		if (topRight->mapNodeType == type) return topRight;
+		if (bottomRight->mapNodeType == type) return bottomRight;
+		if (bottomLeft->mapNodeType == type) return bottomLeft;
+		if (topLeft->mapNodeType == type) return topLeft;
+
+		return nullptr;
+	}
+
 	vector<HydMapNode*> GetNeighbors() {
 		vector<HydMapNode*> output = vector<HydMapNode*>();
 		if (top != nullptr) output.push_back(top);
@@ -48,11 +62,14 @@ private:
 	int width;
 	int height;
 	vector<HydMapNode*> nodes;
+	// grid for searching algorithms
+	Grid grid;
 
 public:
 	void LoadMap(BrickMap* brickMap) {
 		this->width = brickMap->width;
 		this->height = brickMap->height;
+		grid = Grid(width, height);
 
 		for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
@@ -66,16 +83,20 @@ public:
 				node->mapNodeType = Helper::GetMapNodeTypeByName(index, br.name);
 				node->pos = Vec2i(i, j);
 				nodes.push_back(node);
+
+				if (node->mapNodeType != MapNodeType::GROUND) {
+					grid.AddBlock(i, j);
+				}
 			}
 		}
 
 		// assign neighbors
 		for (auto node : nodes) {
-			RecalcNeighbors(node);
+			RefreshNode(node);
 		}
 	}
 
-	void RecalcNeighbors(HydMapNode* node) {
+	void RefreshNode(HydMapNode* node) {
 		int i = node->pos.x;
 		int j = node->pos.y;
 
@@ -87,6 +108,24 @@ public:
 		if (i < (width - 1)) node->right = GetNode(i + 1, j); // right
 		if (i < (width - 1) && j < (height - 1)) node->bottomRight = GetNode(i + 1, j + 1); // bottomright
 		if (i < (width - 1) && j > 0) node->topRight = GetNode(i + 1, j - 1); // topright
+
+		if (node->mapNodeType == MapNodeType::GROUND) {
+			grid.RemoveBlock(i, j);
+		}
+		else {
+			grid.AddBlock(i, j);
+		}
+	}
+
+	vector<Vec2i> FindPath(Vec2i start, Vec2i end) {
+		AStarSearch srch;
+		// path
+		unordered_map<Vec2i, Vec2i> came_from;
+		// cost
+		unordered_map<Vec2i, int> cost_so_far;
+		srch.Search(grid, start, end, came_from, cost_so_far);
+		vector<Vec2i> path = srch.CalcPathFromJumps(start, end, came_from);
+		return path;
 	}
 
 	HydMapNode* GetNode(int x, int y) {

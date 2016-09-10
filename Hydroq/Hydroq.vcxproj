@@ -188,8 +188,10 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Helper.cpp" />
+    <ClCompile Include="src\HydroqGoals.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Seedbed.cpp" />
+    <ClCompile Include="src\Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
@@ -208,6 +210,8 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Board.h" />
+    <ClInclude Include="src\GameTask.h" />
+    <ClInclude Include="src\HydroqGoals.h" />
     <ClInclude Include="src\HydroqPlayerController.h" />
     <ClInclude Include="src\BrickClickEvent.h" />
     <ClInclude Include="src\BrickEventBehavior.h" />

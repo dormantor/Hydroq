@@ -118,6 +118,7 @@ public:
 			
 			sprite->transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * dynObj->GetTransform().localPos.x;
 			sprite->transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * dynObj->GetTransform().localPos.y;
+			sprite->transform.rotation = dynObj->GetTransform().rotation;
 		}
 	}
 };

@@ -15,7 +15,7 @@ class Seedbed : public Behavior {
 
 		// set spawn frequency
 		if (!owner->HasAttr(frequencySh)) {
-			owner->AddAttr(frequencySh, 0.1f);
+			owner->AddAttr(frequencySh, 0.3f);
 		}
 
 		if (!owner->HasAttr(lastSpawnSh)) {

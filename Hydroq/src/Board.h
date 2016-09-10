@@ -53,6 +53,8 @@ public:
 		auto dynamicSprites = gameView->GetDynamicSprites();
 		owner->GetScene()->FindNodeByTag("object_board")->SetShape(dynamicSprites);
 
+		// ZOOM THE BOARD LITTLE BIT OUT
+		owner->GetTransform().scale /= 1.5f;
 
 		auto boardShape = owner->GetShape<spt<Cog::Rectangle>>();
 		boardShape->SetWidth(staticSprites->GetWidth());
