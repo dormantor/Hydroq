@@ -18,8 +18,23 @@ void HydroqGameModel::Init() {
 	hydroqMap = new HydMap();
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
-
 	rootNode->AddBehavior(new TaskScheduler());
+}
+
+void HydroqGameModel::InitModel(Faction faction, string map, bool isMultiplayer) {
+	this->faction = faction;
+	this->mapName = map;
+	this->multiplayer = isMultiplayer;
+
+	Settings mapConfig = Settings();
+	auto xml = CogLoadXMLFile("mapconfig.xml");
+	xml->pushTag("settings");
+	mapConfig.LoadFromXml(xml);
+	xml->popTag();
+
+	this->hydroqMap->LoadMap(mapConfig, map);
+	
+	this->cellSpace = new CellSpace(ofVec2f(hydroqMap->GetWidth(),hydroqMap->GetHeight()),1);
 }
 
 
@@ -71,6 +86,9 @@ void HydroqGameModel::DeleteBridgeMark(Vec2i position) {
 			break;
 		}
 	}
+
+	this->hydroqMap->GetNode(position)->forbidden = false;
+	this->hydroqMap->RefreshNode(position);
 
 	DestroyDynamicObject(position);
 }
@@ -146,6 +164,8 @@ void HydroqGameModel::MarkPositionForDestroy(Vec2i position) {
 	auto newTask = spt<GameTask>(new GameTask(GameTaskType::BRIDGE_DESTROY));
 	newTask->taskNode = node;
 	gameTasks.push_back(newTask);
+	this->hydroqMap->GetNode(position)->forbidden = true;
+	this->hydroqMap->RefreshNode(position);
 }
 
 
@@ -156,6 +176,7 @@ void HydroqGameModel::SpawnWorker(ofVec2f position) {
 void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier) {
 	CogLogInfo("Hydroq", "Creating worker for %s faction at [%.2f, %.2f]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
+	cellSpace->AddNode(node);
 
 	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
@@ -200,20 +221,42 @@ void HydroqGameModel::BuildPlatform(Vec2i position, Faction faction, int identif
 	}
 }
 
+void HydroqGameModel::DestroyPlatform(Vec2i position) {
+	DestroyPlatform(position, this->faction, 0);
+}
+
+void HydroqGameModel::DestroyPlatform(Vec2i position, Faction faction, int identifier) {
+	CogLogInfo("Hydroq", "Destroying platform for %s faction at [%d, %d]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
+	// destroy delete mark
+	DestroyDynamicObject(position);
+	// change node to water
+	auto node = this->hydroqMap->GetNode(position.x, position.y);
+	node->ChangeMapNodeType(MapNodeType::WATER);
+	// refresh other models the node figures
+	hydroqMap->RefreshNode(node);
+	// send a message that the static object has been changed
+	SendMessageOutside(StringHash(ACT_MAP_OBJECT_CHANGED), 0, new MapObjectChangedEvent(ObjectChangeType::STATIC_CHANGED, node, nullptr));
+
+	if (multiplayer && identifier == 0) {
+		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
+			new SyncEvent(SyncEventType::MAP_CHANGED, EntityType::WATER, faction, position, 0, 0));
+	}
+}
+
 vector<spt<GameTask>> HydroqGameModel::GetGameTaskCopy() {
 	vector<spt<GameTask>> output = vector<spt<GameTask>>();
 	for (auto task : gameTasks) output.push_back(task);
 	return output;
 }
 
-vector<Node*> HydroqGameModel::GetMovingObjectsByType(EntityType type, bool internalOnly) {
+vector<Node*> HydroqGameModel::GetMovingObjectsByType(EntityType type, Faction faction) {
 	
 	vector<Node*> output = vector<Node*>();
 	
 	for (auto& obj : movingObjects) {
-		EntityType enttype = obj->GetAttr<EntityType>(ATTR_ENTITYTYPE);
-		if (enttype == type) {
-			if (!internalOnly || obj->GetSubType() == 0) {
+		if (obj->GetAttr<Faction>(StringHash(ATTR_FACTION)) == faction) {
+			EntityType enttype = obj->GetAttr<EntityType>(ATTR_ENTITYTYPE);
+			if (enttype == type) {
 				output.push_back(obj);
 			}
 		}
@@ -232,6 +275,31 @@ bool HydroqGameModel::RemoveGameTask(spt<GameTask> task) {
 	else {
 		return false;
 	}
+}
+
+Node* HydroqGameModel::FindNearestDynamicNode(EntityType type, ofVec2f startPos) {
+	Node* nearestSoFar = nullptr;
+	ofVec2f nearestPosSoFar = ofVec2f(0);
+
+	for (auto& key : dynObjects) {
+		auto node = key.second;
+
+		if (node->HasAttr(ATTR_ENTITYTYPE) && node->GetAttr<EntityType>(ATTR_ENTITYTYPE) == type) {
+			if (nearestSoFar == nullptr) {
+				nearestSoFar = node;
+				nearestPosSoFar = node->GetTransform().localPos;
+			}
+			else {
+				auto pos = node->GetTransform().localPos;
+				if (startPos.distanceSquared(pos) < startPos.distanceSquared(nearestPosSoFar)) {
+					nearestSoFar = node;
+					nearestPosSoFar = pos;
+				}
+			}
+		}
+	}
+
+	return nearestSoFar;
 }
 
 void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
@@ -263,6 +331,11 @@ void HydroqGameModel::Update(const uint64 delta, const uint64 absolute) {
 
 	rootNode->SubmitChanges(true);
 	rootNode->Update(delta, absolute);
+
+	// update cellspace
+	for (auto& node : this->movingObjects) {
+		this->cellSpace->UpdateNode(node);
+	}
 }
 
 bool HydroqGameModel::IsPositionOfType(Vec2i position, EntityType type) {

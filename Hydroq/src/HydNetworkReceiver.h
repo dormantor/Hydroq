@@ -81,7 +81,10 @@ public:
 			switch (cmdMsg->GetEntityType()) {
 			case EntityType::BRIDGE:
 				cout << "creating platform as it says message " << (int)netMsg->GetSyncId() << " send by " << netMsg->GetSourceIp() << " from port " << netMsg->GetSourcePort() << endl;
-				model->BuildPlatform(cmdMsg->GetPosition(), cmdMsg->GetFaction(), 1); // there is no identifier for bridge
+				model->BuildPlatform(cmdMsg->GetPosition(), cmdMsg->GetFaction(), 1); // there is no identifier required for such an action
+				break;
+			case EntityType::WATER:
+				model->DestroyPlatform(cmdMsg->GetPosition(), cmdMsg->GetFaction(), 1); // there is no identifier required for such an action
 				break;
 			}
 			break;

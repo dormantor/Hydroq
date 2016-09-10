@@ -26,6 +26,7 @@ public:
 	bool isReserved = false;
 	// node that reserved the task
 	Node* reserverNode = nullptr;
+	uint64 reserverTime = 0;
 
 	GameTask(GameTaskType taskType) :type(taskType) {
 

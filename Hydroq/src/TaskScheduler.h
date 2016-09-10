@@ -21,12 +21,14 @@ public:
 		this->gameModel = GETCOMPONENT(HydroqGameModel);
 	}
 
-	void ScheduleTasks();
+	map<int, int> CalcAssignedTasks(vector<spt<GameTask>>& tasks);
+
+	void ScheduleTasks(uint64 absolute);
 
 	virtual void Update(const uint64 delta, const uint64 absolute) {
 		
 		if (CogGetFrameCounter() % 30 == 0) {
-			ScheduleTasks();
+			ScheduleTasks(absolute);
 		}
 	}
 

@@ -27,9 +27,7 @@ class SingleGameMenu : public Behavior {
 			 if (msg.GetSourceObject()->GetTag().compare("play_but") == 0) {
 				// click on play button -> switch scene
 				auto model = GETCOMPONENT(HydroqGameModel);
-				model->SetFaction(GetSelectedFaction());
-				model->SetMapName(selectedMap);
-				model->SetIsMultiplayer(false);
+				model->InitModel(GetSelectedFaction(), selectedMap, false);
 				auto sceneContext = GETCOMPONENT(Stage);
 				auto scene = sceneContext->FindSceneByName("game");
 				sceneContext->SwitchToScene(scene, TweenDirection::LEFT);

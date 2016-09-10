@@ -34,21 +34,35 @@ bool WorkerIdleState::FindTaskToDo() {
 			auto mapNode = map->GetNode((int)position.x, (int)position.y);
 			// position the worker stays
 			auto start = owner->GetTransform().localPos;
-			// find nearest node the worker will stay during the building (worker cannot go to the water)
-			auto nodeToBuildfrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(start.x, start.y));
 
-			if (nodeToBuildfrom != nullptr) {
+			if (task->type == GameTaskType::BRIDGE_BUILD || task->type == GameTaskType::BRIDGE_DESTROY) {
 
-				COGLOGDEBUG("Hydroq", "Got task for bridge building at position [%d,%d]", position.x, position.y);
+				HydMapNode* nodeToWorkFrom;
 
-				// change state from IDLE to BRIDGE_BUILD
-				auto stateToChange = GetParent()->FindLocalState(StringHash(STATE_WORKER_BUILD));
-				auto buildState = static_cast<WorkerBridgeBuildState*>(stateToChange);
-				buildState->SetGameTask(task);
-				buildState->SetNodeToBuildFrom(nodeToBuildfrom);
-				this->GetParent()->ChangeState(StringHash(STATE_WORKER_BUILD));
+				if (task->type == GameTaskType::BRIDGE_BUILD) {
+					// find first safe platform the worker can stay on
+					nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(start.x, start.y));
+				}
+				else {
+					// find platform the worker can return to base from
+					auto nearestBase = model->FindNearestDynamicNode(EntityType::SEEDBED, start);
+					ofVec2f preferredPosition = (nearestBase != nullptr) ? nearestBase->GetTransform().localPos : start;
+					nodeToWorkFrom = mapNode->FindNeighborByType(MapNodeType::GROUND, Vec2i(preferredPosition.x, preferredPosition.y));
+				}
 
-				return true;
+				if (nodeToWorkFrom != nullptr) {
+
+					COGLOGDEBUG("Hydroq", "Got task for bridge building at position [%d,%d]", position.x, position.y);
+
+					// change state from IDLE to BRIDGE_BUILD
+					auto stateToChange = GetParent()->FindLocalState(StringHash(STATE_WORKER_BUILD));
+					auto buildState = static_cast<WorkerBridgeBuildState*>(stateToChange);
+					buildState->SetGameTask(task);
+					buildState->SetNodeToBuildFrom(nodeToWorkFrom);
+					this->GetParent()->ChangeState(StringHash(STATE_WORKER_BUILD));
+
+					return true;
+				}
 			}
 		}
 	}
@@ -155,7 +169,13 @@ void WorkerBridgeBuildState::OnStart() {
 
 	auto composite = new GoalComposite(StringHash(), false);
 	composite->AddSubgoal(new GotoPositionGoal(task, Vec2i(workerPos.x, workerPos.y), targetSafePos,workerPos, precisePosition));
-	composite->AddSubgoal(new BuildBridgeGoal(task));
+	
+	if (task->type == GameTaskType::BRIDGE_BUILD) {
+		composite->AddSubgoal(new BuildBridgeGoal(task));
+	}
+	else {
+		composite->AddSubgoal(new DestroyBridgeGoal(task));
+	}
 	this->buildGoal = composite;
 	owner->AddBehavior(composite);
 }

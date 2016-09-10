@@ -36,25 +36,25 @@ public:
 	HydMapNode* FindNeighborByType(MapNodeType type, Vec2i preferredPosition) {
 		
 		if (preferredPosition.x <= pos.x && preferredPosition.y <= pos.y) {
-			if (left != nullptr && left->mapNodeType == type) return left;
-			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
 			if (top != nullptr && top->mapNodeType == type) return top;
+			if (left != nullptr && left->mapNodeType == type) return left;
 			if (right != nullptr && right->mapNodeType == type) return right;
+			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
 		}else if (preferredPosition.x <= pos.x && preferredPosition.y > pos.y) {
-			if (left != nullptr && left->mapNodeType == type) return left;
-			if (top != nullptr && top->mapNodeType == type) return top;
-			if (right != nullptr && right->mapNodeType == type) return right;
 			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
+			if (left != nullptr && left->mapNodeType == type) return left;
+			if (right != nullptr && right->mapNodeType == type) return right;
+			if (top != nullptr && top->mapNodeType == type) return top;
 		}else if (preferredPosition.x > pos.x && preferredPosition.y <= pos.y) {
-			if (right != nullptr && right->mapNodeType == type) return right;
-			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
 			if (top != nullptr && top->mapNodeType == type) return top;
+			if (right != nullptr && right->mapNodeType == type) return right;
 			if (left != nullptr && left->mapNodeType == type) return left;
+			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
 		}else if (preferredPosition.x > pos.x && preferredPosition.y > pos.y) {
-			if (right != nullptr && right->mapNodeType == type) return right;
-			if (top != nullptr && top->mapNodeType == type) return top;
 			if (bottom != nullptr && bottom->mapNodeType == type) return bottom;
+			if (right != nullptr && right->mapNodeType == type) return right;
 			if (left != nullptr && left->mapNodeType == type) return left;
+			if (top != nullptr && top->mapNodeType == type) return top;
 		}
 
 		return nullptr;
@@ -86,6 +86,17 @@ private:
 	Grid gridWithBlocks; // grid with forbidden areas
 
 public:
+
+	void LoadMap(Settings mapConfig, string selectedMap) {
+		
+		string mapPath = mapConfig.GetSettingVal("maps_files", selectedMap);
+
+		if (mapPath.empty()) throw ConfigErrorException(string_format("Path to map %s not found", selectedMap.c_str()));
+		// load map
+		MapLoader mapLoad = MapLoader();
+		this->LoadMap(mapLoad.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names")));
+	}
+
 	void LoadMap(BrickMap* brickMap) {
 		this->width = brickMap->width;
 		this->height = brickMap->height;

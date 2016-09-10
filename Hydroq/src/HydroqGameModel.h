@@ -9,6 +9,7 @@
 #include "StateMachine.h"
 #include "GameTask.h"
 #include "Scene.h"
+#include "CellPartitioner.h"
 
 enum class Faction {
 	RED, BLUE
@@ -24,6 +25,9 @@ class HydroqGameModel : public Component {
 private:
 	// static objects (map, water, platforms)
 	HydMap* hydroqMap;
+	// cell partitioner for moving objects
+	CellSpace* cellSpace;
+	
 	// dynamic objects (buildings)
 	map<Vec2i, Node*> dynObjects;
 	// moving objects (units)
@@ -52,33 +56,28 @@ public:
 		Init();
 	}
 
+	void InitModel(Faction faction, string map, bool isMultiplayer);
+
 	HydMap* GetMap() {
 		return hydroqMap;
+	}
+
+	CellSpace* GetCellSpace() {
+		return cellSpace;
 	}
 
 	Faction GetFaction() {
 		return faction;
 	}
 
-	void SetFaction(Faction faction) {
-		this->faction = faction;
-	}
-
 	string GetMapName() {
 		return mapName;
-	}
-
-	void SetMapName(string name) {
-		this->mapName = name;
 	}
 
 	bool IsMultiplayer() {
 		return multiplayer;
 	}
 
-	void SetIsMultiplayer(bool isMultiplayer) {
-		this->multiplayer = isMultiplayer;
-	}
 
 	/**
 	* Returns true, if a building can be built on selected position
@@ -183,6 +182,16 @@ public:
 	*/
 	void BuildPlatform(Vec2i position, Faction faction, int identifier);
 
+	/**
+	* Destroys a platform on selected position
+	*/
+	void DestroyPlatform(Vec2i position);
+
+	/**
+	* Destroys a platform on selected position
+	*/
+	void DestroyPlatform(Vec2i position, Faction faction, int identifier);
+
 
 	/**
 	* Gets collection of dynamic objects
@@ -210,9 +219,11 @@ public:
 	*/
 	vector<spt<GameTask>> GetGameTaskCopy();
 
-	vector<Node*> GetMovingObjectsByType(EntityType type, bool internalOnly);
+	vector<Node*> GetMovingObjectsByType(EntityType type, Faction faction);
 
 	bool RemoveGameTask(spt<GameTask> task);
+
+	Node* FindNearestDynamicNode(EntityType type, ofVec2f startPos);
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 

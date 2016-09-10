@@ -75,3 +75,33 @@ void BuildBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
 		}
 	}
 }
+
+
+void DestroyBridgeGoal::Update(const uint64 delta, const uint64 absolute) {
+	if (goalStarted == 0) {
+		goalStarted = absolute;
+	}
+	else {
+		if ((absolute - goalStarted) > 3500) {
+			
+			if (CogGetFrameCounter() % 10 == 0) {
+				auto model = GETCOMPONENT(HydroqGameModel);
+
+				// check if nobody is inside the square
+				auto position = ofVec2f(task->taskNode->GetTransform().localPos + 0.5f);
+				auto neighbours = model->GetCellSpace()->CalcNeighbors(position, 0.5f);
+
+				if (neighbours.empty() || (neighbours.size() == 1 && neighbours[0]->GetId() == owner->GetId())) {
+
+					CogLogDebug("Hydroq", "Destroying bridge");
+
+					// destroy bridge at 3.5s
+					auto position = Vec2i(task->taskNode->GetTransform().localPos);
+					model->DestroyPlatform(position);
+					task->isEnded = true;
+					this->Complete();
+				}
+			}
+		}
+	}
+}

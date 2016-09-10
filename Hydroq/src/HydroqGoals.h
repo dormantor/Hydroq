@@ -51,3 +51,21 @@ public:
 
 	virtual void Update(const uint64 delta, const uint64 absolute);
 };
+
+/**
+* Goal that destroys a bridge
+*/
+class DestroyBridgeGoal : public Goal {
+
+public:
+	spt<GameTask> task;
+	// the time the goal started
+	uint64 goalStarted = 0;
+
+	DestroyBridgeGoal(spt<GameTask> task) : Goal(StringHash(GOAL_DESTROY_BRIDGE)), task(task) {
+
+	}
+
+
+	virtual void Update(const uint64 delta, const uint64 absolute);
+};
