@@ -19,5 +19,6 @@
 	  <item key="bridgemark" value="20" />
 	  <item key="forbidmark" value="21" />
 	  <item key="guardmark" value="22" />
+	  <item key="destroymark" value="23" />
 	</setting>
 </settings>

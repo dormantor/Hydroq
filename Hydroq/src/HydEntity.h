@@ -1,7 +1,7 @@
 #pragma once
 
 enum class EntityType {
-	SEEDBED, BRIDGE_MARK, FORBID_MARK, GUARD_MARK
+	SEEDBED, BRIDGE_MARK, FORBID_MARK, GUARD_MARK, DESTROY_MARK
 };
 
 class HydEntity {
@@ -44,6 +44,13 @@ public:
 class GuardMark : public HydEntity {
 public:
 	GuardMark() : HydEntity(EntityType::GUARD_MARK, "guardmark") {
+
+	}
+};
+
+class DestroyMark : public HydEntity {
+public:
+	DestroyMark() : HydEntity(EntityType::DESTROY_MARK, "destroymark") {
 
 	}
 };

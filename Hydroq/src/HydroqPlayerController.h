@@ -49,6 +49,10 @@ class HydroqPlayerController : public Behavior {
 					gameModel->IsPositionFreeForGuard(pos)) {
 					gameModel->MarkPositionForGuard(pos);
 				}
+				else if (playerModel->GetHydroqAction() == HydroqAction::DESTROY &&
+					gameModel->IsPositionFreeForDestroy(pos)) {
+					gameModel->MarkPositionForDestroy(pos);
+				}
 			}
 		}
 	}

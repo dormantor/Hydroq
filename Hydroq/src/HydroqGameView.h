@@ -50,7 +50,21 @@ public:
 				Trans transform = Trans();
 				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * evt->changedNode->pos.x;
 				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * evt->changedNode->pos.y;
-				dynamicSprites->GetSprites().push_back(spt<SpriteEntity>(new SpriteEntity(sprite, transform)));
+				auto newEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
+				dynamicSprites->GetSprites().push_back(newEntity);
+				dynamicSpriteMap[evt->changedNode->pos] = newEntity;
+			}
+			else if (evt->changeType == ObjectChangeType::DYNAMIC_REMOVED) {
+				auto oldEntity = dynamicSpriteMap[evt->changedNode->pos];
+				dynamicSpriteMap.erase(evt->changedNode->pos);
+				
+				// todo: performance!
+				for (auto it = dynamicSprites->GetSprites().begin(); it != dynamicSprites->GetSprites().end(); ++it) {
+					if ((*it)->id == oldEntity->id) {
+						dynamicSprites->GetSprites().erase(it);
+						break;
+					}
+				}
 			}
 		}
 	}

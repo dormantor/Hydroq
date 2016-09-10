@@ -102,4 +102,28 @@ public:
 		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
 			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node, dynObjects[position]), nullptr);
 	}
+
+	bool IsPositionFreeForDestroy(Vec2i position) {
+		auto node = hydroqMap->GetNode(position.x, position.y);
+		bool isFree = (node->mapNodeType == MapNodeType::GROUND && !node->occupied && dynObjects.find(position) == dynObjects.end()) ||
+			(dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK);
+		return isFree;
+	}
+
+	void MarkPositionForDestroy(Vec2i position) {
+		auto node = hydroqMap->GetNode(position.x, position.y);
+
+		if (dynObjects.find(position) != dynObjects.end() && dynObjects.find(position)->second->entityType == EntityType::BRIDGE_MARK) {
+			// delete bridge mark
+			auto obj = dynObjects[position];
+			dynObjects.erase(position);
+			SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+				new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj), nullptr);
+		}
+		else {
+			dynObjects[position] = spt<HydEntity>(new DestroyMark());
+			SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+				new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, node, dynObjects[position]), nullptr);
+		}
+	}
 };
