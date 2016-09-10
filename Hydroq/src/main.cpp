@@ -25,7 +25,7 @@ class MenuBehavior : public Behavior {
 				// click on single game button -> switch scene
 				auto sceneContext = GETCOMPONENT(SceneContext);
 				auto scene = sceneContext->FindSceneByName("game");
-				sceneContext->SwitchToScene(scene, TweenDirection::UP);
+				sceneContext->SwitchToScene(scene, TweenDirection::LEFT);
 			}
 		}
 	}
@@ -36,12 +36,97 @@ public:
 	}
 };
 
+#include "TransformAnim.h"
+
+class MenuIconBehavior : public Behavior {
+	OBJECT_PROTOTYPE(MenuIconBehavior)
+
+		Trans initTrans; 
+	    Trans animTrans;
+
+	void Init() {
+		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+
+		Node* menu = CogFindNodeByTag("rightpanel");
+		initTrans = menu->GetTransform();
+
+
+		TransformMath math = TransformMath();
+		math.CalcTransform(animTrans, menu, menu->GetParent(), ofVec2f(100, 6), 10, CalcType::GRID, ofVec2f(1,0), ofVec2f(1), CalcType::LOC, 100, 53);
+	}
+
+
+	void OnMessage(Msg& msg) {
+		if (msg.GetAction() == ACT_TRANSFORM_ENDED && msg.GetSourceObject()->GetTag().compare("rightpanel") == 0) {
+			owner->ResetState(StringHash(STATES_LOCKED));
+		}
+
+
+		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED && msg.GetSourceObject()->GetId() == owner->GetId()) {
+			if (!owner->HasState(StringHash(STATES_LOCKED))) {
+				owner->SetState(StringHash(STATES_LOCKED));
+
+				if (owner->HasState(StringHash(STATES_ENABLED))) {
+					owner->ResetState(StringHash(STATES_ENABLED));
+					// roll menu back
+					Node* menu = CogFindNodeByTag("rightpanel");
+					TransformAnim* anim = new TransformAnim(animTrans, initTrans, 250, 0);
+					menu->AddBehavior(anim);
+				}
+				else {
+					owner->SetState(StringHash(STATES_ENABLED));
+
+					// roll the menu
+					Node* menu = CogFindNodeByTag("rightpanel");
+					TransformAnim* anim = new TransformAnim(initTrans, animTrans, 250, 0);
+					menu->AddBehavior(anim);
+				}
+			}
+		}
+	}
+
+public:
+	virtual void Update(const uint64 delta, const uint64 absolute) {
+	}
+};
+
+class HydroqBoard : public Behavior {
+	OBJECT_PROTOTYPE(HydroqBoard)
+
+
+	void Init() {
+		spt<ofImage> img = CogGet2DImage("bricks/water.png");
+		TransformMath mth = TransformMath();
+
+		float brickRow = 20;
+
+		for (int i = 0; i < brickRow; i++) {
+			for (int j = 0; j < brickRow; j++) {
+				Node* nd = new Node("mojo");
+				nd->SetShape(spt<Shape>(new Image(img)));
+				mth.SetTransform(nd, owner, ofVec2f(1.0f/brickRow*i, 1.0f/brickRow*j), 5, CalcType::PER, ofVec2f(0), ofVec2f(1.0f/brickRow), CalcType::PER, 5, 5);
+				owner->AddChild(nd);
+			}
+		}
+	}
+
+	void OnMessage(Msg& msg) {
+
+	}
+
+public:
+	virtual void Update(const uint64 delta, const uint64 absolute) {
+
+	}
+};
 
 class XmlTestingApp : public CogApp {
 
 
 	void InitComponents() {
 		REGISTER_BEHAVIOR(MenuBehavior);
+		REGISTER_BEHAVIOR(MenuIconBehavior);
+		REGISTER_BEHAVIOR(HydroqBoard);
 	}
 
 	void InitEngine() {
