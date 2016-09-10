@@ -29,6 +29,9 @@
     <ClCompile Include="src\TaskScheduler.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="src\AttractorPlacement.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Worker.h">
@@ -116,6 +119,9 @@
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="src\TaskScheduler.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AttractorPlacement.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

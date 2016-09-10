@@ -107,6 +107,9 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 	auto model = GETCOMPONENT(HydroqGameModel);
 	auto& movingObjects = model->GetMovingObjects();
 
+	StringHash stateIdle = StringHash(STATE_WORKER_IDLE);
+	StringHash stateBuild = StringHash(STATE_WORKER_BUILD);
+
 	// update transformation of all objects
 	for (auto& dynObj : movingObjects) {
 		int id = dynObj->GetId();
@@ -116,6 +119,17 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 		sprite->transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * dynObj->GetTransform().localPos.y - defaultSpriteSet->GetSpriteHeight() / 2;
 		sprite->transform.rotation = dynObj->GetTransform().rotation;
 
-		
+		if (dynObj->HasState(stateIdle)) {
+			// set image according to state
+			sprite->sprite = spriteTypes[dynObj->GetTag()]; 
+		}
+		else if (dynObj->HasState(stateBuild)) {
+			// set animation
+			int frame = spriteTypes[dynObj->GetTag()]->GetFrame();
+			if (CogGetFrameCounter() % 5 == 0) frame += 1;
+			else frame += 2;
+
+			sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frame));
+		}
 	}
 }

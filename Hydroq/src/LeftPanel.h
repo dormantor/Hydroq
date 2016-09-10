@@ -8,9 +8,10 @@ class LeftPanel : public Behavior {
 
 	spt<TransformEnt> originTrans;
 	spt<TransformEnt> animTrans;
+	HydroqPlayerModel* playerModel;
 
 	void OnInit() {
-		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED);
+		RegisterListening(ACT_OBJECT_HIT_ENDED, ACT_TRANSFORM_ENDED, ACT_COUNTER_CHANGED);
 	}
 
 	void OnStart() {
@@ -18,6 +19,13 @@ class LeftPanel : public Behavior {
 		animTrans = spt<TransformEnt>(new TransformEnt("", ofVec2f(6.0f, 0), 10, CalcType::GRID, ofVec2f(1, 0), ofVec2f(1), CalcType::LOC, 0));
 
 		owner->SetState(StringHash(STATES_ENABLED));
+		playerModel = GETCOMPONENT(HydroqPlayerModel);
+
+		counterUnits = owner->GetScene()->FindNodeByTag("counter_units");
+		counterBuildings = owner->GetScene()->FindNodeByTag("counter_buildings");
+		counterMaterial = owner->GetScene()->FindNodeByTag("counter_material");
+
+		RefreshCounters();
 	}
 
 
@@ -39,9 +47,26 @@ class LeftPanel : public Behavior {
 				menu->AddBehavior(anim);
 			}
 		}
+		else if (msg.HasAction(ACT_COUNTER_CHANGED)) {
+			RefreshCounters();
+		}
 	}
 
+private:
+
+	Node* counterUnits;
+	Node* counterBuildings;
+	Node* counterMaterial;
+
+	void RefreshCounters() {
+		counterUnits->GetShape<spt<Text>>()->SetText(ofToString(playerModel->GetUnits()));
+		counterBuildings->GetShape<spt<Text>>()->SetText(ofToString(playerModel->GetBuildings()));
+		counterMaterial->GetShape<spt<Text>>()->SetText(ofToString(playerModel->GetMaterial()));
+	}
+
+	
 public:
 	virtual void Update(const uint64 delta, const uint64 absolute) {
+
 	}
 };

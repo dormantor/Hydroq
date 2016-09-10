@@ -19,6 +19,7 @@
 #include "HydNetworkSender.h"
 #include "HydNetworkReceiver.h"
 #include "TimeMeasure.h"
+#include "AttractorPlacement.h"
 
 #include "LuaScripting.h"
 
@@ -65,7 +66,7 @@ public:
 					key->handlerNodeId = owner->GetId();
 					
 					// write report
-					TimeMeasure::GetInstance().Report(false);
+					TimeMeasure::GetInstance().Report(true);
 				}
 			}
 		}
@@ -93,6 +94,7 @@ public:
 		REGISTER_BEHAVIOR(HydroqPlayerController);
 		REGISTER_BEHAVIOR(LeftPanel);
 		REGISTER_BEHAVIOR(HostInit);
+		REGISTER_BEHAVIOR(AttractorPlacement);
 
 		auto playerModel = new HydroqPlayerModel();
 		auto gameModel = new HydroqGameModel();

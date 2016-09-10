@@ -13,9 +13,11 @@
 #include "Scene.h"
 #include "DeltaUpdate.h"
 #include "TaskScheduler.h"
+#include "HydroqPlayerModel.h"
 
 void HydroqGameModel::Init() {
 	hydroqMap = new HydMap();
+	playerModel = GETCOMPONENT(HydroqPlayerModel);
 	gameScene = new Scene("gamescene", false);
 	rootNode = gameScene->GetSceneNode();
 	rootNode->AddBehavior(new TaskScheduler());
@@ -178,6 +180,10 @@ void HydroqGameModel::SpawnWorker(ofVec2f position, Faction faction, int identif
 	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
 	cellSpace->AddNode(node);
 
+	if (faction == this->faction) {
+		playerModel->AddUnit(1);
+	}
+
 	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
 			new SyncEvent(SyncEventType::OBJECT_CREATED, EntityType::WORKER, faction, position, node->GetId(), 0));
@@ -191,6 +197,10 @@ void HydroqGameModel::CreateSeedBed(Vec2i position) {
 void HydroqGameModel::CreateSeedBed(Vec2i position, Faction faction, int identifier) {
 	CogLogInfo("Hydroq", "Creating seedbed for %s faction at [%d, %d]", (faction == Faction::BLUE ? "blue" : "red"), position.x, position.y);
 	auto node = CreateDynamicObject(position, EntityType::SEEDBED, faction, identifier);
+
+	if (faction == this->faction) {
+		playerModel->AddBuildings(1);
+	}
 
 	if (multiplayer && identifier == 0) {
 		SendMessageOutside(StringHash(ACT_SYNC_OBJECT_CHANGED), 0,
@@ -434,11 +444,11 @@ Node* HydroqGameModel::CreateNode(EntityType entityType, ofVec2f position, Facti
 			nd->SetTag("worker_red");
 		}
 
+		
 		nd->GetTransform().localPos.z = 20;
 
 		if (identifier == 0) {
 			auto nodeBeh = new StateMachine();
-
 			((StateMachine*)nodeBeh)->ChangeState(new WorkerIdleState());
 			((StateMachine*)nodeBeh)->AddLocalState(new WorkerBridgeBuildState());
 

@@ -25,6 +25,10 @@ public:
 
 	}
 
+	virtual void OnStart();
+
+	void OnFinish();
+
 	bool FindTaskToDo();
 
 	void MoveAround();
@@ -48,6 +52,8 @@ public:
 	void OnInit() {
 		RegisterListening(ACT_TASK_ABORTED);
 	}
+
+	void OnFinish();
 
 	void OnMessage(Msg& msg);
 

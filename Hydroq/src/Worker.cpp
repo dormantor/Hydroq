@@ -112,6 +112,14 @@ void WorkerIdleState::MoveAround() {
 	}
 }
 
+void WorkerIdleState::OnStart() {
+	owner->SetState(StringHash(STATE_WORKER_IDLE));
+}
+
+void WorkerIdleState::OnFinish() {
+	owner->ResetState(StringHash(STATE_WORKER_IDLE));
+}
+
 void WorkerIdleState::Update(const uint64 delta, const uint64 absolute) {
 	
 	bool foundTask = false;
@@ -150,6 +158,9 @@ void WorkerBridgeBuildState::OnMessage(Msg& msg) {
 }
 
 void WorkerBridgeBuildState::OnStart() {
+
+	owner->SetState(StringHash(STATE_WORKER_BUILD));
+
 	task->handlerNode = owner;
 	task->isProcessing = true;
 
@@ -179,6 +190,11 @@ void WorkerBridgeBuildState::OnStart() {
 	this->buildGoal = composite;
 	owner->AddBehavior(composite);
 }
+
+void WorkerBridgeBuildState::OnFinish() {
+	owner->ResetState(StringHash(STATE_WORKER_IDLE));
+}
+
 
 void WorkerBridgeBuildState::Update(const uint64 delta, const uint64 absolute) {
 	if (buildGoal != nullptr && (buildGoal->GoalEnded())) {

@@ -10,6 +10,7 @@
 #include "GameTask.h"
 #include "Scene.h"
 #include "CellPartitioner.h"
+#include "HydroqPlayerModel.h"
 
 enum class Faction {
 	RED, BLUE
@@ -44,6 +45,8 @@ private:
 	// list of waiting tasks
 	vector<spt<GameTask>> gameTasks;
 	
+	HydroqPlayerModel* playerModel;
+
 public:
 
 	~HydroqGameModel() {
@@ -57,6 +60,10 @@ public:
 	}
 
 	void InitModel(Faction faction, string map, bool isMultiplayer);
+
+	Node* GetRootNode() {
+		return rootNode;
+	}
 
 	HydMap* GetMap() {
 		return hydroqMap;
