@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Component.h"
-#include "ofxSQLite.h"
 #include "HydroqDef.h"
 #include "Events.h"
 #include "HydMap.h"

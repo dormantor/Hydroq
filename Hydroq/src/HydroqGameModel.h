@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Component.h"
-#include "ofxSQLite.h"
 #include "HydroqDef.h"
 #include "Events.h"
 #include "HydMap.h"
 #include "HydEntity.h"
 #include "MapObjectChangedEvent.h"
+#include "Seedbed.h"
+#include "Worker.h"
 
 /**
 * Hydroq game model
@@ -20,6 +21,7 @@ private:
 	HydMap* hydroqMap;
 	// dynamic objects (including buildings)
 	map<Vec2i, Node*> dynObjects;
+	vector<Node*> movingObjects;
 	Scene* gameScene;
 	Node* rootNode;
 public:
@@ -52,9 +54,17 @@ public:
 		auto hydMapNode = hydroqMap->GetNode(position.x, position.y);
 		hydMapNode->occupied = true;
 		auto gameNode = CreateNode(entityType, position);
+		dynObjects[position] = gameNode;
 
 		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0, 
-			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CHANGED, hydMapNode, gameNode), nullptr);
+			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_CREATED, hydMapNode, gameNode), nullptr);
+	}
+
+	void CreateMovingObject(ofVec2f position, EntityType entityType) {
+		auto gameNode = CreateNode(EntityType::WORKER, Vec2i(position.x, position.y));
+		movingObjects.push_back(gameNode);
+		SendMessageNoBubbling(StringHash(ACT_MAP_OBJECT_CHANGED), 0,
+			new MapObjectChangedEvent(ObjectChangeType::MOVING_CREATED, nullptr, gameNode), nullptr);
 	}
 
 	bool IsPositionFreeForBridge(Vec2i position) {
@@ -127,6 +137,10 @@ public:
 		CreateDynamicObject(position, EntityType::DESTROY_MARK);
 	}
 
+	void SpawnWorker(ofVec2f position) {
+		CreateMovingObject(position, EntityType::WORKER);
+	}
+
 	void DestroyDynamicObject(Vec2i position) {
 		auto node = hydroqMap->GetNode(position.x, position.y);
 		node->occupied = false;
@@ -139,9 +153,10 @@ public:
 			new MapObjectChangedEvent(ObjectChangeType::DYNAMIC_REMOVED, node, obj), nullptr);
 	}
 
-	Node* CreateNode(EntityType entityType, Vec2i position) {
+	Node* CreateNode(EntityType entityType, ofVec2f position) {
 
 		string name;
+		Behavior* nodeBeh = nullptr;
 
 		if (entityType == EntityType::BRIDGE_MARK) {
 			name = "bridgemark";
@@ -157,15 +172,33 @@ public:
 		}
 		else if (entityType == EntityType::SEEDBED) {
 			name = "seedbed";
+			nodeBeh = new Seedbed();
+		}
+		else if (entityType == EntityType::WORKER) {
+			name = "worker";
+			nodeBeh = new Worker();
 		}
 
 		Node* nd = new Node(name);
 		nd->AddAttr(ATTR_GAME_ENTITY_TYPE, entityType);
-		nd->AddAttr(ATTR_ENTITY_POSITION, position);
-		dynObjects[position] = nd;
-		rootNode->AddChild(nd);
+		nd->GetTransform().localPos.x = position.x;
+		nd->GetTransform().localPos.y = position.y;
+		
+		// add behavior into node
+		if (nodeBeh != nullptr) {
+			nd->AddBehavior(nodeBeh);
+		}
 
+		rootNode->AddChild(nd);
 		return nd;
+	}
+
+	map<Vec2i, Node*>& GetDynamicObjects() {
+		return this->dynObjects;
+	}
+
+	vector<Node*>& GetMovingObjects() {
+		return this->movingObjects;
 	}
 
 	virtual void Update(const uint64 delta, const uint64 absolute) {

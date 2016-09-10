@@ -47,6 +47,8 @@ class BrickEventBehavior : public Behavior {
 
 				ofVec2f endPos = touch->input->position;
 
+				if (touch->input->IsProcessed()) return;
+
 				bool isPointerOver = true;
 				// android tolerance
 #ifdef ANDROID
@@ -56,6 +58,8 @@ class BrickEventBehavior : public Behavior {
 				if (isPointerOver) {
 					auto shape = owner->GetShape();
 					
+					touch->input->SetIsProcessed(true);
+
 					// get pressed brick
 					float shapeWidth = shape->GetWidth()*owner->GetTransform().absScale.x;
 					float shapeHeight = shape->GetHeight()*owner->GetTransform().absScale.y;

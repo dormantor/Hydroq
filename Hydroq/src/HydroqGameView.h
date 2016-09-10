@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Component.h"
-#include "ofxSQLite.h"
 #include "HydroqDef.h"
 #include "Events.h"
 #include "HydMap.h"
@@ -19,11 +18,12 @@ class HydroqGameView : public Component {
 private:
 	spt<SpritesShape> staticSprites;
 
+	spt<SpriteSet> defaultSpriteSet;
 	// dynamic sprites are not positioned
 	spt<SpritesShape> dynamicSprites;
-	map<Vec2i, spt<SpriteEntity>> dynamicSpriteMap;
+	map<int, spt<SpriteEntity>> dynamicSpriteEntities;
 	HydroqSpriteManager* spriteManager;
-	spt<SpriteSet> defaultSpriteSet;
+	
 
 public:
 
@@ -43,22 +43,23 @@ public:
 	void OnMessage(Msg& msg) {
 		if (msg.GetAction() == StringHash(ACT_MAP_OBJECT_CHANGED)) {
 			MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
-			Vec2i position = evt->changedNode->GetAttr<Vec2i>(ATTR_ENTITY_POSITION);
+			auto trans = evt->changedNode->GetTransform();
 
-			if (evt->changeType == ObjectChangeType::DYNAMIC_CHANGED) {
+			if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {
 				// create new sprite
 				auto sprite = spriteManager->GetSprite(evt->changedNode->GetTag());
 				Trans transform = Trans();
-				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * position.x;
-				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * position.y;
+				transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * trans.localPos.x;
+				transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * trans.localPos.y;
 				auto newEntity = spt<SpriteEntity>(new SpriteEntity(sprite, transform));
 				dynamicSprites->GetSprites().push_back(newEntity);
-				dynamicSpriteMap[position] = newEntity;
+				dynamicSpriteEntities[evt->changedNode->GetId()] = newEntity;
 			}
-			else if (evt->changeType == ObjectChangeType::DYNAMIC_REMOVED) {
-				auto oldEntity = dynamicSpriteMap[position];
-				dynamicSpriteMap.erase(position);
-				
+			else if (evt->changeType == ObjectChangeType::DYNAMIC_REMOVED || evt->changeType == ObjectChangeType::MOVING_REMOVED) {
+
+				auto oldEntity = dynamicSpriteEntities[evt->changedNode->GetId()];
+				dynamicSpriteEntities.erase(evt->changedNode->GetId());
+
 				// todo: performance!
 				for (auto it = dynamicSprites->GetSprites().begin(); it != dynamicSprites->GetSprites().end(); ++it) {
 					if ((*it)->id == oldEntity->id) {
@@ -108,5 +109,15 @@ public:
 	}
 
 	virtual void Update(const uint64 delta, const uint64 absolute) {
+		auto model = GETCOMPONENT(HydroqGameModel);
+		auto& dynObjects = model->GetMovingObjects();
+
+		for (auto& dynObj : dynObjects) {
+			int id = dynObj->GetId();
+			auto sprite = dynamicSpriteEntities[id];
+			
+			sprite->transform.localPos.x = defaultSpriteSet->GetSpriteWidth() * dynObj->GetTransform().localPos.x;
+			sprite->transform.localPos.y = defaultSpriteSet->GetSpriteHeight() * dynObj->GetTransform().localPos.y;
+		}
 	}
 };

@@ -13,6 +13,9 @@
 #include "HydroqGameView.h"
 #include "HydroqPlayerController.h"
 
+
+#include "LuaScripting.h"
+
 /**
 * Back button simulator that checks BACKSPACE key
 */
@@ -69,6 +72,8 @@ public:
 		REGISTER_COMPONENT(spriteManager);
 		REGISTER_COMPONENT(view);
 
+		REGISTER_COMPONENT(new LuaScripting());
+
 	}
 
 	void InitComponents() {
@@ -80,6 +85,10 @@ public:
 	}
 };
 
+// todo: specify later
+#define NOSCRIPTING
+#define NODATABASE
+
 //#define TESTING
 
 #ifdef WIN32
@@ -87,23 +96,23 @@ public:
 
 
 #define CATCH_CONFIG_RUNNER
-#include "catch.hpp"
+
 #include "FlagsTest.h"
 #include "TransformTest.h"
-#include "StringHashTest.h"
-#include "SettingsTest.h"
 #include "SQLTest.h"
 #include "MeasureTest.h"
-#include "EngineTest.h"
 #include "NetworkTest.h"
 #include "StateMachineTest.h"
 #include "GoalTest.h"
+#include "SettingsTest.h"
+#include "EngineTest.h"
+#include "StringHashTest.h"
+#include "JavaScriptTest.h"
+#include "LuaTest.h"
 #include "cpplinq.hpp"
 
 int main() {
-
 	ofSetupOpenGL(800, 450, OF_WINDOW);
-
 	int result = Catch::Session().run();
 	ofRunApp(new HydroqApp());
 
@@ -113,8 +122,6 @@ int main() {
 #else
 
 int main() {
-
-
 	ofSetupOpenGL(800, 450, OF_WINDOW);
 	ofRunApp(new HydroqApp());
 

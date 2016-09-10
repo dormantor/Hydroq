@@ -6,8 +6,10 @@
 
 enum class ObjectChangeType {
 	STATIC_CHANGED,
-	DYNAMIC_CHANGED,
-	DYNAMIC_REMOVED
+	DYNAMIC_CREATED,
+	DYNAMIC_REMOVED,
+	MOVING_CREATED,
+	MOVING_REMOVED
 };
 
 class MapObjectChangedEvent : public MsgEvent {

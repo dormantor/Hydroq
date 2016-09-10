@@ -39,6 +39,9 @@
 ################################################################################
 # PROJECT_EXTERNAL_SOURCE_PATHS = 
 
+# uncomment this for more compact version
+#PROJECT_EXTERNAL_SOURCE_PATHS = ../COGengine/Source ../COGengine/3rdParty/cpplinq ../COGengine/3rdParty/network ../COGengine/3rdParty/ofxTextAlign ../COGengine/3rdParty/ofxTextLabel ../COGengine/3rdParty/smartptr ../COGengine/3rdParty/xml
+
 PROJECT_EXTERNAL_SOURCE_PATHS = ../COGengine/Source ../COGengine/3rdParty
 
 ################################################################################

@@ -13,8 +13,7 @@
     <!-- global settings -->
     <global_settings>
       <!-- debug logger, output into the console -->
-      <setting name="logger">
-        <item key="level" value="DEBUG" />
+      <setting name="logger" level="DEBUG">
         <item key="channel" value="console" />
 		<item key="module_exclude">
 		  <value>Messaging</value>

@@ -20,5 +20,6 @@
 	  <item key="forbidmark" value="21" />
 	  <item key="guardmark" value="22" />
 	  <item key="destroymark" value="23" />
+	  <item key="worker" value="16" />
 	</setting>
 </settings>
