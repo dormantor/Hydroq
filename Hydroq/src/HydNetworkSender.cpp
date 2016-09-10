@@ -69,6 +69,7 @@ void HydNetworkSender::Update(const uint64 delta, const uint64 absolute) {
 			auto msg = new UpdateMessage(updateInf);
 			spt<NetOutputMessage> netMsg = spt<NetOutputMessage>(new NetOutputMessage(1));
 			netMsg->SetData(msg);
+			netMsg->SetMsgTime(absolute);
 			netMsg->SetAction(StrId(NET_MSG_UPDATE));
 
 			if (communicator->GetNetworkState() == NetworkComState::COMMUNICATING) {

@@ -29,7 +29,7 @@ private:
 	// placed attractors
 	map<Faction, map<Vec2i, Node*>> attractors;
 	// rig entities
-	map<Vec2i, Rig> rigs;
+	map<Vec2i, spt<Rig>> rigs;
 	
 	// game scene that runs separately from the stage
 	Scene* gameScene;
@@ -224,14 +224,14 @@ public:
 	/**
 	* Gets collection of rigs
 	*/
-	map<Vec2i, Rig>& GetRigs() {
+	map<Vec2i, spt<Rig>>& GetRigs() {
 		return rigs;
 	}
 
 	/**
 	* Gets rig by position
 	*/
-	Rig& GetRigAtPosition(Vec2i pos)  {
+	spt<Rig> GetRigAtPosition(Vec2i pos)  {
 		return rigs[pos];
 	}
 

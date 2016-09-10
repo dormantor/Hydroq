@@ -190,8 +190,6 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AttractorPlacement.cpp" />
-    <ClCompile Include="src\ConfirmDialog.cpp" />
-    <ClCompile Include="src\GameEndDialog.cpp" />
     <ClCompile Include="src\GameTask.cpp" />
     <ClCompile Include="src\Helper.cpp" />
     <ClCompile Include="src\HostInit.cpp" />
@@ -205,12 +203,12 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClCompile Include="src\GameModel.cpp" />
     <ClCompile Include="src\GameView.cpp" />
     <ClCompile Include="src\GameGoals.cpp" />
+    <ClCompile Include="src\HydroqLuaMapper.cpp" />
     <ClCompile Include="src\HydroqNetMsg.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
     <ClCompile Include="src\PlayerModel.cpp" />
     <ClCompile Include="src\LeftPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\MenuBehavior.cpp" />
     <ClCompile Include="src\MenuIconBehavior.cpp" />
     <ClCompile Include="src\MultiplayerMenu.cpp" />
     <ClCompile Include="src\RigBehavior.cpp" />
@@ -241,14 +239,14 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   <ItemGroup>
     <ClInclude Include="src\AttractorPlacement.h" />
     <ClInclude Include="src\GameBoard.h" />
-    <ClInclude Include="src\ConfirmDialog.h" />
-    <ClInclude Include="src\GameEndDialog.h" />
+    <ClInclude Include="src\PlayerModelLua.h" />
     <ClInclude Include="src\GameTask.h" />
     <ClInclude Include="src\HostInit.h" />
     <ClInclude Include="src\HydNetworkReceiver.h" />
     <ClInclude Include="src\HydNetworkSender.h" />
     <ClInclude Include="src\HydAIAction.h" />
     <ClInclude Include="src\GameGoals.h" />
+    <ClInclude Include="src\HydroqLuaMapper.h" />
     <ClInclude Include="src\HydroqNetMsg.h" />
     <ClInclude Include="src\PlayerController.h" />
     <ClInclude Include="src\Rig.h" />
@@ -262,7 +260,6 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     <ClInclude Include="src\HydAISimulator.h" />
     <ClInclude Include="src\HydAIState.h" />
     <ClInclude Include="src\MsgEvents.h" />
-    <ClInclude Include="src\MenuBehavior.h" />
     <ClInclude Include="src\MenuIconBehavior.h" />
     <ClInclude Include="src\MultiplayerMenu.h" />
     <ClInclude Include="src\GameAI.h" />

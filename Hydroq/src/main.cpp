@@ -1,5 +1,4 @@
 #include "ofxCogMain.h"
-#include "MenuBehavior.h"
 #include "MenuIconBehavior.h"
 #include "GameBoard.h"
 #include "RightPanel.h"
@@ -26,9 +25,8 @@
 #include "HydAISimulator.h"
 #include "HydAIState.h"
 #include "SpriteSheetGenerator.h"
-#include "ConfirmDialog.h"
 #include "TopPanel.h"
-#include "GameEndDialog.h"
+#include "HydroqLuaMapper.h"
 
 void RegenerateSpriteSheets() {
 	SpriteSheetGenerator generator = SpriteSheetGenerator();
@@ -148,7 +146,6 @@ public:
 	}
 
 	void RegisterComponents() {
-		REGISTER_BEHAVIOR(MenuBehavior);
 		REGISTER_BEHAVIOR(SingleGameMenu);
 		REGISTER_BEHAVIOR(MultiplayerMenu);
 		REGISTER_BEHAVIOR(MenuIconBehavior);
@@ -161,9 +158,7 @@ public:
 		REGISTER_BEHAVIOR(LeftPanel);
 		REGISTER_BEHAVIOR(HostInit);
 		REGISTER_BEHAVIOR(AttractorPlacement);
-		REGISTER_BEHAVIOR(ConfirmDialog);
 		REGISTER_BEHAVIOR(TopPanel);
-		REGISTER_BEHAVIOR(GameEndDialog);
 		REGISTER_BEHAVIOR(GameModel);
 		REGISTER_BEHAVIOR(GameView);
 		REGISTER_BEHAVIOR(HydNetworkSender);
@@ -176,7 +171,7 @@ public:
 		REGISTER_COMPONENT(interpolator);
 		REGISTER_COMPONENT(new NetworkCommunicator());
 		REGISTER_COMPONENT(new LuaScripting());
-
+		REGISTER_COMPONENT(new HydroqLuaMapper());
 	}
 
 	void InitComponents() {
@@ -214,7 +209,7 @@ public:
 
 
 #define CATCH_CONFIG_RUNNER
-
+/*
 #include "FlagsTest.h"
 #include "TransformTest.h"
 #include "SQLTest.h"
@@ -224,11 +219,11 @@ public:
 #include "GoalTest.h"
 #include "SettingsTest.h"
 #include "EngineTest.h"
-#include "StrIdTest.h"
+#include "StrIdTest.h"*/
 #include "LuaTest.h"
-#include "MonteCarloTest.h"	
+/*#include "MonteCarloTest.h"	
 #include "CoroutineTest.h"
-#include "MathTest.h"
+#include "MathTest.h"*/
 
 int main() {
 	ofSetupOpenGL(800, 450, OF_WINDOW);

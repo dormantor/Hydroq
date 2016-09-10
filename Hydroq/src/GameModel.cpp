@@ -154,7 +154,7 @@ void GameModel::SpawnWorker(ofVec2f position, Faction faction, int identifier, V
 	auto node = CreateMovingObject(position, EntityType::WORKER, faction, identifier);
 	
 	cellSpace->AddObject(new NodeCellObject(node));
-	this->rigs[rigPosition].spawnedWorkers.push_back(node);
+	this->rigs[rigPosition]->spawnedWorkers.push_back(node);
 	
 	if (faction == playerModel->GetFaction()) {
 		playerModel->AddUnit(1);
@@ -226,6 +226,7 @@ void GameModel::DestroyPlatform(Vec2i position, Faction faction, int identifier)
 
 
 void GameModel::AddAttractor(Vec2i position, Faction faction, float cardinality) {
+
 	CogLogInfo("Hydroq", "Adding attractor at [%d, %d]", position.x, position.y);
 	
 	auto gameNode = CreateNode(EntityType::ATTRACTOR, position, faction, 0);
@@ -314,7 +315,7 @@ void GameModel::ChangeRigOwner(Node* rig, Faction faction) {
 		rig->ChangeAttr(ATTR_FACTION, faction);
 		
 		auto rigPos = Vec2i(rig->GetTransform().localPos.x, rig->GetTransform().localPos.y);
-		auto& workers = rigs[rigPos].spawnedWorkers;
+		auto& workers = rigs[rigPos]->spawnedWorkers;
 
 		for (auto worker : workers) {
 			// change workers faction according to the new rig owner
@@ -402,7 +403,7 @@ Node* GameModel::FindNearestRigByFaction(Faction fact, ofVec2f startPos) {
 void GameModel::GetRigsByFaction(Faction fact, vector<Node*>& output) {
 	
 	for (auto rig : rigs) {
-		if (rig.second.gameNode->GetAttr<Faction>(ATTR_FACTION) == fact) output.push_back(rig.second.gameNode);
+		if (rig.second->gameNode->GetAttr<Faction>(ATTR_FACTION) == fact) output.push_back(rig.second->gameNode);
 	}
 }
 
@@ -463,13 +464,13 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 			int totalForBlue = 0;
 			int totalForRed = 0;
 
-			auto& platforms = rig.second.platforms;
+			auto& platforms = rig.second->platforms;
 			vector<NodeCellObject*> cellObjects;
-			rig.second.factionHoldings.clear();
+			rig.second->factionHoldings.clear();
 			
 			for (auto platform: platforms) {
 				FactionHolding holding;
-				rig.second.factionHoldings[platform] = holding;
+				rig.second->factionHoldings[platform] = holding;
 				
 				cellSpace->CalcNeighbors(ofVec2f(platform.x + 0.5f, platform.y + 0.5f), 0.5f, cellObjects);
 
@@ -477,11 +478,11 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 					auto node = obj->node;
 					Faction fc = node->GetAttr<Faction>(factionAttr);
 					if (fc == Faction::BLUE) {
-						rig.second.factionHoldings[platform].blueNumber++;
+						rig.second->factionHoldings[platform].blueNumber++;
 						totalForBlue++;
 					}
 					else {
-						rig.second.factionHoldings[platform].redNumber++;
+						rig.second->factionHoldings[platform].redNumber++;
 						totalForRed++;
 					}
 				}
@@ -489,13 +490,13 @@ void GameModel::Update(const uint64 delta, const uint64 absolute) {
 			}
 
 			if (totalForBlue != totalForRed) {
-				auto rigFaction = rig.second.gameNode->GetAttr<Faction>(ATTR_FACTION);
+				auto rigFaction = rig.second->gameNode->GetAttr<Faction>(ATTR_FACTION);
 
 				if (totalForBlue > totalForRed && rigFaction != Faction::BLUE) {
-					ChangeRigOwner(rig.second.gameNode, Faction::BLUE);
+					ChangeRigOwner(rig.second->gameNode, Faction::BLUE);
 				}
 				else if(totalForBlue < totalForRed && rigFaction != Faction::RED) {
-					ChangeRigOwner(rig.second.gameNode, Faction::RED);
+					ChangeRigOwner(rig.second->gameNode, Faction::RED);
 				}
 			}
 		}
@@ -678,13 +679,12 @@ void GameModel::DivideRigsIntoFactions() {
 		hydMapNode->SetIsOccupied(true);
 		auto gameNode = CreateNode(EntityType::RIG, rig, fact, 0);
 
-		Rig rigEntity;
-		rigEntity.gameNode = gameNode;
-		rigEntity.position = rig;
+		auto rigEntity = spt<Rig>(new Rig());
+		rigEntity->gameNode = gameNode;
+		rigEntity->position = rig;
 
 		dynObjects[rig] = gameNode;
-		rigs[rig] = rigEntity;
-
+		
 		// create platform collection
 		vector<Vec2i> platforms;
 		auto pos = hydMapNode->GetPosition();
@@ -702,9 +702,10 @@ void GameModel::DivideRigsIntoFactions() {
 		platforms.push_back(Vec2i(pos.x - 1, pos.y));
 
 		for (auto platformPos : platforms) {
-			rigEntity.platforms.push_back(platformPos);
+			rigEntity->platforms.push_back(platformPos);
 		}
 
+		rigs[rig] = rigEntity;
 		// add entity into game object
 		gameNode->AddAttr(ATTR_RIGENTITY, rigEntity);
 	}

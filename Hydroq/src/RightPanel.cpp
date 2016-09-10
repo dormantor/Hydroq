@@ -27,6 +27,7 @@ void RightPanel::OnMessage(Msg& msg) {
 	}
 }
 
+
 void RightPanel::SelectBuildSection() {
 	UnSelectNodes();
 	selectedSection = Section::BUILD;

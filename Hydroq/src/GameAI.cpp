@@ -28,11 +28,11 @@ void GameAI::Update(const uint64 delta, const uint64 absolute) {
 
 
 		// if the task has been completed (there is not water at selected location), restart the task
-		if (!actualTask.isCompleted) {
+		if (!actualTask.isCompleted && !actualTask.isRestarted) {
 			if ((actualTask.type == HydAIActionType::GOTO_EMPTY || actualTask.type == HydAIActionType::GOTO_ENEMY)) {
 				for (auto pos : actualTask.positions) {
 					if (map->GetTile(pos)->GetMapTileType() != MapTileType::WATER) {
-						actualTask = AITask();
+						actualTask.isRestarted = true;
 						break;
 					}
 				}
@@ -40,7 +40,7 @@ void GameAI::Update(const uint64 delta, const uint64 absolute) {
 			else {
 				// restart the task each 10 seconds
 				if ((absolute - lastTaskTime) > 10000) {
-					actualTask = AITask();
+					actualTask.isRestarted = true;
 				}
 			}
 		}
@@ -205,9 +205,16 @@ void GameAI::Task_CaptureEmpty(RigInfo dist, uint64 absolute) {
 	COGLOGDEBUG("GameAI", "AI decision: going to capture empty rig");
 	// place attractor
 	auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
-	actualTask = AITask(HydAIActionType::CAPTURE_EMPTY, absolute);
-	actualTask.positions.push_back(pos);
-	gameModel->AddAttractor(pos, faction, 0.3f);
+	if (actualTask.isRestarted && actualTask.type == HydAIActionType::CAPTURE_EMPTY && actualTask.positions[0] == pos) {
+		actualTask.isRestarted = false;
+		actualTask.created = absolute;
+	}
+	else {
+		actualTask = AITask(HydAIActionType::CAPTURE_EMPTY, absolute);
+		actualTask.positions.push_back(pos);
+		gameModel->DestroyAllAttractors(faction);
+		gameModel->AddAttractor(pos, faction, 0.3f);
+	}
 }
 
 void GameAI::Task_CaptureEnemy(RigInfo dist, uint64 absolute) {
@@ -216,10 +223,17 @@ void GameAI::Task_CaptureEnemy(RigInfo dist, uint64 absolute) {
 	COGLOGDEBUG("GameAI", "AI decision: going to capture enemy rig");
 	// place attractor
 	auto pos = Vec2i(dist.nearest.x + 1, dist.nearest.y + 1);
-	actualTask = AITask(HydAIActionType::CAPTURE_ENEMY, absolute);
-	actualTask.positions.push_back(pos);
-	gameModel->DestroyAllAttractors(faction);
-	gameModel->AddAttractor(pos, faction, 0.8f);
+
+	if (actualTask.isRestarted && actualTask.type == HydAIActionType::CAPTURE_ENEMY && actualTask.positions[0] == pos) {
+		actualTask.isRestarted = false;
+		actualTask.created = absolute;
+	}
+	else {
+		actualTask = AITask(HydAIActionType::CAPTURE_ENEMY, absolute);
+		actualTask.positions.push_back(pos);
+		gameModel->DestroyAllAttractors(faction);
+		gameModel->AddAttractor(pos, faction, 0.8f);
+	}
 }
 
 void GameAI::Task_Goto(RigInfo nearestRig, uint64 absolute) {

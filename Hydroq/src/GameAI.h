@@ -20,6 +20,8 @@ struct AITask {
 	uint64 created;
 	// indicator, if the task is completed
 	bool isCompleted = true;
+	// indicator whether the task was restarted
+	bool isRestarted = false;
 	
 	AITask() : type(HydAIActionType::GOTO_EMPTY), created(0), isCompleted(true) {
 

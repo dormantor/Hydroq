@@ -90,16 +90,17 @@ void GameView::OnMessage(Msg& msg) {
 			spt<SpriteInst> sprEntity = staticSpriteMap[mapNode->GetPosition()];
 			auto sprite = spriteTypes[mapNode->GetMapTileName()][0];
 			sprEntity->sprite = sprite;
+
 		}
 		else if (evt->changeType == ObjectChangeType::RIG_CAPTURED || evt->changeType == ObjectChangeType::RIG_TAKEN) {
 			auto node = evt->changedNode;
 			Vec2i pos = Vec2i(node->GetTransform().localPos.x, node->GetTransform().localPos.y);
 			auto fact = node->GetAttr<Faction>(ATTR_FACTION);
 
-			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact == playerModel->GetFaction()) this->CreateAnimationText("You captured empty rig!");
-			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact != playerModel->GetFaction()) this->CreateAnimationText("Enemy captured empty rig!");
-			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact == playerModel->GetFaction()) this->CreateAnimationText("You captured enemy rig!");
-			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact != playerModel->GetFaction()) this->CreateAnimationText("Enemy captured your riiiiiig !!!!");
+			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact == playerModel->GetFaction()) this->CreateAnimationText("You have captured empty rig!");
+			if (evt->changeType == ObjectChangeType::RIG_TAKEN && fact != playerModel->GetFaction()) this->CreateAnimationText("Enemy has captured empty rig!");
+			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact == playerModel->GetFaction()) this->CreateAnimationText("You have captured enemy rig!");
+			if (evt->changeType == ObjectChangeType::RIG_CAPTURED && fact != playerModel->GetFaction()) this->CreateAnimationText("Enemy has captured your rig!");
 
 			if (evt->changeType == ObjectChangeType::RIG_TAKEN) {
 				rigsToAnimate.push_back(evt->changedNode);
@@ -372,11 +373,11 @@ void GameView::Update(const uint64 delta, const uint64 absolute) {
 
 			for (auto& rig : gameModel->GetRigs()) {
 				
-				for (auto platformPos :rig.second.platforms) {
+				for (auto platformPos :rig.second->platforms) {
 					auto platform = this->staticSpriteMap[platformPos];
 					if (!platform) return;
 
-					auto& holding = rig.second.factionHoldings[platformPos];
+					auto& holding = rig.second->factionHoldings[platformPos];
 
 					if (holding.blueNumber == 0 && holding.redNumber == 0) {
 

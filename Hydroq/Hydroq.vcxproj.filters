@@ -29,13 +29,7 @@
     <ClCompile Include="src\HydAIState.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="src\ConfirmDialog.cpp">
-      <Filter>MainMenu</Filter>
-    </ClCompile>
     <ClCompile Include="src\HostInit.cpp">
-      <Filter>MainMenu</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MenuBehavior.cpp">
       <Filter>MainMenu</Filter>
     </ClCompile>
     <ClCompile Include="src\SingleGameMenu.cpp">
@@ -77,9 +71,6 @@
     <ClCompile Include="src\TopPanel.cpp">
       <Filter>GameGUI</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameEndDialog.cpp">
-      <Filter>GameGUI</Filter>
-    </ClCompile>
     <ClCompile Include="src\GameBoard.cpp">
       <Filter>GameGUI</Filter>
     </ClCompile>
@@ -97,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="src\MenuIconBehavior.cpp">
       <Filter>GameGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydroqLuaMapper.cpp">
+      <Filter>Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,9 +110,6 @@
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="src\HostInit.h">
-      <Filter>MainMenu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MenuBehavior.h">
       <Filter>MainMenu</Filter>
     </ClInclude>
     <ClInclude Include="src\MultiplayerMenu.h">
@@ -151,9 +142,6 @@
     <ClInclude Include="src\RigBehavior.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="src\ConfirmDialog.h">
-      <Filter>MainMenu</Filter>
-    </ClInclude>
     <ClInclude Include="src\GameMap.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -184,9 +172,6 @@
     <ClInclude Include="src\TopPanel.h">
       <Filter>GameGUI</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameEndDialog.h">
-      <Filter>GameGUI</Filter>
-    </ClInclude>
     <ClInclude Include="src\GameBoard.h">
       <Filter>GameGUI</Filter>
     </ClInclude>
@@ -207,6 +192,12 @@
     </ClInclude>
     <ClInclude Include="src\Rig.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HydroqLuaMapper.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlayerModelLua.h">
+      <Filter>Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

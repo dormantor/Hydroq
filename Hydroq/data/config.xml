@@ -16,12 +16,17 @@
       <setting name="logger" level="DEBUG">
         <item key="channel" value="console" />
 		<item key="module_include">
+		  <value>Measure</value>
 		  <value>GameAI</value>
 		</item>
       </setting>
 	  
 	  <setting name="display">
 	    <item key="aspect_ratio" value="16/9" />
+	  </setting>
+	  
+	  <setting name="sounds">
+	    <item key="mute" value="true" />
 	  </setting>
     </global_settings>
 
@@ -40,6 +45,11 @@
 	<font name="MotionControl-Bold.otf" size="50" />
   </fonts>
 
+  <scripts>
+    <script name="MenuBehavior" path="Scripts/MenuBehavior.lua" />
+	<script name="ConfirmDialog" path="Scripts/ConfirmDialog.lua" />
+	<script name="GameEndDialog" path="Scripts/GameEndDialog.lua" />
+  </scripts>
   
   <spritesheets>
     <spritesheet name="game_board" img="bricks/brickmap.png">
@@ -580,7 +590,7 @@
 		 
         <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
 		<node name="gameend_msg">
-		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">You lost the game!</text>
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">You have lost the game!</text>
            <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />
 		</node>
 		<node name="ok_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">

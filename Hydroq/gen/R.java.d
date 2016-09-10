@@ -11,6 +11,7 @@ F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\layout\main_layout.xml \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\menu\main_layout.xml \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\raw\ofdataresources.zip \
+F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\raw\zia03292 \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\values\strings.xml \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\values\styles.xml \
 F:\DATACORE\core\PROJECT\Projekty_II\GameDev\trunk\Development\Stage2\Hydroq\res\values-v11\styles.xml \
