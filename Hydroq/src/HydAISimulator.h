@@ -22,7 +22,7 @@ public:
 	}
 
 	void InitState() {
-		this->actualState = HydAIState(AGENT_PLAYER);
+		this->actualState = HydAIState(AGENT_AI);
 		this->actualState.distancesBlue.push_back(5);
 		this->actualState.distancesRed.push_back(5);
 		this->actualState.distancesBlueEmpty.push_back(2);
@@ -54,13 +54,13 @@ public:
 				if (!isSimulation) COGLOGDEBUG("AI", "Red absorbed blue rig at index %d", index);
 				actualState.RemoveBlueRig(index);
 				actualState.distancesRed.push_back(1);
-				rewards = AgentsReward(10, 0);
+				rewards = AgentsReward(100, 0);
 			}
 			else {
 				if (!isSimulation) COGLOGDEBUG("AI", "Blue absorbed red rig at index %d", index);
 				actualState.RemoveRedRig(index);
 				actualState.distancesBlue.push_back(1);
-				rewards = AgentsReward(0, 10);
+				rewards = AgentsReward(0, 100);
 			}
 		}
 		else if (act.type == HydAIActionType::CAPTURE_EMPTY_RIG) {
@@ -68,13 +68,13 @@ public:
 				if (!isSimulation) COGLOGDEBUG("AI", "Red absorbed empty rig at index %d", index);
 				actualState.distancesRed.push_back(actualState.distancesRedEmpty[index]);
 				actualState.RemoveEmptyRig(index);
-				rewards = AgentsReward(5, 0);
+				rewards = AgentsReward(50, 0);
 			}
 			else {
 				if (!isSimulation) COGLOGDEBUG("AI", "Blue absorbed empty rig at index %d", index);
 				actualState.distancesBlue.push_back(actualState.distancesBlueEmpty[index]);
 				actualState.RemoveEmptyRig(index);
-				rewards = AgentsReward(0, 5);
+				rewards = AgentsReward(0, 50);
 			}
 		}
 		else if (act.type == HydAIActionType::GO_TO_EMPTY_RIG) {
@@ -106,7 +106,7 @@ public:
 			COGLOGDEBUG("AI", actualState.WriteInfo().c_str());
 		}
 
-		this->actualState.SwapAgentOnTurn();
+		this->actualState.SwapAgentOnTurn(this->agentsNumber);
 		this->actualState.Recalc();
 		RecalcPossibleActions();
 	}
@@ -141,7 +141,5 @@ protected:
 				possibleActions.push_back(HydAIAction(HydAIActionType::GO_TO_EMPTY_RIG, i));
 			}
 		}
-
 	}
-
 };

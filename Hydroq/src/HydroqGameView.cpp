@@ -14,6 +14,8 @@ void HydroqGameView::Init() {
 
 void HydroqGameView::OnMessage(Msg& msg) {
 	if (msg.HasAction(ACT_MAP_OBJECT_CHANGED)) {
+		this->SaveMapImageToFile("F:\\mojo.png");
+		
 		MapObjectChangedEvent* evt = static_cast<MapObjectChangedEvent*>(msg.GetData());
 
 		if (evt->changeType == ObjectChangeType::DYNAMIC_CREATED || evt->changeType == ObjectChangeType::MOVING_CREATED) {
@@ -104,6 +106,7 @@ void HydroqGameView::LoadSprites(Setting sprites) {
 
 
 void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
+
 	auto model = GETCOMPONENT(HydroqGameModel);
 	auto& movingObjects = model->GetMovingObjects();
 
@@ -132,4 +135,22 @@ void HydroqGameView::Update(const uint64 delta, const uint64 absolute) {
 			sprite->sprite = spt<Sprite>(new Sprite(defaultSpriteSet, frame));
 		}
 	}
+}
+
+void HydroqGameView::SaveMapImageToFile(string file){
+	// ============ uncomment this if you want to generate map image for detail window ===============
+	auto gameModel = GETCOMPONENT(HydroqGameModel);
+	auto cache = GETCOMPONENT(ResourceCache);
+	auto spriteSheet = cache->GetSpriteSheet("game_board");
+	MapLoader mapLoader;
+	Settings mapConfig = Settings();
+	auto xml = CogLoadXMLFile("mapconfig.xml");
+	xml->pushTag("settings");
+	mapConfig.LoadFromXml(xml);
+	xml->popTag();
+	string mapPath = mapConfig.GetSettingVal("maps_files", gameModel->GetMapName());
+	auto bricks = mapLoader.LoadFromPNGImage(mapPath, mapConfig.GetSetting("names"));
+	mapLoader.GenerateMapImage(bricks, spriteTypes, spriteSheet, file, 0.1f);
+
+	// ===============================================================================================
 }

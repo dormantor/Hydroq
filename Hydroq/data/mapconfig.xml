@@ -6,6 +6,7 @@
 		<item key="0x333301" value="rig_topright" />
 		<item key="0x333302" value="rig_botleft" />
 		<item key="0x333303" value="rig_botright" />
+		<item key="0x333308" value="rig_platform" />
 	</setting>
 	
 	<setting name="sprites">
@@ -23,15 +24,20 @@
 	  <item key="destroymark" value="23" />
 	  <item key="worker_red" value="24" />
 	  <item key="worker_blue" value="16" />
+	  <item key="rig_platform" value="32" />
 	</setting>
 	
 	<setting name="maps_files">
-	  <item key="Small map" value="map_2.png" />
-	  <item key="Bigger map" value="map_1.png" />
+	  <item key="Alpha" value="maps/map_1.png" />
+	  <item key="Beta" value="maps/map_2.png" />
+	  <item key="Gamma" value="maps/map_3.png" />
+	  <item key="Delta" value="maps/map_4.png" />
 	</setting>
 	
 	<setting name="maps_icons">
-	  <item key="Small map" value="map_2_icon.png" />
-	  <item key="Bigger map" value="map_1_icon.png" />
+	  <item key="Alpha" value="maps/map_1_icon.png" />
+	  <item key="Beta" value="maps/map_2_icon.png" />
+	  <item key="Gamma" value="maps/map_3_icon.png" />
+	  <item key="Delta" value="maps/map_4_icon.png" />
 	</setting>
 </settings>

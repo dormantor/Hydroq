@@ -35,41 +35,16 @@ public:
 	}
 
 	void RemoveRedRig(int index) {
-		int counter = 0;
-		for (auto it = distancesRed.begin(); it != distancesRed.end(); ++it) {
-			if (counter++ == index) {
-				distancesRed.erase(it);
-				break;
-			}
-		}
+		RemoveFromArray(index, distancesRed);
 	}
 
 	void RemoveBlueRig(int index) {
-		int counter = 0;
-		for (auto it = distancesBlue.begin(); it != distancesBlue.end(); ++it) {
-			if (counter++ == index) {
-				distancesBlue.erase(it);
-				break;
-			}
-		}
+		RemoveFromArray(index, distancesBlue);
 	}
 
 	void RemoveEmptyRig(int index) {
-		int counter = 0;
-		for (auto it = distancesBlueEmpty.begin(); it != distancesBlueEmpty.end(); ++it) {
-			if (counter++ == index) {
-				distancesBlueEmpty.erase(it);
-				break;
-			}
-		}
-
-		counter = 0;
-		for (auto it = distancesRedEmpty.begin(); it != distancesRedEmpty.end(); ++it) {
-			if (counter++ == index) {
-				distancesRedEmpty.erase(it);
-				break;
-			}
-		}
+		RemoveFromArray(index, distancesBlueEmpty);
+		RemoveFromArray(index, distancesRedEmpty);
 	}
 
 	string WriteInfo() {
@@ -100,10 +75,6 @@ public:
 		return ss.str();
 	}
 
-	void SwapAgentOnTurn() {
-		this->agentOnTurn = (agentOnTurn == 0) ? 1 : 0;
-	}
-
 	int GetBlueRigsNum() {
 		return distancesBlue.size();
 	}
@@ -111,6 +82,18 @@ public:
 	int GetRedRigsNum() {
 		return distancesRed.size();
 	}
+
+private:
+	void RemoveFromArray(int index, vector<int>& ar) {
+		int counter = 0;
+		for (auto it = ar.begin(); it != ar.end(); ++it) {
+			if (counter++ == index) {
+				ar.erase(it);
+				break;
+			}
+		}
+	}
+
 
 	void Recalc() {
 		sort(distancesRed.begin(), distancesRed.end(),
@@ -153,10 +136,12 @@ public:
 		for (int i = 0; i < distancesBlueEmpty.size(); i++) {
 			if (distancesBlueEmpty[i] != rhs.distancesBlueEmpty[i]) return false;
 		}
+
+		return true;
 	}
 
 	bool operator !=(const HydAIState& rhs) const { return !(*this == rhs); }
 
-
+	friend class HydAISimulator;
 };
 

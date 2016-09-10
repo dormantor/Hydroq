@@ -127,6 +127,8 @@ public:
 		for (auto node : nodes) {
 			RefreshNode(node);
 		}
+
+		delete brickMap;
 	}
 
 	void RefreshNode(Vec2i position) {
