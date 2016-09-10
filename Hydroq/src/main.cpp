@@ -11,6 +11,32 @@ using namespace Cog;
 
 #include "CogEngine.h"
 
+/**
+* Back button simulator that checks BACKSPACE key
+*/
+class BackButtonKey : public Behavior {
+	OBJECT_PROTOTYPE(BackButtonKey)
+
+	void Init() {
+	}
+
+public:
+	virtual void Update(const uint64 delta, const uint64 absolute) {
+		for (auto key : CogGetPressedKeys()) {
+
+			if (!key->IsHandled()) {
+				// handle key press
+				key->handlerNodeId = owner->GetId();
+				if (key->key == OF_KEY_BACKSPACE) {
+					// simulate back button
+					auto sceneContext = GETCOMPONENT(SceneContext);
+					sceneContext->SwitchBackToScene(TweenDirection::NONE);
+				}
+			}
+		}
+	}
+
+};
 
 class MenuBehavior : public Behavior {
 	OBJECT_PROTOTYPE(MenuBehavior)
@@ -21,13 +47,12 @@ class MenuBehavior : public Behavior {
 
 	void OnMessage(Msg& msg) {
 
-
 		if (msg.GetAction() == ACT_OBJECT_HIT_ENDED) {
 			if (msg.GetSourceObject()->GetTag().compare("sgame_but") == 0) {
 				// click on single game button -> switch scene
 				auto sceneContext = GETCOMPONENT(SceneContext);
 				auto scene = sceneContext->FindSceneByName("main_menu_map");
-				sceneContext->SwitchToScene(scene);
+				sceneContext->SwitchToScene(scene, TweenDirection::NONE);
 			}else if (msg.GetSourceObject()->GetTag().compare("play_but") == 0) {
 				// click on play button -> switch scene
 				auto sceneContext = GETCOMPONENT(SceneContext);
@@ -76,7 +101,7 @@ class MenuIconBehavior : public Behavior {
 				if (owner->HasState(StringHash(STATES_ENABLED))) {
 					owner->ResetState(StringHash(STATES_ENABLED));
 					// roll menu back
-					Node* menu = CogFindNodeByTag("rightpanel");
+					Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
 					TransformAnim* anim = new TransformAnim(animTrans, initTrans, 250, 0);
 					menu->AddBehavior(anim);
 				}
@@ -84,7 +109,7 @@ class MenuIconBehavior : public Behavior {
 					owner->SetState(StringHash(STATES_ENABLED));
 
 					// roll the menu
-					Node* menu = CogFindNodeByTag("rightpanel");
+					Node* menu = owner->GetScene()->FindNodeByTag("rightpanel");
 					TransformAnim* anim = new TransformAnim(initTrans, animTrans, 250, 0);
 					menu->AddBehavior(anim);
 				}
@@ -102,7 +127,7 @@ class HydroqBoard : public Behavior {
 
 
 	void Init() {
-		spt<ofImage> img = CogGet2DImage("bricks/water.png");
+		/*spt<ofImage> img = CogGet2DImage("bricks/water.png");
 		TransformMath mth = TransformMath();
 
 		float brickRow = 20;
@@ -114,7 +139,7 @@ class HydroqBoard : public Behavior {
 				mth.SetTransform(nd, owner, ofVec2f(1.0f/brickRow*i, 1.0f/brickRow*j), 5, CalcType::PER, ofVec2f(0), ofVec2f(1.0f/brickRow), CalcType::PER, 5, 5);
 				owner->AddChild(nd);
 			}
-		}
+		}*/
 	}
 
 	void OnMessage(Msg& msg) {
@@ -137,9 +162,9 @@ class XmlTestingApp : public CogApp {
 	}
 
 	void InitEngine() {
-		ofxXmlSettings* xml = new ofxXmlSettings();
+		ofxXml* xml = new ofxXml();
 		xml->loadFile("config.xml");
-		auto xmlPtr = spt<ofxXmlSettings>(xml);
+		auto xmlPtr = spt<ofxXml>(xml);
 
 		COGEngine.Init(xmlPtr);
 
@@ -149,6 +174,9 @@ class XmlTestingApp : public CogApp {
 
 		auto context = GETCOMPONENT(SceneContext);
 		context->LoadScenesFromXml(xmlPtr);
+
+		// add back button simulator
+		context->GetRootObject()->AddBehavior(new BackButtonKey());
 
 		xmlPtr->popTag();
 	}

@@ -34,9 +34,17 @@
     </project_settings>
   </settings>
  
+  <!-- collection of fonts -->
+  <fonts>
+    <font name="MotionControl-Bold.otf" size="62" />
+	<font name="MotionControl-Bold.otf" size="60" />
+	<font name="MotionControl-Bold.otf" size="40" />
+	<font name="MotionControl-Bold.otf" size="54" />
+	<font name="MotionControl-Bold.otf" size="50" />
+  </fonts>
 
   <!-- collection of scenes -->
-  <scenes initial="main_menu">
+  <scenes initial="main_menu" loading="loading">
 
     <scene name="main_menu">
 		  <!-- scene settings overrides default settings -->
@@ -148,7 +156,7 @@
 		<node name="board_3" img="menu_selectboard.png" >
 		  <transform pos_x="0.75" pos_y="0.3" ptype="per" stype="loc" anchor_x="0.5" />
 		
-		  <node name="faction_red" img="menu_selection.png">
+		  <node name="faction_red" img="menu_selection.png" img_select="menu_selection_selected.png" select_group="faction_select">
 		    <transform pos_x="0.5" pos_y="0.1" ptype="per" stype="loc" anchor_x="0.5" />
 			
 			<node name="icon_red" img="menu_faction_red.png">
@@ -156,9 +164,10 @@
 			</node>
 		  </node>
 		  
-		  <node name="faction_blue" img="menu_selection.png">
+		  <node name="faction_blue" img="menu_selection.png" img_select="menu_selection_selected.png" select_group="faction_select" >
 		    <transform pos_x="0.5" pos_y="0.1" ptype="per" stype="loc" anchor_x="0.5" anchor_y="-1.2" />
-		  
+			<state>SELECTED</state>
+			 
 			<node name="icon_blue" img="menu_faction_blue.png">
 			  <transform pos="0.5" ptype="per" stype="loc" anchor="0.5"/>
 			</node>
@@ -176,8 +185,27 @@
       </node>
     </scene>
 	
+	<scene name="loading">
+	  <scene_settings>
+        <setting name="transform">
+          <item key="grid_width" value="100" />
+          <item key="grid_height" value="53" />
+        </setting>
+      </scene_settings>
+	  
+	  <node name="parent" type="background" img="loading_background.png">
+	    <node name="worker" img="loading_worker.png">
+		  <transform pos_x="50" pos_y="20" anchor="0.5" ptype="grid" stype="loc" />
+		</node>
+		
+		<node name="loading_text">
+		  <text font="MotionControl-Bold.otf" size="60" color="0xFFFFFF">Loading...</text>
+          <transform pos_x="50" pos_y="40" anchor="0.5" ptype="grid" size="1" stype="loc"  />
+		</node>
+	  </node>
+	</scene>
 	
-    <scene name="game">
+    <scene name="game" lazy="true" >
 	   <scene_settings>
         <setting name="transform">
           <!-- grid sizing -->
