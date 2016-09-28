@@ -1,3 +1,7 @@
 Hydroq/msys_libs/
 Hydroq/.settings/
 Hydroq/res/raw/ofdataresources.zip
+Hydroq/bin/
+Hydroq/obj/
+Hydroq/.vs/
+Hydroq/Hydroq.VC.db
