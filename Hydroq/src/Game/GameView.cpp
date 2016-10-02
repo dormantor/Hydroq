@@ -13,7 +13,7 @@
 #include "TransformMath.h"
 #include "MapLoader.h"
 #include "TransformAnim.h"
-#include "ResourceCache.h"
+#include "Resources.h"
 #include "HydNetworkReceiver.h"
 
 void GameView::OnInit() {
@@ -21,7 +21,7 @@ void GameView::OnInit() {
 
 	gameModel = owner->GetBehavior<GameModel>();
 	playerModel = GETCOMPONENT(PlayerModel);
-	auto resCache = GETCOMPONENT(ResourceCache);
+	auto resCache = GETCOMPONENT(Resources);
 	hydroqSettings = resCache->GetProjectSettings();
 }
 
@@ -57,7 +57,7 @@ void GameView::OnMessage(Msg& msg) {
 
 void GameView::LoadSprites(Setting sprites) {
 	auto map = gameModel->GetMap();
-	auto cache = GETCOMPONENT(ResourceCache);
+	auto cache = GETCOMPONENT(Resources);
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
 	defaultSpriteSet = spriteSheet->GetDefaultSpriteSet();
 	
@@ -175,7 +175,7 @@ void GameView::Update(const uint64 delta, const uint64 absolute) {
 
 void GameView::SaveMapImageToFile(string file){
 	// ============ uncomment this if you want to generate map image for detail window ===============
-	auto cache = GETCOMPONENT(ResourceCache);
+	auto cache = GETCOMPONENT(Resources);
 	auto spriteSheet = cache->GetSpriteSheet("game_board");
 	MapLoader mapLoader;
 	Settings mapConfig = Settings();

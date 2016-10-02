@@ -63,7 +63,7 @@ public:
 class HydroqApp : public ofxCogApp {
 public:
 
-	HydroqApp() : ofxCogApp("config/config.xml") {
+	HydroqApp() : ofxCogApp() {
 
 	}
 
@@ -100,7 +100,7 @@ public:
 	}
 
 	void InitStage(Stage* stage) {
-		ofxCogEngine::GetInstance().LoadStageFromXml(this->xmlConfig);
+		ofxCogEngine::GetInstance().LoadStage();
 		stage->GetRootObject()->AddBehavior(new BackButtonKey());
 	}
 

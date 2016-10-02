@@ -7,7 +7,7 @@
 #include "GameModel.h"
 
 namespace Cog {
-	class ResourceCache;
+	class Resources;
 }
 
 using namespace Cog;
@@ -18,7 +18,7 @@ using namespace Cog;
 class TileEventBehavior : public Behavior {
 
 	Node* objectBoard;
-	ResourceCache* cache;
+	Resources* cache;
 	ofVec2f hitPos;
 	int mapWidth = 0;
 	int mapHeight = 0;

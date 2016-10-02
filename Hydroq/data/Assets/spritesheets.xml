@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <spritesheet name="game_board" img="bricks/brickmap.png">
+    <spriteset frames="256" sprite_width="256" sprite_height="256"  />
+  </spritesheet>
+</resources>

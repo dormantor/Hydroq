@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+  <setting name="logger" level="DEBUG">
+    <item key="channel" value="console" />
+	<item key="module_include">
+      <value>xx</value>
+	</item>
+  </setting>
+	  
+  <setting name="display">
+	<item key="aspect_ratio" value="16/9" />
+  </setting>
+	  
+  <setting name="sounds">
+	<item key="mute" value="false" />
+  </setting>
+ 
+  <setting name="initial_scene" value="main_menu" />
+  <setting name="loading_scene" value="loading" />
+ 
+</resources>	

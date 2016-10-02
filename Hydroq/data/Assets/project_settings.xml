@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+  <setting name="hydroq_set">
+	<item key="place_enemy_bridge" value="false"/>
+	<item key="unit_max_acc" value="60" />
+	<item key="unit_max_radial_acc" value="10" />
+	<item key="building_delay" value="350" />
+	<item key="destroy_delay" value="1500" />
+	<item key="rig_capacity" value="20" />
+	<item key="rig_spawn_frequency" value="0.3" />
+  </setting>
+</resources>	

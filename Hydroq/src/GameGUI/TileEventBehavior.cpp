@@ -1,10 +1,10 @@
 #include "TileEventBehavior.h"
 #include "ComponentStorage.h"
-#include "ResourceCache.h"
+#include "Resources.h"
 
 void TileEventBehavior::OnInit() {
 	SubscribeForMessages(ACT_OBJECT_HIT_STARTED, ACT_OBJECT_HIT_ENDED);
-	cache = GETCOMPONENT(ResourceCache);
+	cache = GETCOMPONENT(Resources);
 	gameView = owner->GetBehavior<GameView>();
 }
 

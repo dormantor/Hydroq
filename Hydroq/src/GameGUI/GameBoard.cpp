@@ -7,7 +7,7 @@
 #include "ComponentStorage.h"
 
 void GameBoard::OnInit() {
-	cache = GETCOMPONENT(ResourceCache);
+	cache = GETCOMPONENT(Resources);
 	auto playerModel = GETCOMPONENT(PlayerModel);
 	auto gameModel = owner->GetBehavior<GameModel>();
 

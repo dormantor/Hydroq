@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="menu_single_game">Single game</string>
+  <string name="menu_multiplayer">Multiplayer</string>
+  <string name="menu_maps">Maps:</string>
+  <string name="menu_play">PLAY</string>
+  <string name="menu_hosts">Hosts:</string>
+  <string name="menu_connect">CONNECT</string>
+  <string name="menu_host">HOST</string>
+  <string name="menu_listening">Listening...</string>
+  <string name="menu_loading">Loading...</string>
+  
+  <string name="game_build">Build</string>
+  <string name="game_destroy">Destroy</string>
+  <string name="game_forbid">Forbid</string>
+  <string name="game_attractor">Attractor</string>
+  
+  <string name="game_end_confirm">Do you really want to exit the game?</string>
+  <string name="game_yes">Yes</string>
+  <string name="game_no">No</string>
+  <string name="game_lost_msg">You have lost the game!</string>
+  <string name="game_exit">Exit</string>
+  <string name="game_reconnecting">Connection lost! Reconnecting...</string>
+  <string name="game_disconnect">Disconnect</string>
+</resources>

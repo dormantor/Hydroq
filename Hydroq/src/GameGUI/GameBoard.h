@@ -4,7 +4,7 @@
 #include "Settings.h"
 #include "Transform.h"
 #include "Definitions.h"
-#include "ResourceCache.h"
+#include "Resources.h"
 
 using namespace Cog;
 
@@ -15,7 +15,7 @@ using namespace Cog;
 class GameBoard : public Behavior {
 	
 private:
-	ResourceCache* cache;
+	Resources* cache;
 	Settings mapConfig;
 
 public:

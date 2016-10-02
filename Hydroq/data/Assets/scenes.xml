@@ -1,74 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<app_config>
-
-  <settings>
-    <!-- default values -->
-    <default_settings>
-	  <setting name="transform">
-		<item key="ref_width" value="1775" />
-		<item key="ref_height" value="993" />
-      </setting>
-    </default_settings>
-
-    <!-- global settings -->
-    <global_settings>
-      <!-- debug logger, output into the console -->
-      <setting name="logger" level="DEBUG">
-        <item key="channel" value="console" />
-		<item key="module_include">
-		  <value>xx</value>
-		</item>
-      </setting>
-	  
-	  <setting name="display">
-	    <item key="aspect_ratio" value="16/9" />
-	  </setting>
-	  
-	  <setting name="sounds">
-	    <item key="mute" value="false" />
-	  </setting>
-    </global_settings>
-
-    <!-- project settings (game logic etc) -->
-    <project_settings>
-	  <setting name="hydroq_set">
-	    <item key="place_enemy_bridge" value="false"/>
-		<item key="unit_max_acc" value="60" />
-		<item key="unit_max_radial_acc" value="10" />
-		<item key="building_delay" value="350" />
-		<item key="destroy_delay" value="1500" />
-		<item key="rig_capacity" value="20" />
-		<item key="rig_spawn_frequency" value="0.3" />
-	  </setting>
-    </project_settings>
-  </settings>
- 
-  <!-- collection of fonts -->
-  <fonts>
-    <font name="MotionControl-Bold.otf" size="62" />
-	<font name="MotionControl-Bold.otf" size="60" />
-	<font name="MotionControl-Bold.otf" size="40" />
-	<font name="MotionControl-Bold.otf" size="54" />
-	<font name="MotionControl-Bold.otf" size="50" />
-  </fonts>
-
-  <scripts>
-    <script name="MenuBehavior" path="Scripts/MenuBehavior.lua" />
-	<script name="ConfirmDialog" path="Scripts/ConfirmDialog.lua" />
-	<script name="GameEndDialog" path="Scripts/GameEndDialog.lua" />
-	<script name="ReconnectDialog" path="Scripts/ReconnectDialog.lua" />
-  </scripts>
-  
-  <spritesheets>
-    <spritesheet name="game_board" img="bricks/brickmap.png">
-	  <spriteset frames="256" sprite_width="256" sprite_height="256"  />
-	</spritesheet>
-  </spritesheets>
- 
-  
-  <!-- collection of scenes -->
-  <scenes initial="main_menu" loading="loading">
-
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <scene name="main_menu">
 		  <!-- scene settings overrides default settings -->
       <scene_settings>
@@ -109,7 +40,7 @@
           <transform pos_x="50gr" pos_y="23gr" anchor="0.5" />
 
           <node name="sgame_but_text">
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Single game</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/menu_single_game</text>
             <transform pos="0.5r" anchor="0.5" size="1"  />
           </node>
         </node>
@@ -117,7 +48,7 @@
           <transform pos_x="50gr" pos_y="35gr" anchor="0.5"  />
 
           <node name="multiplayer_but_text">
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Multiplayer</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/menu_multiplayer</text>
             <transform pos="0.5r" anchor="0.5" size="1"  />
           </node>
         </node>
@@ -169,7 +100,7 @@
 		  <transform pos_x="0.5r" pos_y="0.3r" anchor_x="0.5" />
 		  
 		  <node name="map_text">
-            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Maps:</text>
+            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">@string/menu_maps</text>
             <transform pos="0.1r" size="1"   />
           </node>
 		  <node name="maps_list">
@@ -204,7 +135,7 @@
           <transform pos_x="50gr" pos_y="42gr" anchor="0.5"  />
 
           <node name="play_but_text">
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">PLAY</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/menu_play</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>
@@ -242,7 +173,7 @@
 		<node name="board_1" img="menu_selectboard.png" >
 		  <transform pos_x="0.25r" pos_y="0.3r" anchor_x="0.5" />
 		  <node>
-            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Hosts:</text>
+            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">@string/menu_hosts</text>
             <transform pos="0.1r" size="1"   />
           </node>
 		  
@@ -256,7 +187,7 @@
 		  <transform pos_x="0.5r" pos_y="0.3r" anchor_x="0.5" />
 		  
 		  <node name="map_text">
-            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">Maps:</text>
+            <text font="MotionControl-Bold.otf" size="35" color="0xFFFFFF">@string/menu_maps</text>
             <transform pos="0.1r" size="1"   />
           </node>
 		  <node name="maps_list">
@@ -290,7 +221,7 @@
 		   <state>DISABLED</state>
           <transform pos_x="20gr" pos_y="42gr" anchor_x="0" anchor_y="0.5"  />
           <node>
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">CONNECT</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/menu_connect</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>
@@ -298,7 +229,7 @@
 		  <state>DISABLED</state>
           <transform pos_x="80gr" pos_y="42gr" anchor_x="1" anchor_y="0.5" />
           <node>
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">HOST</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/menu_host</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>
@@ -320,7 +251,7 @@
         <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
 		<behavior type="HostInit" />
 		<node name="host_status">
-		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Listening...</text>
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">@string/menu_listening</text>
            <transform pos="0.5r" anchor="0.5r" size="1"   />
 		</node>
       </node>
@@ -341,7 +272,7 @@
 		</node>
 		
 		<node name="loading_text">
-		  <text font="MotionControl-Bold.otf" size="60" color="0xFFFFFF">Loading...</text>
+		  <text font="MotionControl-Bold.otf" size="60" color="0xFFFFFF">@string/menu_loading</text>
           <transform pos_x="50gr" pos_y="40gr" anchor="0.5" size="1"   />
 		</node>
 	  </node>
@@ -467,7 +398,7 @@
 		    </node>
 		    <node name="command_build_text">
               <transform pos_x="0.3r" pos_y="0.15r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Build</text>
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">@string/game_build</text>
             </node>
 		  </node>
 		  
@@ -481,7 +412,7 @@
 		    </node>
 		    <node>
               <transform pos_x="0.7r" pos_y="0.15r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Destroy</text>
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">@string/game_destroy</text>
             </node>
 		  </node>
 		  
@@ -495,7 +426,7 @@
 		    </node>
 		    <node>
               <transform pos_x="0.5r" pos_y="0.5r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Forbid</text>
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">@string/game_forbid</text>
             </node>
 		  </node>
 		</node>
@@ -513,7 +444,7 @@
 		    </node>
 		    <node name="command_attract_text">
               <transform pos_x="0.5r" pos_y="0.4r" anchor="0.5"  />
-		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">Attractor</text>
+		      <text font="MotionControl-Bold.otf" size="50" color="0xFFFFFF">@string/game_attractor</text>
             </node>
 		  </node>
 		</node>
@@ -571,21 +502,21 @@
 		 
         <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
 		<node name="msg">
-		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Do you really want to exit the game?</text>
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">@string/game_end_confirm</text>
            <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />
 		</node>
 		
 		<node name="yes_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
 		  <transform pos_x="0.3r" pos_y="0.8r" anchor="0.5"  />
           <node>
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Yes</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/game_yes</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>
 		<node name="no_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
 		  <transform pos_x="0.7r" pos_y="0.8r" anchor="0.5"  />
           <node>
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">No</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/game_no</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>
@@ -606,13 +537,13 @@
 		 
         <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
 		<node name="gameend_msg">
-		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">You have lost the game!</text>
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">@string/game_lost_msg</text>
            <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />
 		</node>
 		<node name="ok_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
 		  <transform pos_x="0.5r" pos_y="0.8r" anchor="0.5"  />
           <node>
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Exit</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/game_exit</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>
@@ -632,17 +563,16 @@
 	    <behavior type="ReconnectDialog" />
         <transform pos="0.5r" z_index="2" anchor="0.5" width="40gr" />
 		<node>
-		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">Connection lost! Reconnecting...</text>
+		   <text font="MotionControl-Bold.otf" size="70" color="0xFFFFFF">@string/game_reconnecting</text>
            <transform pos_x="0.5r" pos_y="0.35r" anchor="0.5" size="1"   />
 		</node>
 		<node name="disconnect_but" img="button_small.png" img_click="button_small_click.png" img_disabled="button_small_disabled.png">
 		  <transform pos_x="0.5r" pos_y="0.8r" anchor="0.5"  />
           <node>
-            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">Disconnect</text>
+            <text font="MotionControl-Bold.otf" size="62" color="0xFFFFFF">@string/game_disconnect</text>
             <transform pos="0.5r" anchor="0.5r" size="1"   />
           </node>
         </node>
       </node>
 	</scene>
-  </scenes>
-</app_config>
+</resources>
