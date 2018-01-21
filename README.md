@@ -1,13 +1,12 @@
 Hydroq
 ===================
 
-## Hydroq
+![logo](Docs/hydroq.png)
 
 Hydroq is a realtime strategy game, created for demonstrating functionalities of [ofxCogEngine](https://github.com/dormantor/ofxCogEngine), an OpenFrameworks addon.
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=rR0EVaTRK8E
-" target="_blank"><img src="http://img.youtube.com/vi/rR0EVaTRK8E/0.jpg" 
-alt="Gameplay" width="800" height="482" border="10" /></a>
+" target="_blank">Watch Gameplay</a>
 
 
 ## Features
